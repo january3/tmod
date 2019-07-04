@@ -1,0 +1,77 @@
+Version 0.40, 28.11.2018
+ * Added tmodGeneSetTest
+ * Updated users manual
+
+Version 0.39, 18.09.2018
+ * Added tmodPLAGEtest
+
+Version 0.38, 28.03.2018:
+  * corrected several bugs (including problems with painting labels)
+  * moved most of the vignette to the user guide, which can be displayed
+    with tmodUserGuide()
+
+Version 0.37, 9.03.2018:
+  * added functions eigengene, modcors and modjaccard
+
+Version 0.36, 09.03.2018:
+  * corrected notorious problems with CRAN
+  * please CRAN have mercy
+  * I will sacrifice a virtual goat before submitting
+  * changed parameter "order.by" to "sort.by" in tmodLimmaTest
+  * added function pcaplot; tmod no longer depends on pca3d due to
+    notorious problems with installing rgl on students Mac computers
+  * limma examples now wrapped in if(require(limma))...
+
+Version 0.35 
+ * corrected a bug in behavior of filter.rows.auc
+
+Version 0.34, 10.08.2017:
+  * added filter.rows.auc option
+
+Version 0.32:
+  * Added tmodZtest and tmodWZtest
+  * Modified gene.labels option for evidencePlot
+
+Version 0.31:
+  * Use of the plotwidgets package for pvalEffectPlot (rug, boxpie and pie options)
+
+Version 0.30:
+  * Apparently, knitr cache got packed in the package itself, blowing up
+    its size ten fold.
+
+Version 0.29:
+  * A last minute bugfix
+
+Version 0.28:
+  * Added simpleBoxpie - rectangular plots that are thought better to
+    visualize areas than regular pie charts
+  * added a few palette functions from my personal repertoire
+
+
+Version 0.27:
+  * Introduced metabolic modules and created a vignette section for a case
+    study in metabolomic
+  * changed the return object of tmodPCA()
+  * added the "extra" parameter to showModule(); showModule() can take a
+    data frame or a vector now
+  * added "row.labels.style" parameter to tmodPanelPlot()
+
+
+Version 0.25:
+  * corrected the malfunctioning testthat test. I HATE TESTTHAT. (Also, I
+    read it as "test t hat" - and wonder about estimates and Student's t)
+
+
+Version 0.24:
+  * msigDB is broken, it no longer has unique identifiers in the global XML
+    file. I corrected the import function to make sure identifiers are
+    unique.
+  * pvalEffectPlot was expecting log10(p-values) rather than p-values. This
+    has been taken care of.
+  * evidencePlot can now generate GSEA-style curves (with the "style"
+    option)
+
+Version 0.22:
+
+  * added Cohen's d estimate and t statistic to tmodLimmaTopTable()
+  * rewrote evidencePlot: it is now much more flexible

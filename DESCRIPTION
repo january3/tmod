@@ -1,0 +1,22 @@
+Package: tmod
+Type: Package
+Title: Feature Set Enrichment Analysis for Metabolomics and Transcriptomics
+Version: 0.41
+Date: 2019-05-29
+Author: January Weiner
+Maintainer: January Weiner <january.weiner@gmail.com>
+Description: Methods and feature set definitions for feature or gene set
+  enrichment analysis in transcriptional and metabolic profiling data.
+  Package includes tests for enrichment based on ranked lists of features,
+  functions for visualisation and multivariate functional analysis.
+License: GPL (>=2.0)
+Depends: R (>= 2.10)
+LazyData: false
+VignetteBuilder: knitr
+URL: http://bioinfo.mpiib-berlin.mpg.de/tmod/
+Imports:
+    beeswarm,tagcloud,XML,methods,plotwidgets
+Suggests:
+    testthat,knitr,rmarkdown,pca3d,limma
+RoxygenNote: 6.1.1
+Encoding: UTF-8

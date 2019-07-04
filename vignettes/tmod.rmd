@@ -1,0 +1,255 @@
+---
+title: "tmod: Quickstart guide"
+author: "January Weiner"
+date: "`r Sys.Date()`"
+output: pdf_document
+fontsize: 12pt
+vignette: >
+  %\VignetteIndexEntry{Transcriptional Modules Enrichment Analysis}
+  %\VignetteKeyword{tmod}
+  %\VignetteKeyword{transcription}
+  %\VignetteKeyword{gene expression}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\SweaveUTF8
+  \usepackage[utf8](inputenc)
+abstract: |
+  The package `tmod` provides blood transcriptional modules described
+  by Chaussabel et al. [-@chaussabel2008modular] and by Li et al.
+  [-@li2014molecular] as well as metabolic profiling clusters from Weiner
+  et al. [-@weiner2012biomarkers]. Furthermore, the package includes tools for testing
+  the significance of enrichment of the modules as well as visualisation of
+  the features (genes, metabolites etc.) and modules. This vignette is a
+  quick start guide for the package.
+
+  For a more detailed manual, type "tmodUserGuide()" 
+toc: no
+bibliography: bibliography.bib
+---
+
+```{r setup, echo=FALSE, results="hide", include=FALSE}
+library(knitr)
+opts_chunk$set(cache=FALSE, autodep=TRUE, tidy=FALSE, fig.width=5, warning=FALSE, fig.height=5)
+opts_knit$set(width=75)
+```
+
+This is a quick start guide. For a detailed manual, find the file
+"tmodUserGuide.pdf" in tmod documentation, or use the R command
+tmodUserGuide() to display the PDF file.
+
+
+Basic data analysis
+===================
+
+Loading an example data set
+---------------------------
+
+The following example shows a basic gene expression analysis and gene set
+enrichment analysis on the example expression data set included in tmod.
+The example is discussed in more detail in the tmod User Guide.
+
+```{r twoA, size="Huge"}
+library(limma)
+library(tmod)
+data(Egambia)
+design <- cbind(Intercept=rep(1, 30), TB=rep(c(0,1), each= 15))
+E <- as.matrix(Egambia[,-c(1:3)])
+fit <- eBayes( lmFit(E, design))
+tt <- topTable(fit, coef=2, number=Inf, 
+  genelist=Egambia[,1:3] )
+```
+
+
+Transcriptional module enrichment analysis analysis
+---------------------------------------------------
+
+#### Hypergeometric test
+
+```{r mod1}
+fg <- tt$GENE_SYMBOL[tt$adj.P.Val < 0.05 & abs( tt$logFC ) > 1]
+res <- tmodHGtest(fg=fg, bg=tt$GENE_SYMBOL)
+res
+```
+
+The columns in the above table contain the following:
+
+ * **ID** The module ID. IDs starting with "LI" come from Li et al.
+[@li2014molecular], while IDs starting with "DC" have been defined by
+Chaussabel et al. [@chaussabel2008modular].
+ * **Title** The module description
+ * **b** Number of genes from the given module in the fg set 
+ * **B** Number of genes from the module in the bg set
+ * **n** Size of the fg set
+ * **N** Size of the bg set
+ * **E** Enrichment, calcualted as (b/n)/(B/N)
+ * **P.Value** P-value from the hypergeometric test
+ * **adj.P.Val** P-value adjusted for multiple testing using the
+Benjamini-Hochberg correction
+
+#### Mann-Whitney U test on an ordered list of genes
+
+```{r mod2}
+l    <- tt$GENE_SYMBOL
+res2 <- tmodUtest(l)
+head(res2)
+nrow(res2)
+```
+
+The b, B, n, N and E columns in the output have
+been replaced by the following:
+
+ * **U** The Mann-Whitney U statistics
+ * **N1** Number of genes in the module
+ * **AUC** Area under curve -- a measure of the effect size
+
+#### CERNO test - a variant of Fisher's method for combining probabilities
+
+The CERNO test is actually much more practical than the U test for most
+purposes.
+
+
+```{r fourB}
+l    <- tt$GENE_SYMBOL
+res2 <- tmodCERNOtest(l)
+head( res2 )
+```
+
+#### Generating an evidence plot
+
+```{r five,fig=TRUE,fig.width=7,fig.height=4}
+evidencePlot(l, "LI.M75")
+```
+
+Working with multiple sets of comparisons
+==============================================================
+
+
+
+Working with limma
+--------------------------------------------------------
+
+Generating a set of results from limma:
+
+```{r limma1}
+res.l <- tmodLimmaTest(fit, Egambia$GENE_SYMBOL)
+length(res.l)
+names(res.l)
+head(res.l$TB)
+```
+
+
+Comparing tests across experimental conditions
+--------------------------------------------------------
+
+Generate a summary object from a list containing tmod results:
+
+```{r pplot0}
+head(tmodSummary(res.l), 5)
+```
+
+Show a list of tmod results in a heatmap-like visualization which indicates
+effect sizes as well as p-values:
+
+```{r pplot1,fig=TRUE,fig.width=6,fig.height=8}
+tmodPanelPlot(res.l, text.cex=0.8)
+```
+
+Include information about which genes are up- and which are down-regulated:
+
+```{r pplot3,fig=TRUE,fig.width=5,fig.height=6}
+pie <- tmodLimmaDecideTests(fit, genes=Egambia$GENE_SYMBOL)
+tmodPanelPlot(res.l, pie=pie, text.cex=0.8, pie.style="rug")
+```
+
+Using `tmodDecideTests` for the same purpose:
+
+```{r pplot5}
+tt.I <- 
+  topTable(fit, coef="Intercept", number=Inf, sort.by="n")
+tt.TB <- topTable(fit, coef="TB", number=Inf, sort.by="n")
+pie2 <- tmodDecideTests(Egambia$GENE_SYMBOL,
+  lfc=cbind(tt.I$logFC, tt.TB$logFC),
+  pval=cbind(tt.I$adj.P.Val, tt.TB$adj.P.Val))
+identical(pie[[1]], pie2[[1]])
+```
+
+
+
+Using and creating custom sets of modules
+==============================================================
+
+
+A minimal definition of a module set:
+
+```{r exmset}
+mymset <- makeTmod(
+  modules=data.frame(ID=c("A", "B"),
+             Title=c("A title", 
+                      "B title")),
+  modules2genes=list(
+    A=c("G1", "G2"),
+    B=c("G3", "G4"))
+)
+mymset
+```
+
+MSigDB
+--------------------------------------------------------
+
+Download the MSigDB in XML
+format. This
+file can be accessed at the URL
+http://software.broadinstitute.org/gsea/msigdb/download_file.jsp?filePath=/resources/msigdb/6.1/msigdb_v6.1.xml
+-- follow the link, register and log in, and save the file on your disk (roughly 113 MB).
+
+
+```{r msigdbparse1,eval=FALSE}
+msig <- tmodImportMSigDB("msigdb_v6.1.xml")
+```
+
+    ##   8430 modules, 32233 genes
+
+
+Using only Hallmark (H) gene sets from MSigDB :
+
+
+```{r msigdb7,eval=FALSE}
+sel <- msig$MODULES$Category == "H"
+tmodCERNOtest(tt$GENE_SYMBOL, mset=msig[sel] )
+```
+
+
+    ##          ID                                      Title
+    ## M5913 M5913         Hallmark interferon gamma response
+    ## M5921 M5921                        Hallmark complement
+    ## M5911 M5911         Hallmark interferon alpha response
+    ## M5946 M5946                       Hallmark coagulation
+    ## M5890 M5890           Hallmark tnfa signaling via nfkb
+    ## M5930 M5930 Hallmark epithelial mesenchymal transition
+    ## M5932 M5932             Hallmark inflammatory response
+    ## M5953 M5953                 Hallmark kras signaling up
+    ## M5892 M5892           Hallmark cholesterol homeostasis
+    ##           cerno N1       AUC      cES      P.Value
+    ## M5913 221.68317 41 0.7786936 2.703453 8.505170e-15
+    ## M5921 217.81028 56 0.6979148 1.944735 8.607634e-09
+    ## M5911 108.39559 20 0.7563566 2.709890 3.192325e-08
+    ## M5946 179.24580 50 0.6779481 1.792458 1.966824e-06
+    ## M5890 148.95123 47 0.6484665 1.584588 2.657694e-04
+    ## M5930 212.53461 73 0.6371808 1.455717 2.701053e-04
+    ## M5932 184.53035 62 0.6206393 1.488148 3.457724e-04
+    ## M5953 221.76208 82 0.6046637 1.352208 1.790956e-03
+    ## M5892  49.14641 14 0.6138968 1.755229 8.040562e-03
+    ##          adj.P.Val
+    ## M5913 4.252585e-13
+    ## M5921 2.151909e-07
+    ## M5911 5.320542e-07
+    ## M5946 2.458530e-05
+    ## M5890 2.250878e-03
+    ## M5930 2.250878e-03
+    ## M5932 2.469803e-03
+    ## M5953 1.119347e-02
+    ## M5892 4.466979e-02
+
+
+
+References
+================
