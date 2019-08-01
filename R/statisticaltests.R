@@ -743,36 +743,31 @@ tmodDecideTests <- function(g, lfc=NULL, pval=NULL, lfc.thr=0.5, pval.thr=0.05,
     stop("Length of labels must be equal to ncol(lfc) and ncol(pval)")
   }
 
-  signif <- sapply(1:nc, function(i) pval[,i] < pval.thr[i] & abs(lfc[,i]) > lfc.thr[i])
+  lfc.a <- abs(lfc)
 
-  # signif <- pval < pval.thr & abs(lfc) > lfc.thr
-  signif[signif] <- 1
-  signif <- signif * sign(lfc)
+  signif.up   <- sapply(1:nc, function(i) pval[,i] < pval.thr[i] & lfc[,i] > lfc.thr[i])
+  signif.down <- sapply(1:nc, function(i) pval[,i] < pval.thr[i] & lfc[,i] < -lfc.thr[i])
 
   # set up the function for counting 
   count.m <- function(m) {
     sel  <- which(g %in% mset$MODULES2GENES[[m]])
-    up   <- apply(signif, 2, function(x) sum(x[sel] > 0))
-    down <- apply(signif, 2, function(x) sum(x[sel] < 0))
+      up   <- colSums(signif.up[sel,,drop=F  ])
+      down <- colSums(signif.down[sel,,drop=F ])
 
     N <- length(sel)
-    return(list(up=up, down=down, N=N))
+    return(cbind(up=up, down=down, N=N - (up + down)))
   }
 
   res  <- lapply(mset$MODULES$ID, count.m)
   nmod <- length(res)
+  res <- simplify2array(res)
 
-  # analyse the results
-  up      <- matrix(t(sapply(res, function(x) x$up)), nrow=nmod, byrow=F)
-  down    <- matrix(t(sapply(res, function(x) x$down)), nrow=nmod, byrow=F)
-  nothing <- matrix(t(sapply(res, function(x) x$N - (x$up + x$down) )), nrow=nmod, byrow=F)
+  ret <- lapply(1:nc, function(i) { .x <- t(res[i,,]) ; rownames(.x) <- mset$MODULES$ID ; .x })
 
-  # construct the return list
-  ret <- lapply(1:nc, function(c) { 
-    df <- data.frame(Down=down[,c], Zero=nothing[,c], Up=up[,c])
-    rownames(df) <- mset$MODULES$ID
-    df
-  })
   names(ret) <- labels
   return(ret)
 }
+
+
+
+
