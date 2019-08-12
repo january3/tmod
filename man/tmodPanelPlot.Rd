@@ -4,7 +4,7 @@
 \alias{tmodPanelPlot}
 \title{Plot a summary of multiple tmod analyses}
 \usage{
-tmodPanelPlot(x, pie = NULL, clust = "qval",
+tmodPanelPlot(x, pie = NULL, clust = "qval", select = NULL,
   filter.empty.cols = FALSE, filter.empty.rows = TRUE,
   filter.unknown = TRUE, filter.rows.pval = 0.05,
   filter.rows.auc = 0.5, filter.by.id = NULL, col.labels = NULL,
@@ -23,6 +23,9 @@ tmodPanelPlot(x, pie = NULL, clust = "qval",
 ordered by clustering them with either q-values ("qval") or the effect size
 ("effect"). If "sort" or NULL, the modules are sorted alphabetically by their ID.
 If "keep", then the order of the modules is kept.}
+
+\item{select}{a character vector of module IDs to show. If clust == "keep", then in that particular
+order.}
 
 \item{filter.empty.cols}{If TRUE, all elements (columns) with no enrichment below pval.thr in any row will be removed}
 

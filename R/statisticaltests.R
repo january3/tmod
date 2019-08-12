@@ -755,7 +755,7 @@ tmodDecideTests <- function(g, lfc=NULL, pval=NULL, lfc.thr=0.5, pval.thr=0.05,
       down <- colSums(signif.down[sel,,drop=F ])
 
     N <- length(sel)
-    return(cbind(up=up, down=down, N=N - (up + down)))
+    return(cbind(down=down, N=N - (up + down), up=up))
   }
 
   res  <- lapply(mset$MODULES$ID, count.m)

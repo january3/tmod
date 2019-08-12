@@ -5,7 +5,7 @@
 \title{Create a summary of multiple tmod analyses}
 \usage{
 tmodSummary(x, clust = NULL, filter.empty = FALSE,
-  filter.unknown = TRUE)
+  filter.unknown = TRUE, select = NULL)
 }
 \arguments{
 \item{x}{list, in which each element has been generated with a tmod test function}
@@ -18,6 +18,9 @@ If "keep", then the order of the modules is kept.}
 \item{filter.empty}{If TRUE, all elements (columns) with no significant enrichment will be removed}
 
 \item{filter.unknown}{If TRUE, modules with no annotation will be omitted}
+
+\item{select}{a character vector of module IDs to show. If clust == "keep", then in that particular
+order.}
 }
 \value{
 a data frame with a line for each module encountered anywhere in
