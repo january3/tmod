@@ -274,6 +274,7 @@ tmodSummary <- function(x, clust=NULL, filter.empty=FALSE, filter.unknown=TRUE,
 #' @param legend.style Style of the legend: "auto" -- automatic; "broad":
 #' pval legend side by side with effect size legend; "tall": effect size
 #' legend above pval legend; "none" -- no legend.
+#' @param min.e,max.e scale limits for the effect size
 #' @import grDevices
 #' @import graphics
 #' @import plotwidgets
@@ -285,7 +286,8 @@ pvalEffectPlot <- function(e, p,
   grid="at", grid.color="#33333333",
   plot.cex=1, text.cex=1, 
   col.labels.style="top",
-  legend.style="auto")  {
+  legend.style="auto",
+  min.e=NULL,max.e=NULL)  {
 
    
   # ---------------------------------------
@@ -301,8 +303,8 @@ pvalEffectPlot <- function(e, p,
   min.p <- -log10(pval.thr)
   max.p <- -log10(pval.cutoff)
 
-  min.e <- min(me)
-  max.e <- max(me)
+  if(is.null(min.e)) { min.e <- min(me) }
+  if(is.null(max.e)) { max.e <- max(me) }
 
   if(is.null(row.labels) || length(row.labels) != Nr) row.labels <- 1:Nr
   if(is.null(col.labels) || length(col.labels) != Nc) col.labels <- 1:Nc
@@ -322,7 +324,7 @@ pvalEffectPlot <- function(e, p,
     }
   }
 
-  legend.ysize <- switch(legend.style, broad=1, tall=2, none=0)
+  legend.ysize <- switch(legend.style, broad=1, tall=2, none=.2)
 
 
   # ---------------------------------------
@@ -338,10 +340,6 @@ pvalEffectPlot <- function(e, p,
   line.h <- max(strheight(row.labels, cex=text.cex[1]))
   legend.l.h <- strheight("PpJk", cex=text.cex[3])
 
-
-  # maximum row text width
-  rownwd <- max(strwidth(row.labels, cex=text.cex[1])) * 1.1
-
   pp <- par("pin")
 
   # maximum height of the text in the top row
@@ -350,11 +348,15 @@ pvalEffectPlot <- function(e, p,
   colnwd <- max(strheight(col.labels, cex=text.cex[2])) * pp[2] / pp[1]
 
   #print(sprintf("rownwd=%.2f colnwd=%.2f\n", rownwd, colnwd))
+
+  # maximum row text width ("row name width = rownwd")
+  rownwd <- max(strwidth(row.labels, cex=text.cex[1])) * 1.1
   if(rownwd > 1) 
     warning("Figure too narrow, text will not fit in; use smaller text.cex")
 
   col.w <- 1/(Nc) *(1-rownwd-colnwd)
   if(col.w < colnwd) warning( "Figure too narrow, the labels will overlap.\nConsider using smaller text.cex" )
+  message(sprintf("rownwd=%.2f, col.w=%.2f, colnwd=%.2f\n", rownwd, col.w, colnwd))
 
   n.cn <- switch(col.labels.style, top=1, bottom=1, both=2, none=0)
   col.lab.space <- 1 - n.cn * (line.h + colnht)
@@ -365,9 +367,9 @@ pvalEffectPlot <- function(e, p,
   if(row.h < line.h) warning( "Figure too short, the labels will overlap.\nConsider using smaller text.cex" )
 
   # columns tend to get too wide if there are too few
-  if(col.w > 3 * row.h * pp[2] / pp[1]) {
-    col.w <- 3 * row.h * pp[2] / pp[1]
-  }
+  # if(col.w > 3 * row.h * pp[2] / pp[1]) {
+  #   col.w <- 3 * row.h * pp[2] / pp[1]
+  # }
 
   # reserve space at the bottom
   bottom.h <- (legend.l.h * 5 + row.h) * legend.ysize
@@ -378,6 +380,11 @@ pvalEffectPlot <- function(e, p,
 
   x.vec <- rownwd + colnwd + ((1:Nc) - 0.5) * col.w
   y.vec <- bottom.h + ((1:Nr) - 0.5) * row.h 
+  #abline(h=y.vec[1])
+  #abline(h=bottom.h, col="red")
+
+  message(sprintf("bottom.h=%.3f, y.vec[1]=%.3f", bottom.h, y.vec[1]))
+
 
   # setup the internal drawing function
   .draw.test <- function(row, col, xc, yc, ev, mq, color) {
@@ -407,6 +414,7 @@ pvalEffectPlot <- function(e, p,
     text( x.vec, coln.y.pos, col.labels, srt=90, adj=c(1, 0.5), cex=text.cex[2])
   }
 
+
   # ---------------------------------------
   # add light grey grid
   .plotGrid(grid, x.vec, y.vec, row.h, col.w, grid.col=grid.color)
@@ -424,15 +432,16 @@ pvalEffectPlot <- function(e, p,
   palfunc <- .getColFunc(pmin2, max(mq), "red")
   col <- palfunc(mq)
 
-  dme <- max(me) - min(me)
+  dme <- max.e - min.e
   if(dme == 0) dme <- 1
-  ev  <- (me - min(me))/dme
+  ev  <- (me - min.e)/dme
 
   xc <- x.vec[col(me)]
   yc <- rev(y.vec)[row(me)]
   
   .draw.test(row(me)[signif], col(me)[signif], xc[signif], yc[signif], ev[signif], mq[signif], col[signif])
 
+  lines(c(x.vec[1], x.vec[2]), rep(y.vec[1], 2), col="red", lwd=2)
 
   # ---------------------------------------
   # add a legend
@@ -511,6 +520,7 @@ pvalEffectPlot <- function(e, p,
 #' @param legend.style Style of the legend: "auto" -- automatic; "broad":
 #' pval legend side by side with effect size legend; "tall": effect size
 #' legend above pval legend
+#' @param min.e,max.e scale limits for the effect size (default: 0.5 and 1.0)
 #' @param ... Any further arguments will be passed to the pvalEffectPlot function (for example, grid.color)
 #' @return a data frame with a line for each module encountered anywhere in
 #' the list x, two columns describing the module (ID and module title), and
@@ -547,6 +557,7 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
   pie.colors=c("#0000FF", "#cccccc", "#FF0000" ),
   plot.cex=1, text.cex=1, 
   pie.style="rug", 
+  min.e=.5, max.e=1,
   legend.style="auto", ... ) {
 
   x <- .xcheck(x)
@@ -647,6 +658,7 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
     row.labels=row.labels, col.labels=col.labels, pval.thr=pval.thr,
     grid=grid, plot.cex=plot.cex, text.cex=text.cex, 
     plot.func=plot.func, legend.style=legend.style, col.labels.style=col.labels.style,
+    min.e=min.e, max.e=max.e,
     ...)
   return(invisible(df))
 }
