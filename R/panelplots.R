@@ -1,5 +1,5 @@
 ## adds a grid behind the picture
-.plotGrid <- function(grid, x.vec, y.vec, row.h, col.w, grid.col="#33333333" ) {
+.plotGrid <- function(grid, x.vec, y.vec, row.h, col.w, grid.col="#33333333", scale.min=NULL, scale.max=NULL, text.cex=1) {
 
   if(grid == "none") return ;
 
@@ -13,18 +13,39 @@
              x.vec[Nc] + col.w/2, y.vec, col=grid.col )
   }
 
-  if(grid == "between") {
+  if(grid == "between" || grid == "scale") {
     x.vec <- x.vec - col.w / 2
-    x.vec <- c(x.vec, x.vec[Nc] + col.w)
+    x.vec2 <- c(x.vec, x.vec[Nc] + col.w)
 
     y.vec <- y.vec - row.h/2
-    y.vec <- c(y.vec, y.vec[Nr] + row.h)
+    y.vec2 <- c(y.vec, y.vec[Nr] + row.h)
 
-    segments(x.vec, y.vec[1], 
-             x.vec, y.vec[Nr+1], col=grid.col )
-    segments(x.vec[1], y.vec,
-             x.vec[Nc+1], y.vec, col=grid.col )
+    segments(x.vec2, y.vec2[1], 
+             x.vec2, y.vec2[Nr+1], col=grid.col )
+    segments(x.vec2[1], y.vec2,
+             x.vec2[Nc+1], y.vec2, col=grid.col )
 
+  }
+
+
+  if(grid == "scale" && !(is.null(scale.min) || is.null(scale.max))) {
+    ticks <- axisTicks(c(scale.min, scale.max), log=F)
+    tick.height <- row.h / 5
+    n.t <- length(ticks)
+
+    x.vec3 <- rep(x.vec, each=n.t) + rep(0:(n.t-1), length(x.vec)) * col.w / (n.t - 1)
+    segments(x.vec3, y.vec2[1], x.vec3, y.vec2[Nr + 1], col="#33333333" )
+
+    segments(x.vec2, y.vec2[1], x.vec2, y.vec2[Nr+1], col="#333333cc" )
+    segments(x.vec2[1], y.vec2, x.vec2[Nc+1], y.vec2, col="#333333cc" )
+    
+    labs <- as.character(c(scale.min, scale.max))
+    sw <- strwidth(labs, cex=text.cex)
+    for(i in 1:Nc) {
+      text(c(x.vec[i] + sw[1]/2, x.vec[i] + col.w - sw[2]/2), y.vec[1] - tick.height, labs, pos=1, cex=text.cex, col="#333333cc")
+    }
+    
+    segments(x.vec3, y.vec[1], x.vec3, y.vec[1] - tick.height, col="#333333cc")
   }
 }
 
@@ -292,7 +313,7 @@ pvalEffectPlot <- function(e, p,
    
   # ---------------------------------------
   # initializations
-  grid <- match.arg(grid, c("none", "at", "between"))
+  grid <- match.arg(grid, c("none", "at", "between", "scale"))
 
   me <- e ; mq <- -log10(p)
 
@@ -417,7 +438,7 @@ pvalEffectPlot <- function(e, p,
 
   # ---------------------------------------
   # add light grey grid
-  .plotGrid(grid, x.vec, y.vec, row.h, col.w, grid.col=grid.color)
+  .plotGrid(grid, x.vec, y.vec, row.h, col.w, grid.col=grid.color, scale.max=max.e, scale.min=min.e, text.cex=text.cex[1])
 
   # ---------------------------------------
   # plot the test results
