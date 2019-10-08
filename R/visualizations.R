@@ -52,7 +52,6 @@
 #' By default, either all colors are returned, or, if it is a gradient
 #' palette, only three.
 #'
-#' Yes, I wrote this function to save myself the slightest amount of typing.
 #' @param n Number of colors to return (default: all for "friendly", 3 for everything else)
 #' @param set Which palette set (see Details).
 #' @param alpha 0 for maximum transparency, 1 for no transparency.
@@ -268,6 +267,8 @@ hgEnrichmentPlot <- function(fg, bg, m, mset="all", ...) {
 #' @param unique if TRUE, duplicates will be removed
 #' @param add if TRUE, the plot will be added to the existing plot
 #' @param gene.labels if TRUE, gene names are shown; alternatively, a named character vector with gene labels to be shown, or NULL (default) for no labels (option evaluated only if rug is plotted)
+#' @param gene.colors NULL (default) or a character vectors indicating the color for each gene. Either a named vector or a vector with the same order of genes as `l`.
+#' @param gene.lines a number or a vector of numbers; line width for marking the genes on the rug (default=1). If the vector is named, the names should be gene ids.
 #' @param gl.cex Text cex (magnification) for gene labels
 #' @param style "roc" for receiver-operator characteristic curve (default), and "gsea" for GSEA-style (Kaplan-Meier like plot)
 #' @param col a character vector color to be used
@@ -291,7 +292,10 @@ hgEnrichmentPlot <- function(fg, bg, m, mset="all", ...) {
 evidencePlot <- function(l, m, mset="all", scaled= TRUE, rug=TRUE, roc=TRUE,
   filter= FALSE, unique=TRUE, add= FALSE, col="black", 
   col.rug="#eeeeee",
-  gene.labels=NULL, gl.cex=1,
+  gene.labels=NULL, 
+  gene.colors=NULL,
+  gene.lines=1,
+  gl.cex=1,
   style="roc",
   lwd=1, lty=1, rug.size=0.2,
   legend=NULL, ...) {
@@ -309,8 +313,36 @@ evidencePlot <- function(l, m, mset="all", scaled= TRUE, rug=TRUE, roc=TRUE,
   mset <- .getmodules2(NULL, mset)
 
   if(! all(m %in% names(mset$MODULES2GENES))) stop("No such module")
-  if(filter) l <- l[ l %in% mset$GENES$ID ]
-  if(unique) l <- unique(l)
+
+  #if(filter) l <- l[ l %in% mset$GENES$ID ]
+  keep <- rep(TRUE, length(l))
+  if(filter) keep[ ! l %in% mset$GENES$ID ] <- FALSE
+  #if(unique) l <- unique(l)
+  if(unique) keep[ duplicated(l) ] <- FALSE
+  l <- l[ keep ]
+
+  # gene colors
+  if(!is.null(gene.colors)) {
+    if(is.null(names(gene.colors))) {
+      gene.colors <- gene.colors[ keep ]
+      stopifnot(length(gene.colors) == length(l))
+      names(gene.colors) <- l
+    }
+  }
+
+  # gene line widths
+
+  if(is.null(names(gene.lines))) {
+    if(length(gene.lines) == 1) {
+      gene.lines <- rep(gene.lines, length(l))
+      names(gene.lines) <- l
+    } else if(length(gene.lines) != length(keep)) {
+      stop("if gene.lines is shorter than l, then it must be named")
+    }
+    gene.lines <- gene.lines[keep]
+    names(gene.lines) <- l
+  }
+
 
   n <- length(l)
   Nm <- length(m)
@@ -392,8 +424,20 @@ evidencePlot <- function(l, m, mset="all", scaled= TRUE, rug=TRUE, roc=TRUE,
 
     # draw each individual rug
     for(i in 1:Nm) {
-      w <- which(x[,i])
-      segments(w, step * i, w, step * (i-0.8), col= col[i], lty=lty[i], lwd=lwd[i])
+      w <- which(x[,i]) # which genes to show for module m[i]
+      gi <- l[w] # gene ids to show
+      print(gi)
+
+      if(is.null(gene.colors)) {
+        cols <- col[i]
+      } else {
+        cols <- ifelse(is.na(gene.colors[gi]), col[i], gene.colors[gi])
+      }
+
+      lwds <- ifelse(is.na(gene.lines[gi]), lwd[i], gene.lines[gi])
+
+      print(cols)
+      segments(w, step * i, w, step * (i-0.8), col= cols, lty=lty[i], lwd=lwds)
     }
 
     # add gene labels
@@ -402,7 +446,17 @@ evidencePlot <- function(l, m, mset="all", scaled= TRUE, rug=TRUE, roc=TRUE,
       lw <- grconvertX( c(0, lw), from="i", to="u")
       lw <- lw[2] - lw[1]
       lpos <- lw * 1.5 * (1:length(gene.labels))
-      rpos <- match(names(gene.labels), l)
+      gi <- names(gene.labels)
+      rpos <- match(gi, l)
+
+      if(is.null(gene.colors)) {
+        cols <- "black"
+      } else {
+        cols <- ifelse(is.na(gene.colors[gi]), "black", gene.colors[gi])
+      }
+
+      lwds <- ifelse(is.na(gene.lines[gi]), lwd[1], gene.lines[gi])
+
 
       for(i in 1:length(lpos)) {
         if(rpos[i] + lw > lpos[i]) {
@@ -411,9 +465,8 @@ evidencePlot <- function(l, m, mset="all", scaled= TRUE, rug=TRUE, roc=TRUE,
         }
       }
 
-      text(lpos, 0.1, gene.labels, srt=90, pos=4)
-
-      segments(rpos, step * 0.2, lpos + lw/2, 0.08)
+      text(lpos, 0.1, gene.labels, srt=90, pos=4, col=cols)
+      segments(rpos, step * 0.2, lpos + lw/2, 0.08, col=cols, lwd=lwds)
     }
   }
 
