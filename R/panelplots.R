@@ -318,7 +318,7 @@ pvalEffectPlot <- function(e, p,
   me <- e ; mq <- -log10(p)
 
   Nc <- ncol(me) ; Nr <- nrow(me)
-  if(Nc == 0 || Nr == 0) stop("Nothing to plot")
+  if(Nc == 0 || Nr == 0) stop(sprintf("Nothing to plot (%d cols, %d rows)", Nc, Nr))
 
 
   min.p <- -log10(pval.thr)
