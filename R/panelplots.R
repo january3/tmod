@@ -377,7 +377,7 @@ pvalEffectPlot <- function(e, p,
 
   col.w <- 1/(Nc) *(1-rownwd-colnwd)
   if(col.w < colnwd) warning( "Figure too narrow, the labels will overlap.\nConsider using smaller text.cex" )
-  message(sprintf("rownwd=%.2f, col.w=%.2f, colnwd=%.2f\n", rownwd, col.w, colnwd))
+  #message(sprintf("rownwd=%.2f, col.w=%.2f, colnwd=%.2f\n", rownwd, col.w, colnwd))
 
   n.cn <- switch(col.labels.style, top=1, bottom=1, both=2, none=0)
   col.lab.space <- 1 - n.cn * (line.h + colnht)
@@ -404,7 +404,7 @@ pvalEffectPlot <- function(e, p,
   #abline(h=y.vec[1])
   #abline(h=bottom.h, col="red")
 
-  message(sprintf("bottom.h=%.3f, y.vec[1]=%.3f", bottom.h, y.vec[1]))
+  #message(sprintf("bottom.h=%.3f, y.vec[1]=%.3f", bottom.h, y.vec[1]))
 
 
   # setup the internal drawing function
