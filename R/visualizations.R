@@ -426,7 +426,6 @@ evidencePlot <- function(l, m, mset="all", scaled= TRUE, rug=TRUE, roc=TRUE,
     for(i in 1:Nm) {
       w <- which(x[,i]) # which genes to show for module m[i]
       gi <- l[w] # gene ids to show
-      #print(gi)
 
       if(is.null(gene.colors)) {
         cols <- col[i]
@@ -436,7 +435,6 @@ evidencePlot <- function(l, m, mset="all", scaled= TRUE, rug=TRUE, roc=TRUE,
 
       lwds <- ifelse(is.na(gene.lines[gi]), lwd[i], gene.lines[gi])
 
-      #print(cols)
       segments(w, step * i, w, step * (i-0.8), col= cols, lty=lty[i], lwd=lwds)
     }
 
