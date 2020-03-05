@@ -16,6 +16,7 @@
 #' @param tag.col Which column from results should be used as tags on the plot
 #' @param weights.col Which column from results should be used as weights for the tag cloud
 #' @param pval.col Which column contains the P values which will be used to shade the tags
+#' @param maxn Maximum number of gene set enrichment terms shown on the plot (if NULL – default – all terms will be shown)
 #' @param ... Any further parameters are passed to the tagcloud function
 #' @return Either NULL or whatever tagcloud returns
 #' @examples
@@ -25,11 +26,12 @@
 #' result <- tmodHGtest( fg, bg )
 #' tmodTagcloud(result)
 #' @export
-tmodTagcloud <- function( results, filter=TRUE, simplify=TRUE, tag.col="Title", weights.col="auto", pval.col="P.Value", ... ) {
+tmodTagcloud <- function( results, filter=TRUE, simplify=TRUE, tag.col="Title", weights.col="auto", pval.col="P.Value", maxn=NULL, ... ) {
 
   res <- results
 
   if(!is(res, "data.frame")) stop("res must be a data frame")
+  if(!is.null(maxn) && nrow(res) > maxn) res <- res[1:maxn, ] 
 
   if( weights.col == "auto" ) {
     if( "AUC" %in% colnames(res)) {
@@ -112,6 +114,7 @@ tmodTagcloud <- function( results, filter=TRUE, simplify=TRUE, tag.col="Title", 
 #' should be removed from the tag cloud
 #' @param simplify Whether the names of the modules should be simplified
 #' @param legend whether a legend should be shown
+#' @param maxn Maximum number of gene set enrichment terms shown on the plot (if NULL – default – all terms will be shown)
 #' @param plot if FALSE, no plot will be shown, but the enrichments will be calculated and returned invisibly
 #' @param ... Any further parameters passed to the tmod test function
 #' @importFrom tagcloud tagcloud strmultline smoothPalette
@@ -135,6 +138,7 @@ tmodPCA <- function(pca, loadings=NULL, genes,
                      plot.params=NULL,
                      filter=TRUE, simplify=TRUE, 
                      legend=FALSE, 
+                     maxn=NULL,
                      plot=TRUE,
                      ...) {
 
@@ -174,11 +178,11 @@ tmodPCA <- function(pca, loadings=NULL, genes,
   if( mode == "simple" ) {
     ids <- paste0( "Component", cc )
     res <- tfunc( genes[ order( abs( pca$rotation[,cc[1]] ), decreasing=T ) ], ... )
-    if(plot) tmodTagcloud( res, filter=filter, simplify=simplify )
+    if(plot) tmodTagcloud( res, filter=filter, simplify=simplify, maxn=maxn )
     ret$enrichments[[ids[1]]] <- res
 
     res <- tfunc( genes[ order( abs( pca$rotation[,cc[2]] ), decreasing=T ) ], ... )
-    if(plot) tmodTagcloud( res, filter=filter, simplify=simplify, fvert=1 )
+    if(plot) tmodTagcloud( res, filter=filter, simplify=simplify, fvert=1, maxn=maxn)
     ret$enrichments[[ids[2]]] <- res
   } else {
     ids <- paste0( "Component", cc )
@@ -188,19 +192,19 @@ tmodPCA <- function(pca, loadings=NULL, genes,
     if(mode == "cross") fverts <- c( 0, 0, 0, 0 )
     
     res <- tfunc( genes[ order( pca$rotation[,cc[1]], decreasing=F ) ], ... )
-    if(plot) tmodTagcloud( res, filter=filter, simplify=simplify, fvert=fverts[1], algorithm="fill" )
+    if(plot) tmodTagcloud( res, filter=filter, simplify=simplify, fvert=fverts[1], algorithm="fill", maxn=maxn )
     ret$enrichments[[ids[1]]] <- res
 
     res <- tfunc( genes[ order( pca$rotation[,cc[1]], decreasing=T ) ], ... )
-    if(plot) tmodTagcloud( res, filter=filter, simplify=simplify, fvert=fverts[2], algorithm="fill" )
+    if(plot) tmodTagcloud( res, filter=filter, simplify=simplify, fvert=fverts[2], algorithm="fill", maxn=maxn )
     ret$enrichments[[ids[2]]] <- res
 
     res <- tfunc( genes[ order( pca$rotation[,cc[2]], decreasing=F ) ], ... )
-    if(plot) tmodTagcloud( res, filter=filter, simplify=simplify, fvert=fverts[3], algorithm="fill" )
+    if(plot) tmodTagcloud( res, filter=filter, simplify=simplify, fvert=fverts[3], algorithm="fill", maxn=maxn )
     ret$enrichments[[ids[3]]] <- res
 
     res <- tfunc( genes[ order( pca$rotation[,cc[2]], decreasing=T ) ], ... )
-    if(plot) tmodTagcloud( res, filter=filter, simplify=simplify, fvert=fverts[4], algorithm="fill" )
+    if(plot) tmodTagcloud( res, filter=filter, simplify=simplify, fvert=fverts[4], algorithm="fill", maxn=maxn )
     ret$enrichments[[ids[4]]] <- res
   }
 
