@@ -462,7 +462,7 @@ pvalEffectPlot <- function(e, p,
   
   .draw.test(row(me)[signif], col(me)[signif], xc[signif], yc[signif], ev[signif], mq[signif], col[signif])
 
-  lines(c(x.vec[1], x.vec[2]), rep(y.vec[1], 2), col="red", lwd=2)
+  #lines(c(x.vec[1], x.vec[2]), rep(y.vec[1], 2), col="red", lwd=2)
 
   # ---------------------------------------
   # add a legend
