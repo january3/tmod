@@ -479,20 +479,26 @@ evidencePlot <- function(l, m, mset="all", scaled= TRUE, rug=TRUE, roc=TRUE,
 #' Plot a PCA object returned by prcomp
 #'
 #' Plot a PCA object returned by prcomp
+#'
+#' This is a simplistic function. A much better way is to use the pca2d
+#' function from the pca3d package.
 #' @param pca PCA object returned by prcomp
 #' @param components a vector of length two indicating the components to plot
 #' @param pch Type of character to plot (default: 19)
-#' @param col Color for plotting (default: grey)
+#' @param col Color for plotting (default: internal palette)
 #' @param group a factor determining shapes of the points to show (unless
 #'        overriden by pch=...)
+#' @param legend draw a legend? If legend is a position (eg. "topright"), then a legend
+#'        is drawn. If NULL or if the group parameter is NULL, then not.
 #' @param ... any further parameters will be passed to the plot() function
 #'        (e.g. col, cex, ...)
 #' @return If group is NULL, then NULL; else a data frame containing
 #'         colors and shapes matching each group
 #' @export
-pcaplot <- function(pca, components=1:2, group=NULL, col="black", pch=19, ...) {
+pcaplot <- function(pca, components=1:2, group=NULL, col=NULL, pch=19, legend=NULL, ...) {
 
   args <- list(...)
+  
 
   x <- pca$x[, components[1]]
   y <- pca$x[, components[2]]
@@ -501,8 +507,12 @@ pcaplot <- function(pca, components=1:2, group=NULL, col="black", pch=19, ...) {
     group <- factor(group)
     gr <- as.numeric(factor(group))
     pch <- c(15:19)[ gr %% 5L ]
+    if(is.null(col)) col <- .mypalette(n=length(levels(group)))
+    col <- col[ gr ]
     if(length(col) == 1L) col <- rep(col, length(x))
   }
+
+  if(is.null(col)) col <- "grey"
 
   default.args <- list(pch=pch, xlim=range(x), ylim=range(y), bty="n", pch=pch, 
     col=col,
@@ -514,6 +524,11 @@ pcaplot <- function(pca, components=1:2, group=NULL, col="black", pch=19, ...) {
   abline(h=0, col="grey")
   abline(v=0, col="grey")
 
+  if(!is.null(legend) && !is.null(group)) {
+      n <- length(levels(group))
+      mm <- match(levels(group), group)
+      legend(legend, levels(group), pch=pch[mm], col=col[mm], bty="n")
+  }
   if(is.null(group)) return(NULL)
 
   sel <- !duplicated(group)
