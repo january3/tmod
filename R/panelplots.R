@@ -446,8 +446,6 @@ pvalEffectPlot <- function(e, p,
       } else {
         cex <- (1 + 2*ev) * plot.cex
       }
-      print(ev)
-      print(cex)
       points(xc, yc, col=color, pch=19, cex=cex)
     }
   }
