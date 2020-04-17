@@ -396,6 +396,7 @@ pvalEffectPlot <- function(e, p,
   col.w <- 1/(Nc) *(1-rownwd-colnwd)
   if(col.w < colnwd) warning( "Figure too narrow, the labels will overlap.\nConsider using smaller text.cex" )
   #message(sprintf("rownwd=%.2f, col.w=%.2f, colnwd=%.2f\n", rownwd, col.w, colnwd))
+  if(col.w * 8 > 1) col.w <- 1/8
 
   n.cn <- switch(col.labels.style, top=1, bottom=1, both=2, none=0)
   col.lab.space <- 1 - n.cn * (line.h + colnht)
@@ -705,9 +706,9 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
 
   # prepare the pie plotting function
   if(!is.null(pie)) {
+    if(pie.style == "auto") { pie.style <- "rug" }
     plot.func <- .preparePlotFunc(row.ids, 
       pie, min.p, max.p, pie.colors, plot.cex, style=pie.style)
-    if(pie.style == "auto") { pie.style <- "rug" }
   }
 
   if(pie.style == "auto") {
@@ -790,6 +791,7 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
 ## return a plotting function for use as parameter in pvalEffectPlot
 .preparePlotFunc  <- function(row.ids, pie, min.p, max.p, pie.colors, plot.cex, style="pie") {
 
+  print(style)
   style <- match.arg(style, c("pie", "rug", "boxpie"))
 
   # prepare the pie coloring function
@@ -810,6 +812,7 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
     # and turn it into arguments for the pie widget plotting function
     if(is.null(row)) {
       v <- c(10, 10, 10) # row is null when called from legend!
+      rect(x - w/2, y - h/2, x + w/2, y + h/2, border="#999999")
     } else {
       id <- row.ids[row]
       v <- pie[[col]][id,]
