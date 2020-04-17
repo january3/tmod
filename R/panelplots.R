@@ -114,15 +114,20 @@
 }
 
 ## returns a function for mapping a value onto a color palette
-.getColFunc <- function(min, max, end.col, null.col="#FFFFFF00", start.col="auto", alpha="99", pal.l=12) {
+.getColFunc <- function(min, max, end.col, null.col="#FFFFFF00", start.col="auto", mid.col=NULL, alpha="99", pal.l=12) {
 
   if(start.col == "auto") {
     ppp <- colorRampPalette(c("white", end.col))(10)
     start.col <- ppp[3]
   }
 
-  pal <- c( null.col, paste0(colorRampPalette(c(start.col, end.col))(pal.l), alpha))
-  pal <- c(pal, pal[length(pal)])
+  if(is.null(mid.col)) {
+    pal <- c( null.col, paste0(colorRampPalette(c(start.col, end.col))(pal.l), alpha))
+    pal <- c(pal, pal[length(pal)])
+  } else {
+    pal <- c( null.col, paste0(colorRampPalette(c(start.col, mid.col, end.col))(pal.l), alpha))
+    pal <- c(pal, pal[length(pal)])
+  }
 
   iv <- seq(min, max, length.out=pal.l+1)
 
@@ -158,6 +163,8 @@
 #' @return a data frame with a line for each module encountered anywhere in
 #' the list x, two columns describing the module (ID and module title), and
 #' two columns(effect size and q value) for each element of list x.
+#' @param effect.col The name of the column with the effect size
+#' @param pval.col The name of the p-value column
 #' @seealso tmodPanelPlot
 #' @examples
 #' data(Egambia)
@@ -175,7 +182,8 @@
 #' tmodSummary(x)
 #' @export
 tmodSummary <- function(x, clust=NULL, filter.empty=FALSE, filter.unknown=TRUE,
-  select=NULL) {
+  select=NULL, 
+  effect.col="AUC", pval.col="adj.P.Val") {
 
   if(!is.null(clust)) 
     clust <- match.arg(clust, c("qval", "effect", "keep", "sort"))
@@ -190,33 +198,38 @@ tmodSummary <- function(x, clust=NULL, filter.empty=FALSE, filter.unknown=TRUE,
   if(!is.null(select)) {
     all.mods <- select 
   } else {
-    all.mods <- unique(unlist(lapply(x, function(.) .$ID)))
+    all.mods <- unique(unlist(lapply(x, `[[`, "ID")))
     if(is.null(clust) || clust == "sort") all.mods <- sort(all.mods)
   }
 
   ret <- data.frame( ID=all.mods, Title=NA, stringsAsFactors=FALSE)
   rownames(ret) <- ret$ID
 
-
   # collect the Title, effect and q-value information
   for(n in rid) {
+    .x <- x[[n]]
+
+    if(!all(c(effect.col, pval.col) %in% colnames(.x)))
+      stop(sprintf("colnames for %s lack either column %s or column %s", n, effect.col, pval.col))
+
     if(filter.unknown) {
-      x[[n]] <- x[[n]][ ! x[[n]]$Title %in% c( "Undetermined", "TBA" ), ] 
+      .x <- .x[ ! .x$Title %in% c(NA, "", "Unknown", "Undetermined", "TBA" ), ] 
     }
 
-    if(filter.empty && nrow(x[[n]]) == 0) next ;
-    sel <- all.mods %in% x[[n]]$ID
-    mm  <- match(all.mods[sel], x[[n]]$ID)
+    if(filter.empty && nrow(.x) == 0) next ;
+
+    sel <- all.mods %in% .x$ID
+    mm  <- match(all.mods[sel], .x$ID)
 
     ## select the effect size column - depending on the test type
-    effect.col <- which(colnames(x[[n]]) %in% c("AUC", "E"))[1]
-    effect.col <- colnames(x[[n]])[effect.col]
+    #effect.col <- which(colnames(.x) %in% c("AUC", "E"))[1]
+    #effect.col <- colnames(.x)[effect.col]
 
-    ret[sel,"Title"] <- x[[n]][mm,]$Title
+    ret[sel, "Title"] <- .x[mm, "Title", drop=TRUE]
     an <- paste0(effect.col, ".", n)
-    ret[sel,an] <- x[[n]][mm,effect.col]
+    ret[sel,an] <- .x[mm, effect.col, drop=TRUE]
     qn <- paste0("q.", n)
-    ret[sel,qn]   <- x[[n]][mm,]$adj.P.Val
+    ret[sel,qn]   <- .x[mm, pval.col, drop=TRUE]
   }
 
   # Remove these which are still empty
@@ -237,6 +250,10 @@ tmodSummary <- function(x, clust=NULL, filter.empty=FALSE, filter.unknown=TRUE,
     ret <- ret[o,]
   }
 
+  attr(ret, "tmodSummary") <- TRUE
+  attr(ret, "pval.col") <- pval.col
+  attr(ret, "effect.col") <- effect.col
+  attr(ret, "rid") <- rid
   ret
 }
 
@@ -307,6 +324,7 @@ pvalEffectPlot <- function(e, p,
   grid="at", grid.color="#33333333",
   plot.cex=1, text.cex=1, 
   col.labels.style="top",
+  col.pal.symm=FALSE,
   legend.style="auto",
   min.e=NULL,max.e=NULL)  {
 
@@ -416,7 +434,11 @@ pvalEffectPlot <- function(e, p,
       for(i in 1:length(xc)) { plot.func(row=row[i], col=col[i], x=xc[i], y=yc[i], col.w, row.h, e=ev[i], p=mq[i]) }
     } else {
       if(is.null(color)) color <- "#33333333" ;
-      cex <- (1 + 2*ev) * plot.cex
+      if(col.pal.symm) {
+        cex <- (1 + 2*abs(ev)) * plot.cex
+      } else {
+        cex <- (1 + 2*ev) * plot.cex
+      }
       points(xc, yc, col=color, pch=19, cex=cex)
     }
   }
@@ -450,8 +472,14 @@ pvalEffectPlot <- function(e, p,
 
   pmin2 <- min(mq[signif])  # lowest p but not above pval
 
-  palfunc <- .getColFunc(pmin2, max(mq), "red")
-  col <- palfunc(mq)
+  if(col.pal.symm) {
+#.getColFunc <- function(min, max, end.col, null.col="#FFFFFF00", start.col="auto", mid.col=NULL, alpha="99", pal.l=12) {
+    palfunc <- .getColFunc(-max(mq), max(mq), start.col="blue", mid.col="grey", end.col="red")
+    col <- palfunc(mq * sign(me))
+  } else {
+    palfunc <- .getColFunc(pmin2, max(mq), "red")
+    col <- palfunc(mq)
+  } 
 
   dme <- max.e - min.e
   if(dme == 0) dme <- 1
@@ -497,7 +525,8 @@ pvalEffectPlot <- function(e, p,
 #' in the CERNO test), and intensity of the color corresponds to the q-value.
 #'
 #' By default, tmodPanelPlot visualizes each the results of a single
-#' statistical test by a red dot. However, it is often interesting to know how
+#' statistical test by a red dot, or blue and red dots if the effect sizes are both 
+#' negative and positive. However, it is often interesting to know how
 #' many of the genes in a module are significantly up- or down regulated.
 #' tmodPanelPlot can draw a pie chart based on the optional argument "pie".
 #' The argument must be a list of length equal to the length of x.
@@ -506,7 +535,7 @@ pvalEffectPlot <- function(e, p,
 #' here. The rownames of either the data frame or the array must be the
 #' module IDs.
 #' 
-#' @param x list, in which each element has been generated with a tmod test function
+#' @param x either a list, in which each element has been generated with a tmod test function, or the result of the tmodSummary function
 #' @param pie a list of data frames with information for drawing a pie chart
 #' @param clust whether, in the resulting data frame, the modules should be
 #' ordered by clustering them with either q-values ("qval") or the effect size
@@ -527,16 +556,16 @@ pvalEffectPlot <- function(e, p,
 #' @param row.labels Labels for the modules. This must be a named vector, with module IDs as vector names. If NULL, module titles from
 #' the analyses results will be used.
 #' @param row.labels.auto Automatic generation of row labels from module
-#' data: "both" (default, ID and title), "id" (only ID), "title" (only title),
+#' data: "both" or "auto" (default, ID and title), "id" (only ID), "title" (only title),
 #' "none" (no row label)
-#' @param pie.colors character vector of length equal to the cardinality of the third dimension of the pie argument. By default: blue, grey and red.
 #' @param grid Style of a light-grey grid to be plotted; can be "none", "at" and "between"
 #' @param plot.cex a numerical value giving the amount by which the plot
 #' symbols will be maginfied 
 #' @param text.cex a numerical value giving the amount by which the plot
 #' text will be magnified, or a vector containing three cex values for row labels, column labels and legend, respectively
 #' @param plot.func Optionally, a function to be used to draw the dots. See "pvalEffectPlot"
-#' @param pie.style Can be "pie", "boxpie" or "rug"
+#' @param pie.style Can be "auto" (default), "dot", "symdot", "pie", "boxpie", "rug" (see Details)
+#' @param pie.colors character vector of length equal to the cardinality of the third dimension of the pie argument. By default: blue, grey and red.
 #' @param col.labels.style Style of column names: "top" (default), "bottom", "both", "none"
 #' @param legend.style Style of the legend: "auto" -- automatic; "broad":
 #' pval legend side by side with effect size legend; "tall": effect size
@@ -577,7 +606,7 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
   grid="at", 
   pie.colors=c("#0000FF", "#cccccc", "#FF0000" ),
   plot.cex=1, text.cex=1, 
-  pie.style="rug", 
+  pie.style="auto", 
   min.e=.5, max.e=1,
   legend.style="auto", ... ) {
 
@@ -586,23 +615,28 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
   # check whether the pie object is correct
   if(!is.null(pie)) pie <- .piecheck(pie, x)
 
+
   # create a summary
-  df <- tmodSummary(x, clust=clust, filter.empty=FALSE, filter.unknown=filter.unknown, select=select)
+  if(is.null(attr(x, "tmodSummary"))) {
+    df <- tmodSummary(x, clust=clust, filter.empty=FALSE, filter.unknown=filter.unknown, select=select)
+  } else {
+    df <- x
+  }
 
   if(!is.null(filter.by.id)) 
     df <- df[ df$ID %in% filter.by.id, , drop=FALSE ]
 
 
-  # check the column labels
-  if(is.null(col.labels)) col.labels <- names(x)
-  if(is.null(col.labels)) col.labels <- paste0("X.", 1:length(x))
+  # get the column labels
+  if(is.null(col.labels)) { col.labels <- attr(df, "rid") }
 
   # handle row labels
-  row.labels.auto <- match.arg(row.labels.auto, c("title", "id", "both", "none"))
+  row.labels.auto <- match.arg(row.labels.auto, c("title", "id", "auto", "both", "none"))
   if(is.null(row.labels)) {
     row.labels <- switch(row.labels.auto,
       title=df$Title,
       id=df$ID,
+      auto=sprintf("%s (%s)", df$Title, df$ID),
       both=sprintf("%s (%s)", df$Title, df$ID),
       none=rep("", nrow(df)))
   } else {
@@ -628,6 +662,7 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
   mq <- -log10(mq)
 
   # ----- FILTERING ------------
+  ## TODO: this should be done by tmodSummary rather than here
   row.ids <- df$ID
 
   # remove rows with no at least one pval below filter.rows.pval
@@ -672,12 +707,31 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
   if(!is.null(pie)) {
     plot.func <- .preparePlotFunc(row.ids, 
       pie, min.p, max.p, pie.colors, plot.cex, style=pie.style)
+    if(pie.style == "auto") { pie.style <- "rug" }
+  }
+
+  if(pie.style == "auto") {
+    if(all(me >= 0, na.rm=TRUE)) {
+      pie.style <- "dot"
+    } else {
+      pie.style <- "dotsymm"
+    }
+  }
+
+  ## just red dots
+  if(pie.style == "dot") { plot.func <- NULL }
+
+  ## just blue and red dots
+  if(pie.style == "dotsymm") {
+    col.pal.symm <- TRUE
+  } else {
+    col.pal.symm <- FALSE
   }
 
   # make the actual plot -- pass it on to pvalEffectPlot
   pvalEffectPlot(me, 10^-mq, 
     row.labels=row.labels, col.labels=col.labels, pval.thr=pval.thr,
-    grid=grid, plot.cex=plot.cex, text.cex=text.cex, 
+    grid=grid, plot.cex=plot.cex, text.cex=text.cex, col.pal.symm=col.pal.symm,
     plot.func=plot.func, legend.style=legend.style, col.labels.style=col.labels.style,
     min.e=min.e, max.e=max.e,
     ...)
@@ -803,20 +857,25 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
 
 ## check whether the x argument is correct
 .xcheck <- function(x) {
-  if(!is(x, "list")) stop( "x must be a list object. Make sure that is.list(x) == TRUE")
-
-  z <- sapply(x, is.data.frame)
-  if(any(!z)) {
-    warning(sprintf("Some elements of x are not data frames, removing %d elements", sum(!z)))
-    x <- x[ z ]
+  is.tmodSummary <- !is.null(attr(x, "tmodSummary"))
+  if(!is(x, "list") && !is.tmodSummary) {
+    stop( "x must be a list object. Make sure that is.list(x) == TRUE.  Alternatively, x must be the result of tmodSummary()")
   }
 
-  if(length(x) < 1)
-    stop("No usable elements of x")
+  if(!is.tmodSummary) {
+    z <- sapply(x, is.data.frame)
+    if(any(!z)) {
+      warning(sprintf("Some elements of x are not data frames, removing %d elements", sum(!z)))
+      x <- x[ z ]
+    }
 
-  if(is.null(names(x))) {
-    warning("names(x) is NULL. Generating default names")
-    names(x) <- paste0("X.", 1:length(x))
+    if(length(x) < 1)
+      stop("No usable elements of x")
+
+    if(is.null(names(x))) {
+      warning("names(x) is NULL. Generating default names")
+      names(x) <- paste0("X.", 1:length(x))
+    }
   }
 
   x
