@@ -4,8 +4,15 @@
 \alias{tmodLimmaDecideTests}
 \title{Up- and down-regulated genes in modules based on limma object}
 \usage{
-tmodLimmaDecideTests(f, genes, lfc.thr = 0.5, pval.thr = 0.05,
-  filter.unknown = FALSE, adjust.method = "BH", mset = "all")
+tmodLimmaDecideTests(
+  f,
+  genes,
+  lfc.thr = 0.5,
+  pval.thr = 0.05,
+  filter.unknown = FALSE,
+  adjust.method = "BH",
+  mset = "all"
+)
 }
 \arguments{
 \item{f}{result of linear model fit produced by limma functions lmFit and eBayes}

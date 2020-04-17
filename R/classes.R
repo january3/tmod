@@ -469,6 +469,7 @@ setClass(Class="tmodSummary",
 #' @param object a tmod object
 #' @aliases show,tmodSummary-method
 #' @rdname extract-methods
+#' @importFrom methods as show
 #' @docType methods
 setMethod( "show", "tmodSummary",
   function(object) {

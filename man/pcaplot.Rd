@@ -4,8 +4,15 @@
 \alias{pcaplot}
 \title{Plot a PCA object returned by prcomp}
 \usage{
-pcaplot(pca, components = 1:2, group = NULL, col = "black",
-  pch = 19, ...)
+pcaplot(
+  pca,
+  components = 1:2,
+  group = NULL,
+  col = NULL,
+  pch = 19,
+  legend = NULL,
+  ...
+)
 }
 \arguments{
 \item{pca}{PCA object returned by prcomp}
@@ -15,9 +22,12 @@ pcaplot(pca, components = 1:2, group = NULL, col = "black",
 \item{group}{a factor determining shapes of the points to show (unless
 overriden by pch=...)}
 
-\item{col}{Color for plotting (default: grey)}
+\item{col}{Color for plotting (default: internal palette)}
 
 \item{pch}{Type of character to plot (default: 19)}
+
+\item{legend}{draw a legend? If legend is a position (eg. "topright"), then a legend
+is drawn. If NULL or if the group parameter is NULL, then not.}
 
 \item{...}{any further parameters will be passed to the plot() function
 (e.g. col, cex, ...)}
@@ -28,4 +38,8 @@ If group is NULL, then NULL; else a data frame containing
 }
 \description{
 Plot a PCA object returned by prcomp
+}
+\details{
+This is a simplistic function. A much better way is to use the pca2d
+function from the pca3d package.
 }

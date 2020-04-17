@@ -4,10 +4,22 @@
 \alias{tmodPCA}
 \title{PCA plot annotated with tmod}
 \usage{
-tmodPCA(pca, loadings = NULL, genes, tmodfunc = "tmodCERNOtest",
-  plotfunc = pcaplot, mode = "simple", components = c(1, 2),
-  plot.params = NULL, filter = TRUE, simplify = TRUE,
-  legend = FALSE, ...)
+tmodPCA(
+  pca,
+  loadings = NULL,
+  genes,
+  tmodfunc = "tmodCERNOtest",
+  plotfunc = pcaplot,
+  mode = "simple",
+  components = c(1, 2),
+  plot.params = NULL,
+  filter = TRUE,
+  simplify = TRUE,
+  legend = FALSE,
+  maxn = NULL,
+  plot = TRUE,
+  ...
+)
 }
 \arguments{
 \item{pca}{Object returned by prcomp or a matrix of PCA coordinates. In the latter case, a
@@ -34,6 +46,10 @@ should be removed from the tag cloud}
 \item{simplify}{Whether the names of the modules should be simplified}
 
 \item{legend}{whether a legend should be shown}
+
+\item{maxn}{Maximum number of gene set enrichment terms shown on the plot (if NULL – default – all terms will be shown)}
+
+\item{plot}{if FALSE, no plot will be shown, but the enrichments will be calculated and returned invisibly}
 
 \item{...}{Any further parameters passed to the tmod test function}
 }

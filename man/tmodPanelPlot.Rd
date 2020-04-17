@@ -4,18 +4,37 @@
 \alias{tmodPanelPlot}
 \title{Plot a summary of multiple tmod analyses}
 \usage{
-tmodPanelPlot(x, pie = NULL, clust = "qval", select = NULL,
-  filter.empty.cols = FALSE, filter.empty.rows = TRUE,
-  filter.unknown = TRUE, filter.rows.pval = 0.05,
-  filter.rows.auc = 0.5, filter.by.id = NULL, col.labels = NULL,
-  col.labels.style = "top", row.labels = NULL,
-  row.labels.auto = "both", pval.thr = 10^-2, pval.thr.lower = 10^-6,
-  plot.func = NULL, grid = "at", pie.colors = c("#0000FF", "#cccccc",
-  "#FF0000"), plot.cex = 1, text.cex = 1, pie.style = "rug",
-  legend.style = "auto", ...)
+tmodPanelPlot(
+  x,
+  pie = NULL,
+  clust = "qval",
+  select = NULL,
+  filter.empty.cols = FALSE,
+  filter.empty.rows = TRUE,
+  filter.unknown = TRUE,
+  filter.rows.pval = 0.05,
+  filter.rows.auc = 0.5,
+  filter.by.id = NULL,
+  col.labels = NULL,
+  col.labels.style = "top",
+  row.labels = NULL,
+  row.labels.auto = "both",
+  pval.thr = 10^-2,
+  pval.thr.lower = 10^-6,
+  plot.func = NULL,
+  grid = "at",
+  pie.colors = c("#0000FF", "#cccccc", "#FF0000"),
+  plot.cex = 1,
+  text.cex = 1,
+  pie.style = "auto",
+  min.e = 0.5,
+  max.e = 1,
+  legend.style = "auto",
+  ...
+)
 }
 \arguments{
-\item{x}{list, in which each element has been generated with a tmod test function}
+\item{x}{either a list, in which each element has been generated with a tmod test function, or the result of the tmodSummary function}
 
 \item{pie}{a list of data frames with information for drawing a pie chart}
 
@@ -48,7 +67,7 @@ of the list x will be used.}
 the analyses results will be used.}
 
 \item{row.labels.auto}{Automatic generation of row labels from module
-data: "both" (default, ID and title), "id" (only ID), "title" (only title),
+data: "both" or "auto" (default, ID and title), "id" (only ID), "title" (only title),
 "none" (no row label)}
 
 \item{pval.thr}{Results with p-value above pval.thr will not be shown}
@@ -67,7 +86,9 @@ symbols will be maginfied}
 \item{text.cex}{a numerical value giving the amount by which the plot
 text will be magnified, or a vector containing three cex values for row labels, column labels and legend, respectively}
 
-\item{pie.style}{Can be "pie", "boxpie" or "rug"}
+\item{pie.style}{Can be "auto" (default), "dot", "symdot", "pie", "boxpie", "rug" (see Details)}
+
+\item{min.e, max.e}{scale limits for the effect size (default: 0.5 and 1.0)}
 
 \item{legend.style}{Style of the legend: "auto" -- automatic; "broad":
 pval legend side by side with effect size legend; "tall": effect size
@@ -96,7 +117,8 @@ a red dot. Size of the dot corresponds to the effect size (for example, AUC
 in the CERNO test), and intensity of the color corresponds to the q-value.
 
 By default, tmodPanelPlot visualizes each the results of a single
-statistical test by a red dot. However, it is often interesting to know how
+statistical test by a red dot, or blue and red dots if the effect sizes are both 
+negative and positive. However, it is often interesting to know how
 many of the genes in a module are significantly up- or down regulated.
 tmodPanelPlot can draw a pie chart based on the optional argument "pie".
 The argument must be a list of length equal to the length of x.

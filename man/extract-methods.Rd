@@ -6,11 +6,14 @@
 \alias{show,tmod-method}
 \alias{[,tmod,ANY,ANY,ANY-method}
 \alias{[,tmod-method}
+\alias{show,tmodSummary-method}
 \title{Shows the tmod object}
 \usage{
 \S4method{show}{tmod}(object)
 
 \S4method{[}{tmod,ANY,ANY,ANY}(x, i)
+
+\S4method{show}{tmodSummary}(object)
 }
 \arguments{
 \item{object}{a tmod object}
@@ -23,4 +26,6 @@
 Shows the tmod object
 
 Extracts parts of a tmod object
+
+Shows a tmodSummary object
 }

@@ -4,8 +4,17 @@
 \alias{showGene}
 \title{A combined beeswarm / boxplot}
 \usage{
-showGene(data, group, main = "", pch = 19, xlab = "",
-  ylab = "log2 expression", las = 2, pwcol = NULL, ...)
+showGene(
+  data,
+  group,
+  main = "",
+  pch = 19,
+  xlab = "",
+  ylab = "log2 expression",
+  las = 2,
+  pwcol = NULL,
+  ...
+)
 }
 \arguments{
 \item{data}{a vector of numeric values to be plotted}

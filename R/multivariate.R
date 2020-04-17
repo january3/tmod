@@ -189,7 +189,6 @@ tmodPCA <- function(pca, loadings=NULL, genes,
 
   if( mode == "simple" ) {
     ## calculate enrichments
-    names(res) <- paste0( "Component", cc )
     res <- lapply(1:2, function(i) tfunc( genes[ order( abs( pca$rotation[,cc[i]] ), decreasing=T ) ], ... ))
     names(res) <- ids <- paste0( "Component", cc )
     ret$enrichments <- res

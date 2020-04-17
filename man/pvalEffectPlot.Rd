@@ -4,10 +4,24 @@
 \alias{pvalEffectPlot}
 \title{Create an effect size / p-value plot}
 \usage{
-pvalEffectPlot(e, p, pval.thr = 0.01, pval.cutoff = 1e-06,
-  row.labels = NULL, col.labels = NULL, plot.func = NULL,
-  grid = "at", grid.color = "#33333333", plot.cex = 1,
-  text.cex = 1, col.labels.style = "top", legend.style = "auto")
+pvalEffectPlot(
+  e,
+  p,
+  pval.thr = 0.01,
+  pval.cutoff = 1e-06,
+  row.labels = NULL,
+  col.labels = NULL,
+  plot.func = NULL,
+  grid = "at",
+  grid.color = "#33333333",
+  plot.cex = 1,
+  text.cex = 1,
+  col.labels.style = "top",
+  symmetrical = FALSE,
+  legend.style = "auto",
+  min.e = NULL,
+  max.e = NULL
+)
 }
 \arguments{
 \item{e}{matrix with effect sizes}
@@ -38,9 +52,13 @@ text will be magnified, or a vector containing three cex values for row labels, 
 
 \item{col.labels.style}{Style of column names: "top" (default), "bottom", "both", "none"}
 
+\item{symmetrical}{effect sizes are distributed symmetrically around 0 (default: FALSE)}
+
 \item{legend.style}{Style of the legend: "auto" -- automatic; "broad":
 pval legend side by side with effect size legend; "tall": effect size
 legend above pval legend; "none" -- no legend.}
+
+\item{min.e, max.e}{scale limits for the effect size}
 }
 \value{
 Invisibly returns a NULL value.
@@ -63,7 +81,7 @@ another one with the p-values. Each cell in the matrix corresponds to the
 results of a single statistical test.
 
 For example, a number of genes or transcriptional modules might be tested
-for differential expression or enrichment, respectively, in several conditions.
+for differential expression or enrichment, respectively, in several conditions. 
 
 By default, each test outcome is represented by a dot of varying size
 and color. Alternatively, a function may be specified with the parameter

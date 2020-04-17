@@ -4,11 +4,29 @@
 \alias{evidencePlot}
 \title{Create an evidence plot for a module}
 \usage{
-evidencePlot(l, m, mset = "all", scaled = TRUE, rug = TRUE,
-  roc = TRUE, filter = FALSE, unique = TRUE, add = FALSE,
-  col = "black", col.rug = "#eeeeee", gene.labels = NULL,
-  gl.cex = 1, style = "roc", lwd = 1, lty = 1, rug.size = 0.2,
-  legend = NULL, ...)
+evidencePlot(
+  l,
+  m,
+  mset = "all",
+  scaled = TRUE,
+  rug = TRUE,
+  roc = TRUE,
+  filter = FALSE,
+  unique = TRUE,
+  add = FALSE,
+  col = "black",
+  col.rug = "#eeeeee",
+  gene.labels = NULL,
+  gene.colors = NULL,
+  gene.lines = 1,
+  gl.cex = 1,
+  style = "roc",
+  lwd = 1,
+  lty = 1,
+  rug.size = 0.2,
+  legend = NULL,
+  ...
+)
 }
 \arguments{
 \item{l}{sorted list of HGNC gene identifiers}
@@ -34,6 +52,10 @@ evidencePlot(l, m, mset = "all", scaled = TRUE, rug = TRUE,
 \item{col.rug}{a character value specifying the color of the rug}
 
 \item{gene.labels}{if TRUE, gene names are shown; alternatively, a named character vector with gene labels to be shown, or NULL (default) for no labels (option evaluated only if rug is plotted)}
+
+\item{gene.colors}{NULL (default) or a character vectors indicating the color for each gene. Either a named vector or a vector with the same order of genes as `l`.}
+
+\item{gene.lines}{a number or a vector of numbers; line width for marking the genes on the rug (default=1). If the vector is named, the names should be gene ids.}
 
 \item{gl.cex}{Text cex (magnification) for gene labels}
 

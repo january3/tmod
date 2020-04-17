@@ -4,8 +4,7 @@
 \alias{getGenes}
 \title{Get genes belonging to a module}
 \usage{
-getGenes(modules, genelist = NULL, fg = NULL, mset = "LI",
-  as.list = FALSE)
+getGenes(modules, genelist = NULL, fg = NULL, mset = "LI", as.list = FALSE)
 }
 \arguments{
 \item{modules}{module IDs}

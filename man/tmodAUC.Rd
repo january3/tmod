@@ -4,9 +4,16 @@
 \alias{tmodAUC}
 \title{Calculate AUC}
 \usage{
-tmodAUC(l, ranks, modules = NULL, stat = "AUC",
-  recalculate.ranks = TRUE, filter = FALSE, mset = "LI",
-  nodups = TRUE)
+tmodAUC(
+  l,
+  ranks,
+  modules = NULL,
+  stat = "AUC",
+  recalculate.ranks = TRUE,
+  filter = FALSE,
+  mset = "LI",
+  nodups = TRUE
+)
 }
 \arguments{
 \item{l}{List of gene names corresponding to rows from the ranks matrix}

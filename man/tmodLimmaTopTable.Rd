@@ -4,8 +4,13 @@
 \alias{tmodLimmaTopTable}
 \title{tmod's replacement for the limma topTable function}
 \usage{
-tmodLimmaTopTable(f, genelist = NULL, coef = NULL,
-  adjust.method = "BH", confint = 0.95)
+tmodLimmaTopTable(
+  f,
+  genelist = NULL,
+  coef = NULL,
+  adjust.method = "BH",
+  confint = 0.95
+)
 }
 \arguments{
 \item{f}{result of linear model fit produced by limma functions lmFit and eBayes}

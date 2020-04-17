@@ -4,8 +4,19 @@
 \alias{tmodTagcloud}
 \title{Tag cloud based on tmod results}
 \usage{
-tmodTagcloud(results, filter = TRUE, simplify = TRUE,
-  tag.col = "Title", weights.col = "auto", pval.col = "P.Value", ...)
+tmodTagcloud(
+  results,
+  filter = TRUE,
+  simplify = TRUE,
+  tag.col = "Title",
+  min.auc = 0.5,
+  max.qval = 0.05,
+  plot = TRUE,
+  weights.col = "auto",
+  pval.col = "P.Value",
+  maxn = NULL,
+  ...
+)
 }
 \arguments{
 \item{results}{data frame produced by one of the tmod enrichment tests}
@@ -16,9 +27,17 @@ tmodTagcloud(results, filter = TRUE, simplify = TRUE,
 
 \item{tag.col}{Which column from results should be used as tags on the plot}
 
+\item{min.auc}{Minimal AUC to show (default: 0.5)}
+
+\item{max.qval}{Maximal adjusted p value to show (default: 0.05)}
+
+\item{plot}{Should the tag cloud be plotted or only returned}
+
 \item{weights.col}{Which column from results should be used as weights for the tag cloud}
 
 \item{pval.col}{Which column contains the P values which will be used to shade the tags}
+
+\item{maxn}{Maximum number of gene set enrichment terms shown on the plot (if NULL – default – all terms will be shown)}
 
 \item{...}{Any further parameters are passed to the tagcloud function}
 }

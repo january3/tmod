@@ -12,7 +12,7 @@ accessible in the Gene Expression Omnibus (GEO) at the accession number
 GSE28623. Ten healthy donors (NID, non-infected donors) and 10 tubercolosis patients
 (TB) have been randomly selected from the full data set, and top 25%
 genes with the highest IQR have been selected for further analysis. Genes without
-an Entrez gene (EG) identifier have likewise been omitted.
+an Entrez gene (EG) identifier have likewise been omitted. 
 
 The Egambia object is a data frame. The first three columns are the gene
 symbol, gene name and Entrez gene (EG) identifier. The remaining columns

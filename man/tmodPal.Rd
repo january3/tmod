@@ -30,6 +30,4 @@ used to extract them. The following palettes have been defined:
 * bwr, rwb, ckp, pkc -- gradients (b-blue, r-red, w-white, c-cyan, k-blacK, p-purple)
 By default, either all colors are returned, or, if it is a gradient
 palette, only three.
-
-Yes, I wrote this function to save myself the slightest amount of typing.
 }

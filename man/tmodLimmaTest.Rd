@@ -4,8 +4,14 @@
 \alias{tmodLimmaTest}
 \title{Run tmod enrichment tests directly on a limma object}
 \usage{
-tmodLimmaTest(f, genes, sort.by = "msd", tmodFunc = tmodCERNOtest,
-  coef = NULL, ...)
+tmodLimmaTest(
+  f,
+  genes,
+  sort.by = "msd",
+  tmodFunc = tmodCERNOtest,
+  coef = NULL,
+  ...
+)
 }
 \arguments{
 \item{f}{result of linear model fit produced by limma functions lmFit and eBayes}
