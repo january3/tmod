@@ -70,7 +70,8 @@
   min.e, max.e,
   min.p, max.p, 
   text.cex,
-  legend.style="broad"
+  legend.style="broad",
+  symmetrical=FALSE
  ) {
 
   N <- 5
@@ -88,7 +89,11 @@
   xc <- seq(col.w, width - col.w, length.out=N)
   yc <- rep(line.h * 2 + row.h/2, N)
 
-  ev <- seq(0, 1, length.out=N)
+  if(symmetrical) {
+    ev <- seq(-1, 1, length.out=N)
+  } else {
+    ev <- seq(0, 1, length.out=N)
+  }
   ex <- rep(max.p, N)
 
   # draw the figures for the effect size range (no color)
@@ -313,6 +318,7 @@ tmodSummary <- function(x, clust=NULL, filter.empty=FALSE, filter.unknown=TRUE,
 #' pval legend side by side with effect size legend; "tall": effect size
 #' legend above pval legend; "none" -- no legend.
 #' @param min.e,max.e scale limits for the effect size
+#' @param symmetrical effect sizes are distributed symmetrically around 0 (default: FALSE)
 #' @import grDevices
 #' @import graphics
 #' @import plotwidgets
@@ -324,7 +330,7 @@ pvalEffectPlot <- function(e, p,
   grid="at", grid.color="#33333333",
   plot.cex=1, text.cex=1, 
   col.labels.style="top",
-  col.pal.symm=FALSE,
+  symmetrical=FALSE,
   legend.style="auto",
   min.e=NULL,max.e=NULL)  {
 
@@ -435,11 +441,13 @@ pvalEffectPlot <- function(e, p,
       for(i in 1:length(xc)) { plot.func(row=row[i], col=col[i], x=xc[i], y=yc[i], col.w, row.h, e=ev[i], p=mq[i]) }
     } else {
       if(is.null(color)) color <- "#33333333" ;
-      if(col.pal.symm) {
+      if(symmetrical) {
         cex <- (1 + 2*abs(ev)) * plot.cex
       } else {
         cex <- (1 + 2*ev) * plot.cex
       }
+      print(ev)
+      print(cex)
       points(xc, yc, col=color, pch=19, cex=cex)
     }
   }
@@ -473,8 +481,7 @@ pvalEffectPlot <- function(e, p,
 
   pmin2 <- min(mq[signif])  # lowest p but not above pval
 
-  if(col.pal.symm) {
-#.getColFunc <- function(min, max, end.col, null.col="#FFFFFF00", start.col="auto", mid.col=NULL, alpha="99", pal.l=12) {
+  if(symmetrical) {
     palfunc <- .getColFunc(-max(mq), max(mq), start.col="blue", mid.col="grey", end.col="red")
     col <- palfunc(mq * sign(me))
   } else {
@@ -484,7 +491,13 @@ pvalEffectPlot <- function(e, p,
 
   dme <- max.e - min.e
   if(dme == 0) dme <- 1
-  ev  <- (me - min.e)/dme
+
+  if(symmetrical) {
+    ev <- me / max.e
+  } else {
+    ev  <- (me - min.e)/dme
+  }
+
 
   xc <- x.vec[col(me)]
   yc <- rev(y.vec)[row(me)]
@@ -502,8 +515,8 @@ pvalEffectPlot <- function(e, p,
       min.e, max.e,
       min.p, max.p, 
       text.cex,
-      legend.style=legend.style
-
+      legend.style=legend.style,
+      symmetrical=symmetrical
     ) 
 
   return(invisible(NULL))
@@ -724,15 +737,16 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
 
   ## just blue and red dots
   if(pie.style == "dotsymm") {
-    col.pal.symm <- TRUE
+    symmetrical <- TRUE
   } else {
-    col.pal.symm <- FALSE
+    symmetrical <- FALSE
   }
 
   # make the actual plot -- pass it on to pvalEffectPlot
   pvalEffectPlot(me, 10^-mq, 
     row.labels=row.labels, col.labels=col.labels, pval.thr=pval.thr,
-    grid=grid, plot.cex=plot.cex, text.cex=text.cex, col.pal.symm=col.pal.symm,
+    grid=grid, plot.cex=plot.cex, text.cex=text.cex,
+    symmetrical=symmetrical,
     plot.func=plot.func, legend.style=legend.style, col.labels.style=col.labels.style,
     min.e=min.e, max.e=max.e,
     ...)
