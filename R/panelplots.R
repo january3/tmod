@@ -202,7 +202,7 @@ tmodSummary <- function(x, clust=NULL, filter.empty=FALSE, filter.unknown=TRUE,
     if(is.null(clust) || clust == "sort") all.mods <- sort(all.mods)
   }
 
-  ret <- data.frame( ID=all.mods, Title=NA, stringsAsFactors=FALSE)
+  ret <- data.frame( ID=all.mods, Title=rep(NA, length(all.mods)), stringsAsFactors=FALSE)
   rownames(ret) <- ret$ID
 
   # collect the Title, effect and q-value information
@@ -233,7 +233,7 @@ tmodSummary <- function(x, clust=NULL, filter.empty=FALSE, filter.unknown=TRUE,
   }
 
   # Remove these which are still empty
-  ret <- ret[ !is.na(ret$Title), ]
+  ret <- ret[ !is.na(ret$Title), , drop=FALSE]
 
   # reorder rows if clustering enabled
   if( !is.null(clust) && clust %in% c("effect", "qval")) {
