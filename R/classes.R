@@ -440,3 +440,40 @@ setMethod("[", c(x="tmod", i="ANY"),
       WEIGHTS=WEIGHTS ))
   }
 )
+
+
+
+
+
+#' S4 class for tmodSummary
+#'
+#' S4 class for tmodSummary
+#'
+#' An object of class tmodSummary contains results from multiple
+#' enrichment tests for the same set of gene sets, for example from running
+#' tmodCERNOtest on different contrasts.
+#'
+#' @rdname tmodSummary-class
+#' @importFrom methods setClass setMethod loadMethod is new representation signature
+#' @seealso tmodSummary-data
+#' @exportClass tmodSummary
+setClass(Class="tmodSummary",
+  slots=c(pval.col="character", effect.col="character", rid="character"),
+  contains="data.frame")
+
+
+
+#' Shows a tmodSummary object
+#'
+#' @name show
+#' @param object a tmod object
+#' @aliases show,tmodSummary-method
+#' @rdname extract-methods
+#' @docType methods
+setMethod( "show", "tmodSummary",
+  function(object) {
+    show(as(object, "data.frame"))
+  })
+
+
+
