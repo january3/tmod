@@ -746,8 +746,17 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
     names(pie) <- paste0("X.", 1:length(pie))
   }
 
-  if(! all(names(x) %in% names(pie))) 
-    stop("All named elements of x must be found in pie. Please make sure that all(names(x) %in% names(pie))")
+  if(is(x, "tmodSummary")) {
+    .names <- x@rid
+  } else {
+    .names <- names(x)
+  }
+
+  if(! all(.names %in% names(pie)))  {
+    missing.names <- paste(.names[ ! .names %in% names(pie) ], collapse=", ")
+    stop(sprintf("All named elements of x must be found in pie. Missing:\n%s\nPlease make sure that all(names(x) %in% names(pie))", 
+      missing.names))
+  }
 
   pie <- pie[names(x)]
 
