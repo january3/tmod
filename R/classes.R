@@ -471,9 +471,9 @@ setClass(Class="tmodSummary",
 #' @rdname extract-methods
 #' @importFrom methods as show
 #' @docType methods
-setMethod( "show", "tmodSummary",
+setMethod( "show", signature("tmodSummary"),
   function(object) {
-    show(as(object, "data.frame"))
+    print(object)
   })
 
 
