@@ -361,7 +361,7 @@ evidencePlot <- function(l, m, mset="all", scaled= TRUE, rug=TRUE, roc=TRUE,
       names(gene.labels) <- sel
     }
 
-    gene.labels <- unique(as.character(gene.labels))
+    #gene.labels <- unique(as.character(gene.labels))
     
     if(is.null(names(gene.labels))) {
       names(gene.labels) <- gene.labels
