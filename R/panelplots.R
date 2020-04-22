@@ -689,7 +689,6 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
 ## return a plotting function for use as parameter in pvalEffectPlot
 .preparePlotFunc  <- function(row.ids, pie, min.p, max.p, pie.colors, plot.cex, style="pie") {
 
-  print(style)
   style <- match.arg(style, c("pie", "rug", "boxpie"))
 
   # prepare the pie coloring function
