@@ -111,11 +111,12 @@ tmodSummary <- function(x, clust=NULL, filter.empty=FALSE, filter.unknown=TRUE,
     ret <- ret[o,]
   }
 
-#  attr(ret, "tmodSummary") <- TRUE
-#  attr(ret, "pval.col") <- pval.col
-#  attr(ret, "effect.col") <- effect.col
-#  attr(ret, "rid") <- rid
-  ret <- new("tmodSummary", ret, pval.col=pval.col, effect.col=effect.col, rid=rid)
+  # attr(ret, "tmodSummary") <- TRUE
+  attr(ret, "pval.col") <- pval.col
+  attr(ret, "effect.col") <- effect.col
+  attr(ret, "rid") <- rid
+  class(ret) <- c("tmodSummary", class(ret))
+#  ret <- new("tmodSummary", ret, pval.col=pval.col, effect.col=effect.col, rid=rid)
   ret
 }
 

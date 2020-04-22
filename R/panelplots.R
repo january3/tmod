@@ -526,7 +526,7 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
 
 
   # get the column labels
-  if(is.null(col.labels)) { col.labels <- df@rid  }
+  if(is.null(col.labels)) { col.labels <- attr(df, "rid")  }
 
   # handle row labels
   row.labels.auto <- match.arg(row.labels.auto, c("title", "id", "auto", "both", "none"))
@@ -713,6 +713,9 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
       rect(x - w/2, y - h/2, x + w/2, y + h/2, border="#999999")
     } else {
       id <- row.ids[row]
+      print(id)
+      print(col)
+      print(pie[[col]])
       v <- pie[[col]][id,]
     }
 
@@ -747,7 +750,7 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
   }
 
   if(is(x, "tmodSummary")) {
-    .names <- x@rid
+    .names <- attr(x, "rid")
   } else {
     .names <- names(x)
   }
@@ -756,6 +759,18 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
     missing.names <- paste(.names[ ! .names %in% names(pie) ], collapse=", ")
     stop(sprintf("All named elements of x must be found in pie. Missing:\n%s\nPlease make sure that all(names(x) %in% names(pie))", 
       missing.names))
+  }
+
+  ## if this is not a direct result of tmodDecideTests, we need to make
+  ## sure that the contents is correct
+  if(!"tmodDecideClass" %in% class(pie)) {
+    foo <- lapply(pie, function(x) length(intersect(class(x), c("data.frame", "matrix"))) < 1)
+
+    if(any(foo)) {
+      msg <- sprintf("Elements:\n%s\nare not data frames or matrices\n",
+        paste(names(pie)[foo], collapse=", "))
+      stop(paste0(msg, "Elements of pie list should be either data frames or matrices"))
+    }
   }
 
   pie <- pie[names(x)]

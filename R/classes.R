@@ -441,40 +441,44 @@ setMethod("[", c(x="tmod", i="ANY"),
   }
 )
 
+#' @export
+print.tmodSummary <- function(x, ...) {
+  cat("A tmodSummary object\n")
+  print(as.data.frame(x, ...))
+}
 
 
 
-
-#' S4 class for tmodSummary
-#'
-#' S4 class for tmodSummary
-#'
-#' An object of class tmodSummary contains results from multiple
-#' enrichment tests for the same set of gene sets, for example from running
-#' tmodCERNOtest on different contrasts.
-#'
-#' @rdname tmodSummary-class
-#' @importFrom methods setClass setMethod loadMethod is new representation signature
-#' @seealso tmodSummary-data
-#' @exportClass tmodSummary
-setClass(Class="tmodSummary",
-  slots=c(pval.col="character", effect.col="character", rid="character"),
-  contains="data.frame")
-
+# #' S4 class for tmodSummary
+# #'
+# #' S4 class for tmodSummary
+# #'
+# #' An object of class tmodSummary contains results from multiple
+# #' enrichment tests for the same set of gene sets, for example from running
+# #' tmodCERNOtest on different contrasts.
+# #'
+# #' @rdname tmodSummary-class
+# #' @importFrom methods setClass setMethod loadMethod is new representation signature
+# #' @seealso tmodSummary-data
+# #' @exportClass tmodSummary
+# setClass(Class="tmodSummary",
+#   slots=c(pval.col="character", effect.col="character", rid="character"),
+#   contains="data.frame")
 
 
-#' Shows a tmodSummary object
-#'
-#' @name show
-#' @param object a tmod object
-#' @aliases show,tmodSummary-method
-#' @rdname extract-methods
-#' @importFrom methods as show
-#' @docType methods
-setMethod( "show", signature("tmodSummary"),
-  function(object) {
-    print(object)
-  })
+
+# #' Shows a tmodSummary object
+# #'
+# #' @name show
+# #' @param object a tmod object
+# #' @aliases show,tmodSummary-method
+# #' @rdname extract-methods
+# #' @importFrom methods as show
+# #' @docType methods
+# setMethod( "show", signature("tmodSummary"),
+#   function(object) {
+#     print(object)
+#   })
 
 
 
