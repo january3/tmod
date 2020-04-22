@@ -713,9 +713,6 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
       rect(x - w/2, y - h/2, x + w/2, y + h/2, border="#999999")
     } else {
       id <- row.ids[row]
-      print(id)
-      print(col)
-      print(pie[[col]])
       v <- pie[[col]][id,]
     }
 
