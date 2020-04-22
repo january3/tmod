@@ -761,7 +761,7 @@ tmodPanelPlot <- function(x, pie=NULL, clust="qval", select=NULL,
   ## if this is not a direct result of tmodDecideTests, we need to make
   ## sure that the contents is correct
   if(!"tmodDecideClass" %in% class(pie)) {
-    foo <- lapply(pie, function(x) length(intersect(class(x), c("data.frame", "matrix"))) < 1)
+    foo <- sapply(pie, function(x) length(intersect(class(x), c("data.frame", "matrix"))) < 1)
 
     if(any(foo)) {
       msg <- sprintf("Elements:\n%s\nare not data frames or matrices\n",
