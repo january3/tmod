@@ -259,7 +259,7 @@ plot.tmodPCA <- function(x, ...) {
   tagclouds <- lapply(1:n, function(i) {
     tmodTagcloud(enr[[i]], 
       filter=params$filter, simplify=params$simplify, fvert=fverts[i], algorithm=params$algorithm, maxn=params$maxn, scale=scale,
-      min.auc=1, min.)
+      min.auc=.5, max.qval=0.05)
   })
 
   #names(tagclouds) <- ids
