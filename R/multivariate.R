@@ -252,13 +252,14 @@ plot.tmodPCA <- function(x, ...) {
 
   ## first, calculate a rough scale
   foo <- tmodTagcloud(enr[[l_i]], 
-    filter=params$filter, simplify=params$simplify, fvert=fverts[l_i], algorithm=params$algorithm, maxn=params$maxn, plot=FALSE)
-  scale <- 2*attr(foo, "scale")
+    filter=params$filter, simplify=params$simplify, fvert=fverts[1], algorithm=params$algorithm, maxn=params$maxn, plot=FALSE)
+    scale <- 1.1 * attr(foo, "scale")
 
   ## plot the tag clouds
   tagclouds <- lapply(1:n, function(i) {
     tmodTagcloud(enr[[i]], 
-      filter=params$filter, simplify=params$simplify, fvert=fverts[i], algorithm=params$algorithm, maxn=params$maxn, scale=scale)
+      filter=params$filter, simplify=params$simplify, fvert=fverts[i], algorithm=params$algorithm, maxn=params$maxn, scale=scale,
+      min.auc=1, min.)
   })
 
   #names(tagclouds) <- ids
