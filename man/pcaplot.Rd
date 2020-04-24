@@ -10,6 +10,7 @@ pcaplot(
   group = NULL,
   col = NULL,
   pch = 19,
+  cex = 2,
   legend = NULL,
   ...
 )
@@ -25,6 +26,8 @@ overriden by pch=...)}
 \item{col}{Color for plotting (default: internal palette)}
 
 \item{pch}{Type of character to plot (default: 19)}
+
+\item{cex}{size of the symbols used for plotting}
 
 \item{legend}{draw a legend? If legend is a position (eg. "topright"), then a legend
 is drawn. If NULL or if the group parameter is NULL, then not.}
