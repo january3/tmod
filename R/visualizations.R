@@ -490,12 +490,13 @@ evidencePlot <- function(l, m, mset="all", scaled= TRUE, rug=TRUE, roc=TRUE,
 #'        overriden by pch=...)
 #' @param legend draw a legend? If legend is a position (eg. "topright"), then a legend
 #'        is drawn. If NULL or if the group parameter is NULL, then not.
+#' @param cex size of the symbols used for plotting
 #' @param ... any further parameters will be passed to the plot() function
 #'        (e.g. col, cex, ...)
 #' @return If group is NULL, then NULL; else a data frame containing
 #'         colors and shapes matching each group
 #' @export
-pcaplot <- function(pca, components=1:2, group=NULL, col=NULL, pch=19, legend=NULL, ...) {
+pcaplot <- function(pca, components=1:2, group=NULL, col=NULL, pch=19, cex=2, legend=NULL, ...) {
 
   args <- list(...)
   
@@ -515,6 +516,7 @@ pcaplot <- function(pca, components=1:2, group=NULL, col=NULL, pch=19, legend=NU
   if(is.null(col)) col <- "grey"
 
   default.args <- list(pch=pch, xlim=range(x), ylim=range(y), bty="n", pch=pch, 
+    cex=cex,
     col=col,
     xlab=paste("PC", components[1]), ylab=paste("PC", components[2]))
   args <- c(args, default.args)

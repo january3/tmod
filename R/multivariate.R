@@ -156,105 +156,133 @@ tmodPCA <- function(pca, loadings=NULL, genes,
 
   mode <- match.arg( mode, c( "simple", "leftbottom", "cross" ) )
   tmodfunc <- match.arg(tmodfunc, c( "tmodCERNOtest", "tmodUtest" ))
-  tfunc <- switch(tmodfunc, tmodCERNOtest=tmodCERNOtest, tmodUtest=tmodUtest)
-
-  if(plot) {
-    oldpar <- par("mfrow") # try to restore the screen after layout()
-    on.exit(par(oldpar))
-
-    if( mode == "simple" ) { 
-      layout(matrix(c(2,3,
-                      4,1),2,2,byrow=TRUE), 
-             widths=c(0.3, 0.7), heights=c(0.7, 0.3))
-    } else if( mode == "leftbottom" ) {
-      layout(matrix( c(4, 5, 5, 
-                       3, 5, 5, 
-                       6, 1, 2), 3, 3, byrow=TRUE), 
-             widths=rep(1/3, 3), heights=rep(1/3, 3))
-    } else if( mode == "cross" ) {
-      layout(matrix( c( 6, 4, 0,
-                        1, 5, 2,
-                        0, 3, 0), 3, 3, byrow=TRUE), 
-             widths=c( 1/4, 1/2, 1/4), heights=c( 1/4, 1/2, 1/4 ))
-    }
-
-    oldpar <- par( mar=c( 1, 2, 0, 0 ) )
-    on.exit( par(oldpar) )
-  }
-
-  cc <- components
 
   ret <- list()
+  ret$params <- list(
+    pca=pca,
+    loadings=loadings,
+    tmodfunc=tmodfunc,
+    genes=genes,
+    plotfunc=plotfunc,
+    mode=mode,
+    components=components,
+    plot.params=plot.params,
+    filter=filter,
+    simplify=simplify,
+    legend=legend,
+    maxn=maxn,
+    plot=plot
+  )
+
   ret$enrichments <- list()
 
-  if( mode == "simple" ) {
-    ## calculate enrichments
-    res <- lapply(1:2, function(i) tfunc( genes[ order( abs( pca$rotation[,cc[i]] ), decreasing=T ) ], ... ))
-    names(res) <- ids <- paste0( "Component", cc )
-    ret$enrichments <- res
+  tfunc <- switch(tmodfunc, tmodCERNOtest=tmodCERNOtest, tmodUtest=tmodUtest)
+  cc <- components
+
+  ret$enrichments <- lapply(cc, function(.c) {
+    .x <- pca$rotation[, .c, drop=TRUE]
+    gl <- list(
+      up=genes[ order(.x) ],
+      down=genes[ order(-.x) ],
+      abs=genes[ order(-abs(.x)) ])
+    lapply(gl, tfunc, ...)
+  })
+  names(ret$enrichments) <- paste0("PC.", cc)
+
+  class(ret) <- c("tmodPCA", class(ret))
+  return(invisible(ret))
+}
+
+
+
+#' @export
+plot.tmodPCA <- function(x, ...) {
+  if(!is(x, "tmodPCA")) stop("x is not tmodPCA")
+  new_params <- list(...)
+
+  for(.p in names(new_params)) {
+    x$params[[.p]] <- new_params[[.p]]
+  }
+
+  params <- x$params
+  
+  plot.new()
+  oldpar <- par("mfrow") # try to restore the screen after layout()
+  on.exit(par(oldpar))
+
+  params$mode <- match.arg(params$mode, c( "simple", "leftbottom", "cross" ))
+
+  switch(params$mode,
+    simple=layout(matrix(c(2,3,
+                    4,1),2,2,byrow=TRUE), 
+           widths=c(0.3, 0.7), heights=c(0.7, 0.3)),
+    leftbottom=layout(matrix( c(4, 5, 5, 
+                     3, 5, 5, 
+                     6, 1, 2), 3, 3, byrow=TRUE), 
+           widths=rep(1/3, 3), heights=rep(1/3, 3)),
+    cross=layout(matrix( c( 6, 4, 0,
+                      1, 5, 2,
+                      0, 3, 0), 3, 3, byrow=TRUE), 
+           widths=c( 1/4, 1/2, 1/4), heights=c( 1/4, 1/2, 1/4 ))
+  )
+
+  cc <- paste0("PC.", params$components)[1:2]
+
+  if(params$mode == "simple") {
     fverts <- c(0, 0)
     algorithm <- "oval"
-
-    #if(plot) tmodTagcloud( res, filter=filter, simplify=simplify, maxn=maxn )
-    #if(plot) tmodTagcloud( res, filter=filter, simplify=simplify, fvert=1, maxn=maxn)
+    enr <- lapply(x$enrichments[cc], `[[`, "abs")
   } else {
-    ids <- paste0( "Component", cc )
-    ids <- c( paste0(ids[1], c(".left", ".right")), paste0(ids[2], c(".bottom", ".top")))
+    #ids <- paste0( "Component", params$components )
+    #ids <- c(paste0(ids[1], c(".left", ".right")), paste0(ids[2], c(".bottom", ".top")))
+
+    enr <- lapply(x$enrichments[cc], `[`, c("up", "down"))
+    enr <- unlist(enr, recursive=FALSE)
 
     fverts <- c( 0, 0, 1, 1 )
-    if(mode == "cross") fverts <- c( 0, 0, 0, 0 )
-    comp_i <- cc[c(1, 1, 2, 2)]
-    decreasing <- c(FALSE, TRUE, FALSE, TRUE)
-
-    ## calculate enrichments, both directions for each component
-    res <- lapply(1:4, function(i) 
-      tfunc( genes[ order( pca$rotation[,comp_i[i]], decreasing=decreasing[i] ) ], ... )
-    )
-    names(res) <- ids
-    ret$enrichments <- res
+    if(params$mode == "cross") fverts <- c(0, 0, 0, 0)
     algorithm <- "fill"
-
-    #if(plot) tmodTagcloud( res, filter=filter, simplify=simplify, fvert=fverts[4], algorithm="fill", maxn=maxn )
   }
 
-  if(plot) {
+  oldpar <- par(mar=c(1, 2, 0, 0))
+  on.exit(par(oldpar))
 
-    n <- length(res)
-    l_i <- which.max(lapply(res, nrow)) # largest result list
+  n <- length(enr)
+  l_i <- which.max(lapply(enr, nrow)) # largest result list
 
-    ## first, calculate a rough scale
-    foo <- tmodTagcloud(res[[l_i]], filter=filter, simplify=simplify, fvert=fverts[l_i], algorithm=algorithm, maxn=maxn, plot=FALSE)
-    scale <- attr(foo, "scale")
-    tagclouds <- lapply(1:n, function(i) {
-      tmodTagcloud(res[[i]], filter=filter, simplify=simplify, fvert=fverts[i], algorithm=algorithm, maxn=maxn, scale=scale)
-    })
-    names(tagclouds) <- ids
-    ret$tagclouds <- tagclouds
+  ## first, calculate a rough scale
+  foo <- tmodTagcloud(enr[[l_i]], 
+    filter=params$filter, simplify=params$simplify, fvert=fverts[l_i], algorithm=params$algorithm, maxn=params$maxn, plot=FALSE)
+  scale <- 2*attr(foo, "scale")
 
+  ## plot the tag clouds
+  tagclouds <- lapply(1:n, function(i) {
+    tmodTagcloud(enr[[i]], 
+      filter=params$filter, simplify=params$simplify, fvert=fverts[i], algorithm=params$algorithm, maxn=params$maxn, scale=scale)
+  })
 
+  #names(tagclouds) <- ids
+  #x$tagclouds <- tagclouds
 
-
-  }
-
-  plot.params <- c(list(pca=pca, components=components), plot.params)
+  plot.params <- c(list(pca=params$pca, components=params$components), params$plot.params)
 
   # ------------ main plot --------------------
-  if(plot) ret$plot.return <- do.call(plotfunc, plot.params )
+  x$plot.return <- do.call(params$plotfunc, plot.params )
   # ------------ main plot --------------------
 
-  if(plot && legend) {
+  if(params$plot && params$legend) {
     `%.n%` <- function(x, y) if(is.na(x) || is.null(x)) y else x
 
     par(mar=c(0,0,0,0), usr=c(0,1,0,1))
     plot.new()
     legend("topleft",
-      as.character(ret$plot.return$groups),
-      col=ret$plot.return$colors %.n% ret$plot.return$col %.n% "black",
-      pch=ret$plot.return$shapes %.n% ret$plot.return$pch %.n% 19,
+      as.character(x$plot.return$groups),
+      col=x$plot.return$colors %.n% x$plot.return$col %.n% "black",
+      pch=x$plot.return$shapes %.n% x$plot.return$pch %.n% 19,
       bty="n",
       cex=1.5)
   }
-  #plot.new()
 
-  return(invisible(ret))
+
+  return(invisible(x))
 }
