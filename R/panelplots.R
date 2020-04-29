@@ -248,7 +248,7 @@ pvalEffectPlot <- function(e, p,
   # Legend style and parameters
   legend.style <- match.arg(legend.style, c("auto", "tall", "broad", "none"))
   if(legend.style == "auto") {
-    if(Nc < 5) {
+    if(Nc < 7) {
       legend.style <- "tall"
     } else {
       legend.style <- "broad"
@@ -288,7 +288,13 @@ pvalEffectPlot <- function(e, p,
   col.w <- 1/(Nc) *(1-rownwd-colnwd)
   if(col.w < colnwd) warning( "Figure too narrow, the labels will overlap.\nConsider using smaller text.cex" )
   #message(sprintf("rownwd=%.2f, col.w=%.2f, colnwd=%.2f\n", rownwd, col.w, colnwd))
-  if(col.w * 8 > 1) col.w <- 1/8
+  if(legend.style == "broad") {
+    if(col.w * 14 > 1) col.w <- 1/14
+  }
+
+  if(legend.style == "tall") {
+    if(col.w * 7 > 1) col.w <- 1/7
+  }
 
   n.cn <- switch(col.labels.style, top=1, bottom=1, both=2, none=0)
   col.lab.space <- 1 - n.cn * (line.h + colnht)
@@ -297,6 +303,7 @@ pvalEffectPlot <- function(e, p,
 
   if(row.h < 0 ) warning("Figure too short, text will not fit in; use smaller text.cex")
   if(row.h < line.h) warning( "Figure too short, the labels will overlap.\nConsider using smaller text.cex" )
+  if(row.h > 4 * line.h) row.h <- 4 * line.h
 
   # columns tend to get too wide if there are too few
   # if(col.w > 3 * row.h * pp[2] / pp[1]) {
