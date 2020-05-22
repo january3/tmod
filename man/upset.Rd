@@ -13,7 +13,9 @@ upset(
   min.group = 1,
   value = "number",
   cutoff = NULL,
-  labels = NULL
+  labels = NULL,
+  group = TRUE,
+  pal = brewer.pal(8, "Dark2")
 )
 }
 \arguments{
@@ -25,11 +27,25 @@ upset(
 
 \item{min.overlap}{smallest overlap to plot}
 
-\item{max.comb}{Maximum number of combinations}
+\item{max.comb}{Maximum number of combinations to show (i.e., number of
+dots on every vertical segment in the upset plot)}
+
+\item{min.group}{Minimum number of modules in a group. Group with a
+smaller number of members will be ignored.}
 
 \item{value}{what to show on the plot: "number" (number of common
-elements) or "jaccard" (jaccard index)}
+elements), "soerensen" (Sørensen–Dice coefficient), 
+"overlap" (Szymkiewicz–Simpson coefficient) or "jaccard" (Jaccard index)}
+
+\item{cutoff}{Combinations with the `value` below cutoff will not be shown.}
+
+\item{labels}{Labels for the modules. Character vector with the same
+length as `modules`}
+
+\item{group}{Should the modules be grouped by the overlap?}
+
+\item{pal}{Color palette to show the groups.}
 }
 \description{
-Upset plot
+Upset plots help to interpret the results of gene set enrichment.
 }

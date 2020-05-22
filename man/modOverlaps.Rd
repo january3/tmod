@@ -4,7 +4,7 @@
 \alias{modOverlaps}
 \title{Calculate overlaps of the modules}
 \usage{
-modOverlaps(modules, mset = NULL, jaccard = TRUE)
+modOverlaps(modules, mset = NULL, stat = "jaccard")
 }
 \arguments{
 \item{modules}{either a character vector with module IDs from mset, or a list which
@@ -12,8 +12,9 @@ contains the module members}
 
 \item{mset}{Which module set to use. Either a character vector ("LI", "DC" or "all", default: LI) or an object of class tmod (see "Custom module definitions" below)}
 
-\item{jaccard}{if TRUE, the Jaccard similarity index will be calculated;
-otherwise, total number of common genes will be returned}
+\item{stat}{Type of statistics to return. "jaccard": Jaccard index;
+number: number of overlapping genes;
+       otherwise, total number of common genes will be returned}
 }
 \description{
 Calculate overlaps of the modules

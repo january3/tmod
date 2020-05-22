@@ -6,6 +6,25 @@
 \usage{
 modGroups(modules, mset = NULL, min.overlap = 2)
 }
+\arguments{
+\item{modules}{Either a list of modules or character vector.}
+
+\item{mset}{Which module set to use. Either a character vector ("LI", "DC" or "all", default: LI) or an object of class tmod (see "Custom module definitions" below)}
+
+\item{min.overlap}{Minimum number of overlapping items.}
+}
 \description{
 Find group of modules  based on shared genes
+}
+\details{
+Split the modules into groups based on the overlapping items.
+
+The first argument, modules, is either a character vector of module identifiers from `mset`
+(NULL mset indicates the default mset of tmod) or a list. If it is a
+list, then each element is assumed to be a character vector with module
+IDs.
+}
+\examples{
+mymods <- list(A=c(1, 2, 3), B=c(2, 3, 4), C=c(5, 6, 7))
+modGroups(mymods)
 }

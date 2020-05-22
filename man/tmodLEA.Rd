@@ -19,5 +19,11 @@ rows from ranks}
 \item{filter}{Remove gene names which have no module assignments}
 }
 \description{
-Leading Edge Analysis
+For each module, return a list of genes on the leading edge
+}
+\details{
+Given a vector of ordered gene identifiers and a vector of module IDs,
+for each module, return the genes which are on the up-slope of the
+GSEA-style evidence plot. That is, return the genes that are driving the
+enrichment.
 }

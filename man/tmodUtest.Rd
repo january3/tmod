@@ -102,7 +102,7 @@ tmodHGtest(
 
 \item{filter}{Remove gene names which have no module assignments}
 
-\item{mset}{Which module set to use. Either a character vector ("LI", "DC" or "all", default: LI) or a list (see "Custom module definitions" below)}
+\item{mset}{Which module set to use. Either a character vector ("LI", "DC" or "all", default: LI) or an object of class tmod (see "Custom module definitions" below)}
 
 \item{cols}{Which columns from the MODULES data frame should be included in resulsts}
 

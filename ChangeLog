@@ -1,3 +1,7 @@
+Version 0.44, 22.5.2020
+ * added leading edge analysis
+ * added upset plots
+
 Version 0.43, 17.4.2020
  * in tmodPanelPlot and pvalEffectPlot, modified the defaults such
    that it is now possible to use blue and red dots if the effect sizes are

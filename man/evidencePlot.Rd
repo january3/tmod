@@ -8,7 +8,6 @@ evidencePlot(
   l,
   m,
   mset = "all",
-  scaled = TRUE,
   rug = TRUE,
   roc = TRUE,
   filter = FALSE,
@@ -34,8 +33,6 @@ evidencePlot(
 \item{m}{character vector of modules for which the plot should be created}
 
 \item{mset}{Which module set to use (see tmodUtest for details)}
-
-\item{scaled}{if TRUE, the cumulative sums will be divided by the total sum (default)}
 
 \item{rug}{if TRUE, draw a rug-plot beneath the ROC curve}
 
@@ -76,9 +73,17 @@ Create an evidence plot for a module
 }
 \details{
 This function creates an evidence plot for a module, based on an
-ordered list of genes. The plot shows the receiving operator
+ordered list of genes. By default, the plot shows the receiving operator
 characteristic (ROC) curve and a rug below, which indicates the distribution of the
 module genes in the sorted list.
+
+Several styles of the evidence plot are possible:
+ * roc (default): a receiver-operator characteristic like curve; the
+   area under the curve corresponds to the effect size (AUC)
+ * roc_absolute: same as above, but the values are not scaled by the
+   total number of genes in a module
+ * gsea
+ * enrichment: the curve shows relative enrichment at the given position
 }
 \examples{
 # artificially enriched list of genes

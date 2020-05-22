@@ -102,7 +102,7 @@
 #' rows from ranks
 #' @param order.by Order by P value ("pval") or none ("none")
 #' @param filter Remove gene names which have no module assignments
-#' @param mset Which module set to use. Either a character vector ("LI", "DC" or "all", default: LI) or a list (see "Custom module definitions" below)
+#' @param mset Which module set to use. Either a character vector ("LI", "DC" or "all", default: LI) or an object of class tmod (see "Custom module definitions" below)
 #' @param cols Which columns from the MODULES data frame should be included in resulsts
 #' @param useR use the R \code{wilcox.test} function; slow, but with exact p-values for small samples
 #' @param Nsim for tmodGeneSetTest, number of replicates for the randomization test
