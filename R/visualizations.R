@@ -637,6 +637,17 @@ upset <- function(modules, mset=NULL, min.size=2, min.overlap=3, max.comb=4,
   if(group) {
     message("finding groups")
     modgroups <- modGroups(modules, mset, min.overlap=min.overlap)
+    min.group.orig <- min.group
+
+    while(sum(sapply(modgroups, length) >= min.group) < 1) {
+      min.group <- min.group - 1
+    }
+
+    if(min.group < min.group.orig) {
+      warning(sprintf("No groups found for group size of %d;\nchanging parameter to %d",
+        min.group.orig, min.group))
+    }
+
     modgroups <- modgroups[ sapply(modgroups, length) >= min.group ]
     message("done")
     group.n <- length(modgroups)
@@ -712,8 +723,10 @@ upset <- function(modules, mset=NULL, min.size=2, min.overlap=3, max.comb=4,
   text(0, vpos, labels[names(modules)], pos=2)
  
   #segments(1, vpos, ups.n, vpos, col="grey")
-  sel <- rep(c(TRUE, FALSE), floor(ups.n/2))
-  rect(.5, vpos[sel] - step/2, ups.n + .5, vpos[sel] + step/2, col="#33333333", border=NA)
+  sel <- rep(c(TRUE, FALSE), floor(modules.n/2))
+  if(length(sel) > 0) {
+    rect(.5, vpos[sel] - step/2, ups.n + .5, vpos[sel] + step/2, col="#33333333", border=NA)
+  }
   segments(.5 + 1:ups.n, max(vpos) + step/2, .5 + 1:ups.n, min(vpos) - step/2, col="white")
  
   for(i in 1:ups.n) {
