@@ -588,6 +588,60 @@ pcaplot <- function(pca, components=1:2, group=NULL, col=NULL, pch=19, cex=2, le
   return(ret)
 }
 
+## generate combinations for upset
+.upset_generate_combinations <- function(modules, modgroups, min.size, min.overlap, max.comb, value) {
+
+  message("generating combinations")
+  ups <- lapply(modgroups, function(g) {
+    .ups <- .combn_upset(modules[g], min.size=min.size, min.overlap=min.overlap, max.comb=max.comb)
+    vals <- sapply(.ups, attr, value)
+    .ups <- .ups[ order(-vals) ]
+    attr(.ups, "maxval") <- max(vals)
+    .ups
+  })
+  message("done")
+
+  return(ups)
+}
+
+## find module groups for upset
+.upset_find_groups <- function(modules, mset, min.overlap, min.group, group.stat="number") {
+  message("finding groups")
+  modgroups <- modGroups(modules, mset, min.overlap=min.overlap, stat=group.stat)
+  min.group.orig <- min.group
+
+  while(sum(sapply(modgroups, length) >= min.group) < 1) {
+    min.group <- min.group - 1
+  }
+
+  if(min.group < min.group.orig) {
+    warning(sprintf("No groups found for group size of %d;\nchanging parameter to %d",
+      min.group.orig, min.group))
+  }
+
+  modgroups <- modgroups[ sapply(modgroups, length) >= min.group ]
+  message("done")
+
+  return(modgroups)
+}
+
+
+.adapt_cex <- function(labels, lab.cex, horiz=1, vert=1, vert.expand=1.2, vert.mar=1, step=.95) {
+
+  message("adapting fonts")
+  while((maxwidth <- max(sapply(labels, strwidth, cex=lab.cex))) < horiz ||
+        (length(labels) + vert.mar) * vert.expand * max(sapply(labels, strheight, cex=lab.cex)) < vert)  {
+    lab.cex <- lab.cex / step
+  }
+  message(sprintf("lab.cex=%.2f", lab.cex))
+  while((maxwidth <- max(sapply(labels, strwidth, cex=lab.cex))) > horiz ||
+        (length(labels) + vert.mar) * vert.expand * max(sapply(labels, strheight, cex=lab.cex)) > vert)  {
+    lab.cex <- lab.cex * step
+  }
+  message(sprintf("lab.cex=%.2f", lab.cex))
+  return(lab.cex)
+}
+
 
 #' Upset plot
 #'
@@ -605,17 +659,21 @@ pcaplot <- function(pca, components=1:2, group=NULL, col=NULL, pch=19, cex=2, le
 #' @param cutoff Combinations with the `value` below cutoff will not be shown.
 #' @param labels Labels for the modules. Character vector with the same
 #'        length as `modules`
+#' @param group.stat Statistics for finding groups (can be "number" or "jaccard")
+#' @param lab.cex Initial cex (font size) for labels
 #' @param pal Color palette to show the groups. 
 #' @inheritParams tmodUtest
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom utils combn
 #' @export
-upset <- function(modules, mset=NULL, min.size=2, min.overlap=3, max.comb=4, 
-  min.group=1, value="number", cutoff=NULL, labels=NULL,
+upset <- function(modules, mset=NULL, min.size=2, min.overlap=.05, max.comb=4, 
+  min.group=1, value="number", cutoff=NULL, labels=NULL, group.stat="jaccard",
   group=TRUE,
-  pal=brewer.pal(8, "Dark2")) {
+  pal=brewer.pal(8, "Dark2"),
+  lab.cex=1) {
 
   value <- match.arg(value, c("number", "jaccard", "soerensen", "overlap"))
+  group.stat <- match.arg(value, c("number", "jaccard"))
 
   if(!is.list(modules)) {
     mset <- .getmodules2(modules, mset)
@@ -635,21 +693,7 @@ upset <- function(modules, mset=NULL, min.size=2, min.overlap=3, max.comb=4,
   names(labels) <- names(modules)
 
   if(group) {
-    message("finding groups")
-    modgroups <- modGroups(modules, mset, min.overlap=min.overlap)
-    min.group.orig <- min.group
-
-    while(sum(sapply(modgroups, length) >= min.group) < 1) {
-      min.group <- min.group - 1
-    }
-
-    if(min.group < min.group.orig) {
-      warning(sprintf("No groups found for group size of %d;\nchanging parameter to %d",
-        min.group.orig, min.group))
-    }
-
-    modgroups <- modgroups[ sapply(modgroups, length) >= min.group ]
-    message("done")
+    modgroups <- .upset_find_groups(modules, mset, min.overlap, min.group, group.stat)
     group.n <- length(modgroups)
     pal <- rep(pal, ceiling(group.n/length(pal)))
     pal <- pal[1:group.n]
@@ -660,17 +704,7 @@ upset <- function(modules, mset=NULL, min.size=2, min.overlap=3, max.comb=4,
     pal.bar <- c(all="#333333")
   }
 
-  #ups <- .combn_upset(modules, min.size=min.size, min.overlap=min.overlap)
-  message("generating combinations")
-  ups <- lapply(modgroups, function(g) {
-    .ups <- .combn_upset(modules[g], min.size=min.size, min.overlap=min.overlap, max.comb=max.comb)
-    vals <- sapply(.ups, attr, value)
-    .ups <- .ups[ order(-vals) ]
-    attr(.ups, "maxval") <- max(vals)
-    .ups
-  })
-  message("done")
-
+  ups <- .upset_generate_combinations(modules, modgroups, min.size, min.overlap, max.comb, value)
   ord <- order(-sapply(ups, attr, "maxval"))
   ups <- ups[ ord ]
   modgroups <- modgroups[ ord ] # reorder by best value from ups
@@ -693,11 +727,20 @@ upset <- function(modules, mset=NULL, min.size=2, min.overlap=3, max.comb=4,
 
   # ----------- plotting ----------------------------------
 
+  div.right <- ups.n + 1
+  div.left   <- .3 * 2 * div.right
+  div.top <- 1.1 * max(ups.l)
+  div.bottom <- .7 * 2 * div.top
+
+  xlim <- c(-div.left, ups.n + 1)
+  ylim <- c(-div.bottom, 1.1 * max(ups.l))
+
   dev.hold()
-  plot(NULL, 
-    xlim=c(-ups.n/3, ups.n + 1), ylim=c(-max(ups.l), max(ups.l)),
+  plot(NULL, xlim=xlim, ylim=ylim,
     xaxt="n", yaxt="n",
     bty="n", xlab="", ylab="")
+
+  #rect(xlim[1], ylim[1], xlim[2], ylim[2])
 
   sw <- strwidth("XX")
   ylab <- switch(value, number="Number of members", jaccard="Jaccard Index", 
@@ -707,6 +750,7 @@ upset <- function(modules, mset=NULL, min.size=2, min.overlap=3, max.comb=4,
   ticks <- axisTicks(c(0, max(ups.l)), log=FALSE)
   axis(2, at=ticks, pos=0)
 
+  ## ------ upper barplot
   rect(
     1:ups.n - .4,
     0, 
@@ -716,13 +760,19 @@ upset <- function(modules, mset=NULL, min.size=2, min.overlap=3, max.comb=4,
 
   segments(0, ticks, ups.n + 1, ticks, col="white")
 
+  ## ------ left bottom labels
+
+  labels <- labels[ names(modules) ]
+  lab.cex <- .adapt_cex(labels, lab.cex, div.left, div.bottom)
   modules.n <- length(modules)
-  step <- max(ups.l)/modules.n
+  step <- div.bottom/(modules.n + 1)
+
   vpos <- (1:modules.n) * -step - step/2
   names(vpos) <- names(modules)
-  text(0, vpos, labels[names(modules)], pos=2)
+  text(0, vpos, labels, pos=2, cex=lab.cex)
  
-  #segments(1, vpos, ups.n, vpos, col="grey")
+  ## ------ right bottom upset plot
+
   sel <- rep(c(TRUE, FALSE), floor(modules.n/2))
   if(length(sel) > 0) {
     rect(.5, vpos[sel] - step/2, ups.n + .5, vpos[sel] + step/2, col="#33333333", border=NA)

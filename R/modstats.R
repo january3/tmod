@@ -162,13 +162,16 @@ modOverlaps <- function(modules, mset=NULL, stat="jaccard") {
 #' @examples
 #' mymods <- list(A=c(1, 2, 3), B=c(2, 3, 4), C=c(5, 6, 7))
 #' modGroups(mymods)
-#' @param min.overlap Minimum number of overlapping items.
+#' @param min.overlap Minimum number of overlapping items if stat ==
+#'        number, minimum jaccard index if stat == jaccard.
 #' @param modules Either a list of modules or character vector. 
+#' @param stat statistics to use vor 
 #' @inheritParams tmodUtest
 #' @export
-modGroups <- function(modules, mset=NULL, min.overlap=2) {
+modGroups <- function(modules, mset=NULL, min.overlap=2, stat="number") {
+  stat <- match.arg(stat, c("number", "jaccard"))
 
-  crmat <- modOverlaps(modules, mset, stat="number")
+  crmat <- modOverlaps(modules, mset, stat=stat)
   crmat[ crmat < min.overlap ] <- 0
 
   if(!is.list(modules)) {
