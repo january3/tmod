@@ -605,9 +605,9 @@ pcaplot <- function(pca, components=1:2, group=NULL, col=NULL, pch=19, cex=2, le
 }
 
 ## find module groups for upset
-.upset_find_groups <- function(modules, mset, min.overlap, min.group, group.stat="number") {
+.upset_find_groups <- function(modules, mset, group.cutoff, min.group, group.stat="number") {
   message("finding groups")
-  modgroups <- modGroups(modules, mset, min.overlap=min.overlap, stat=group.stat)
+  modgroups <- modGroups(modules, mset, min.overlap=group.cutoff, stat=group.stat)
   min.group.orig <- min.group
 
   while(sum(sapply(modgroups, length) >= min.group) < 1) {
@@ -647,7 +647,7 @@ pcaplot <- function(pca, components=1:2, group=NULL, col=NULL, pch=19, cex=2, le
 #'
 #' Upset plots help to interpret the results of gene set enrichment.
 #' @param min.size minimal number of modules in a comparison to show
-#' @param min.overlap smallest overlap to plot
+#' @param min.overlap smallest overlap (number of elements) between two modules to plot
 #' @param min.group Minimum number of modules in a group. Group with a
 #'        smaller number of members will be ignored.
 #' @param group Should the modules be grouped by the overlap?
@@ -659,6 +659,7 @@ pcaplot <- function(pca, components=1:2, group=NULL, col=NULL, pch=19, cex=2, le
 #' @param cutoff Combinations with the `value` below cutoff will not be shown.
 #' @param labels Labels for the modules. Character vector with the same
 #'        length as `modules`
+#' @param group.cutoff cutoff for group statistics 
 #' @param group.stat Statistics for finding groups (can be "number" or "jaccard")
 #' @param lab.cex Initial cex (font size) for labels
 #' @param pal Color palette to show the groups. 
@@ -666,8 +667,9 @@ pcaplot <- function(pca, components=1:2, group=NULL, col=NULL, pch=19, cex=2, le
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom utils combn
 #' @export
-upset <- function(modules, mset=NULL, min.size=2, min.overlap=.05, max.comb=4, 
+upset <- function(modules, mset=NULL, min.size=2, min.overlap=2, max.comb=4, 
   min.group=1, value="number", cutoff=NULL, labels=NULL, group.stat="jaccard",
+  group.cutoff=.05,
   group=TRUE,
   pal=brewer.pal(8, "Dark2"),
   lab.cex=1) {
@@ -693,7 +695,7 @@ upset <- function(modules, mset=NULL, min.size=2, min.overlap=.05, max.comb=4,
   names(labels) <- names(modules)
 
   if(group) {
-    modgroups <- .upset_find_groups(modules, mset, min.overlap, min.group, group.stat)
+    modgroups <- .upset_find_groups(modules, mset, group.cutoff, min.group, group.stat)
     group.n <- length(modgroups)
     pal <- rep(pal, ceiling(group.n/length(pal)))
     pal <- pal[1:group.n]
