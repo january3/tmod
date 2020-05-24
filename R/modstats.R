@@ -119,11 +119,25 @@ modjaccard <- function(mset=NULL, g=NULL) {
 
 
 #' Calculate overlaps of the modules
+#'
+#' Calculate overlaps of the modules
+#'
+#' The different statistics available are:
+#'  * "number": total number of common genes (size of the overlap)
+#'  * "jaccard": Jaccard index, i.e. \eqn{\frac{|A \cap B|}{|A \cup B|}}
+#'    (number of common elements divided by the total number of unique elements);
+#'  * "soerensen": Soerensen-Dice coefficient, defined as \eqn{\frac{2 \cdot |A \cap B|}{|A| + |B|}} 
+#'    (number of common elements divided by the average size of both gene sets)
+#'  * "overlap": Szymkiewicz-Simpson coefficient, defined as \eqn{\frac{|A \cap B|}{\min(|A|, |B|)}} 
+#'    (number of common elements divided by the size of the smaller gene set)
+#' 
 #' @param modules either a character vector with module IDs from mset, or a list which
 #'        contains the module members
-#' @param stat Type of statistics to return. "jaccard": Jaccard index;
-#' number: number of overlapping genes;
-#'        otherwise, total number of common genes will be returned
+#' @param stat Type of statistics to return. 
+#'        "number": number of common genes (default);
+#'        "jaccard": Jaccard index;
+#'        "soerensen": Soerensen-Dice coefficient;
+#'        "overlap": Szymkiewicz-Simpson coefficient.
 #' @inheritParams tmodUtest
 #' @export
 modOverlaps <- function(modules, mset=NULL, stat="jaccard") {
@@ -132,7 +146,7 @@ modOverlaps <- function(modules, mset=NULL, stat="jaccard") {
     modules <- mset$MODULES2GENES[modules]
   }
 
-  stat <- match.arg(stat, c("jaccard", "number"))
+  stat <- match.arg(stat, c("jaccard", "number", "soerensen", "overlap"))
 
   g <- unique(unlist(modules))
   mat <- sapply(modules, function(x) g %in% x)
@@ -141,7 +155,12 @@ modOverlaps <- function(modules, mset=NULL, stat="jaccard") {
   n <- length(sums)
   mm <- matrix(sums, nrow=n, ncol=n)
 
-  if(stat == "jaccard") crmat <- crmat/(mm + t(mm) - crmat)
+  if(stat == "jaccard")   crmat <- crmat/(mm + t(mm) - crmat)
+  if(stat == "soerensen") crmat <- 2 * crmat / (mm + t(mm))
+  if(stat == "overlap")   {
+    minmat <- pmin(mm, t(mm))
+    crmat <- crmat / minmat
+  }
 
   return(crmat)
 }

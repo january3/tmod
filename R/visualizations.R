@@ -606,7 +606,7 @@ pcaplot <- function(pca, components=1:2, group=NULL, col=NULL, pch=19, cex=2, le
 
 ## find module groups for upset
 .upset_find_groups <- function(modules, mset, group.cutoff, min.group, group.stat="number") {
-  message("finding groups")
+  message(sprintf("finding groups stat=%s cutoff=%.2f", group.stat, group.cutoff))
   modgroups <- modGroups(modules, mset, min.overlap=group.cutoff, stat=group.stat)
   min.group.orig <- min.group
 
@@ -646,47 +646,89 @@ pcaplot <- function(pca, components=1:2, group=NULL, col=NULL, pch=19, cex=2, le
 #' Upset plot
 #'
 #' Upset plots help to interpret the results of gene set enrichment.
+#' 
+#' The plot consists of three parts. The main part shows the overlaps
+#' between the different modules (module can be a gene set, for example).
+#' Each row corresponds to one module. Each column corresponds to an
+#' intersection of one or more gene sets. Dots show which gene sets are in
+#' that combination. Which combinations are shown depends on the parameters
+#' `min.overlap` (which is the cutoff for the similarity measure specified by
+#' the `value` parameter), the parameter `min.group` which specifies the
+#' minimum number of modules in a group and the parameter `max.comb` which
+#' specifies the maximum number of combinations tested (too many combinations
+#' are messing the plot).
+#'
+#' Above the intersections, you see a plot showing a similarity measure of
+#' the intersected gene sets. By default it is the number of module members
+#' (genes in case of a gene set), but several
+#' other measures (e.g. the Jaccard index) are also implemented.
+#' 
+#' To the left are the module descriptions (parameter `label`; if label is
+#' empty, the labels are taken from the mset object provided or, if that is
+#' NULL, from the default tmod module set). The function attempts to scale
+#' the text in such a way that all labels are visible. 
+#'
+#' By default, upset attempts to group the modules. This is done by
+#' defining a similarity measure (by default the Jaccard index, parameter
+#' `group.stat`) and a cutoff threshold (parameter `group.cutoff`).
+#' @return upset returns invisibly the identified module groups: a list of
+#'         character vectors.
 #' @param min.size minimal number of modules in a comparison to show
 #' @param min.overlap smallest overlap (number of elements) between two modules to plot
 #' @param min.group Minimum number of modules in a group. Group with a
-#'        smaller number of members will be ignored.
+#'        smaller number of members will be ignored. Change this value to 
+#'        1 to see also modules which could not be grouped.
 #' @param group Should the modules be grouped by the overlap?
 #' @param max.comb Maximum number of combinations to show (i.e., number of
 #'        dots on every vertical segment in the upset plot)
 #' @param value what to show on the plot: "number" (number of common
-#'        elements), "soerensen" (Sørensen–Dice coefficient), 
+#'        elements; default), "soerensen" (Sørensen–Dice coefficient), 
 #'        "overlap" (Szymkiewicz–Simpson coefficient) or "jaccard" (Jaccard index)
 #' @param cutoff Combinations with the `value` below cutoff will not be shown.
 #' @param labels Labels for the modules. Character vector with the same
 #'        length as `modules`
 #' @param group.cutoff cutoff for group statistics 
-#' @param group.stat Statistics for finding groups (can be "number" or "jaccard")
+#' @param group.stat Statistics for finding groups 
+#'        (can be "number", "overlap", "soerensen" or "jaccard"; see function modOverlaps)
 #' @param lab.cex Initial cex (font size) for labels
 #' @param pal Color palette to show the groups. 
+#' @seealso modGroups, modOverlaps
 #' @inheritParams tmodUtest
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom utils combn
+#' @examples
+#' \dontrun{
+#' data(Egambia)
+#' design <- cbind(Intercept=rep(1, 30), TB=rep(c(0,1), each= 15))
+#' library(limma)
+#' fit <- eBayes( lmFit(Egambia[,-c(1:3)], design))
+#' tt <- topTable(fit, coef=2, number=Inf, genelist=Egambia[,1:3] )
+#' res <- tmodCERNOtest(tt$GENE_SYMBOL)
+#'
+#' upset(res$ID, group.cutoff=.1, value="jaccard")
+#' }
 #' @export
 upset <- function(modules, mset=NULL, min.size=2, min.overlap=2, max.comb=4, 
-  min.group=1, value="number", cutoff=NULL, labels=NULL, group.stat="jaccard",
-  group.cutoff=.05,
+  min.group=2, value="number", cutoff=NULL, labels=NULL, group.stat="jaccard",
+  group.cutoff=.1,
   group=TRUE,
   pal=brewer.pal(8, "Dark2"),
   lab.cex=1) {
 
   value <- match.arg(value, c("number", "jaccard", "soerensen", "overlap"))
-  group.stat <- match.arg(value, c("number", "jaccard"))
+  group.stat <- match.arg(group.stat, c("number", "jaccard", "soerensen", "overlap"))
+
+  mset <- .getmodules2(modules, mset)
 
   if(!is.list(modules)) {
-    mset <- .getmodules2(modules, mset)
     modules <- mset$MODULES2GENES[modules]
-    if(is.null(labels)) {
-      message("null labels")
-      labels <- mset$MODULES[ names(modules), "Title" ]
-      labels <- sprintf("%s (%s)", labels, names(modules))
-    }
   }
 
+  if(is.null(labels)) {
+    message("null labels")
+    labels <- mset$MODULES[ names(modules), "Title" ]
+    labels <- sprintf("%s (%s)", labels, names(modules))
+  }
 
   if(is.null(labels)) {
     labels <- names(modules)
@@ -705,6 +747,8 @@ upset <- function(modules, mset=NULL, min.size=2, min.overlap=2, max.comb=4,
     pal <- c(all="#333333")
     pal.bar <- c(all="#333333")
   }
+
+  message(sprintf("Number of groups: %d", length(modgroups)))
 
   ups <- .upset_generate_combinations(modules, modgroups, min.size, min.overlap, max.comb, value)
   ord <- order(-sapply(ups, attr, "maxval"))
@@ -788,5 +832,5 @@ upset <- function(modules, mset=NULL, min.size=2, min.overlap=2, max.comb=4,
     points(rep(i, length(mm.v)), mm.v, pch=19, cex=1.5, col=ups.col[i])
   }
   dev.flush()
-  return(invisible(ups))
+  return(invisible(modgroups))
 }
