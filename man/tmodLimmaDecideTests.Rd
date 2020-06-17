@@ -52,6 +52,7 @@ In short, tmodLimmaDecideTests is the equivalent of tmodDecideTests, but
 for limma objects returned by eBayes().
 }
 \examples{
+\dontrun{
 data(Egambia)
 design <- cbind(Intercept=rep(1, 30), TB=rep(c(0,1), each= 15))
 if(require(limma)) {
@@ -59,6 +60,7 @@ if(require(limma)) {
   ret <- tmodLimmaTest(fit, Egambia$GENE_SYMBOL)
   pie <- tmodLimmaDecideTests(fit, Egambia$GENE_SYMBOL)
   tmodPanelPlot(ret, pie=pie)
+}
 }
 }
 \seealso{

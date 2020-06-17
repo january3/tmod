@@ -11,5 +11,5 @@ NULL
 
 
 .onAttach <- function(libname, pkgname) {
-  packageStartupMessage("For tmod user guide, type `tmodUserGuide()'")
+  packageStartupMessage('For tmod user guide, type `vignette("tmod")`')
 }

@@ -27,6 +27,7 @@
 #' @param coef If not NULL, only run tmod on these coefficients
 #' @param ... Further parameters passed to the tmod test function
 #' @examples
+#' \dontrun{
 #' data(Egambia)
 #' design <- cbind(Intercept=rep(1, 30), TB=rep(c(0,1), each= 15))
 #' if(require(limma)) {
@@ -34,6 +35,7 @@
 #'   ret <- tmodLimmaTest(fit, genes=Egambia$GENE_SYMBOL)
 #'   tmodSummary(ret)
 #'   tmodPanelPlot(ret)
+#' }
 #' }
 #' @seealso tmodCERNOtest, tmodUtest, tmodPlotPanel, tmodSummary
 #' @export
@@ -190,6 +192,7 @@ tmodLimmaTopTable <- function(f, genelist=NULL, coef=NULL,
 #' correspond to module IDs. The object can directly be used in
 #' tmodPanelPlot as the pie parameter.
 #' @examples
+#' \dontrun{
 #' data(Egambia)
 #' design <- cbind(Intercept=rep(1, 30), TB=rep(c(0,1), each= 15))
 #' if(require(limma)) {
@@ -197,6 +200,7 @@ tmodLimmaTopTable <- function(f, genelist=NULL, coef=NULL,
 #'   ret <- tmodLimmaTest(fit, Egambia$GENE_SYMBOL)
 #'   pie <- tmodLimmaDecideTests(fit, Egambia$GENE_SYMBOL)
 #'   tmodPanelPlot(ret, pie=pie)
+#' }
 #' }
 #' @seealso tmodDecideTests, tmodLimmaTest, tmodPanelPlot
 #' @export

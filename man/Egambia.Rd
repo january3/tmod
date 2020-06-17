@@ -22,32 +22,32 @@ correspond to the gene expression data.
 \dontrun{
 # The data set has been generated as follows:
 # get the data set from GEO
-library( GEOquery )
-gambia <- getGEO( "GSE28623" )[[1]]
+library(GEOquery)
+gambia <- getGEO("GSE28623")[[1]]
 
 # Convert to limma and normalize
-library( limma )
-e <- new( "EListRaw", list( E= exprs( gambia ), genes= fData( gambia ), targets= pData( gambia ) ) )
-e.bg <- backgroundCorrect( e, method= "normexp" )
-en <- normalizeBetweenArrays( e.bg, method= "q" )
-en <- avereps( en, ID= en$genes$NAME )
+library(limma)
+e <- new("EListRaw", list(E= exprs(gambia), genes=fData(gambia), targets= pData(gambia)))
+e.bg <- backgroundCorrect(e, method= "normexp")
+en <- normalizeBetweenArrays(e.bg, method= "q")
+en <- avereps(en, ID=en$genes$NAME)
 en <- en[ en$genes$CONTROL_TYPE == "FALSE", ]
-en$targets$group <- factor( gsub( " whole blood RNA *", "", en$targets$description ) )
+en$targets$group <- factor(gsub(" whole blood RNA *", "", en$targets$description))
 
 # Fill in Entrez Gene IDs
-library( org.Hs.eg.db )
+library(org.Hs.eg.db)
 en$genes$EG <- ""
-sel <- en$genes$REFSEQ \%in\% ls( org.Hs.egREFSEQ2EG )
-en$genes$EG[sel] <- mget( as.character( en$genes$REFSEQ[sel] ), org.Hs.egREFSEQ2EG )
+sel <- en$genes$REFSEQ \%in\% ls(org.Hs.egREFSEQ2EG)
+en$genes$EG[sel] <- mget(as.character(en$genes$REFSEQ[sel]), org.Hs.egREFSEQ2EG)
 
 # Filter by IQR and missing EG's
-iqrs <- apply( en$E, 1, IQR )
-en2 <- en[ iqrs > quantile( iqrs, 0.75 ) & en$genes$EG != "", ]
+iqrs <- apply(en$E, 1, IQR)
+en2 <- en[ iqrs > quantile(iqrs, 0.75) & en$genes$EG != "", ]
 
 # Select 10 random samples from NID and TB groups
-en2 <- en2[ , c( sample( which( en2$targets$group == "NID" ), 10 ), 
-                 sample( which( en2$targets$group == "TB" ), 10 ) ) ]
-colnames( en2$E ) <- en2$targets$group
-Egambia <- cbind( en2$genes[ , c( "GENE_SYMBOL", "GENE_NAME", "EG" ) ], en2$E )
+en2 <- en2[ , c(sample(which(en2$targets$group == "NID"), 10), 
+                 sample(which(en2$targets$group == "TB"), 10)) ]
+colnames(en2$E) <- en2$targets$group
+Egambia <- cbind(en2$genes[ , c("GENE_SYMBOL", "GENE_NAME", "EG") ], en2$E)
 }
 }
