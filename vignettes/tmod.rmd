@@ -2,11 +2,21 @@
 title: "tmod: Quickstart guide"
 author: "January Weiner"
 date: "`r Sys.Date()`"
-output: pdf_document
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: cerulean
+    df_print: kable
 fontsize: 12pt
 vignette: >
   %\VignetteIndexEntry{Transcriptional Modules Enrichment Analysis}
   %\VignetteKeyword{tmod}
+  %\VignetteKeyword{GSEA}
+  %\VignetteKeyword{FSEA}
+  %\VignetteKeyword{ORA}
+  %\VignetteKeyword{enrichment}
   %\VignetteKeyword{transcription}
   %\VignetteKeyword{gene expression}
   %\VignetteEngine{knitr::rmarkdown}
@@ -33,8 +43,8 @@ opts_knit$set(width=75)
 ```
 
 This is a quick start guide. For a detailed manual, find the file
-"tmodUserGuide.pdf" in tmod documentation, or use the R command
-tmodUserGuide() to display the PDF file.
+`tmod_user_manual.html` in tmod documentation, or type
+`vignette("tmod_user_manual")` to directly open it in a window.
 
 
 Basic data analysis

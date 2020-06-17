@@ -190,6 +190,7 @@ tmodPCA <- function(pca, loadings=NULL, genes,
   names(ret$enrichments) <- paste0("PC.", cc)
 
   class(ret) <- c("tmodPCA", class(ret))
+  if(plot) plot.tmodPCA(ret)
   return(invisible(ret))
 }
 

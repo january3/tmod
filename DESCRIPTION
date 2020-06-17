@@ -12,11 +12,11 @@ Description: Methods and feature set definitions for feature or gene set
 License: GPL (>=2.0)
 Depends: R (>= 2.10)
 LazyData: false
-VignetteBuilder: knitr
+VignetteBuilder: knitr,R.rsp
 URL: http://bioinfo.mpiib-berlin.mpg.de/tmod/
 Imports:
-    beeswarm,tagcloud,XML,methods,plotwidgets,RColorBrewer
+    beeswarm,tagcloud,XML,methods,plotwidgets,RColorBrewer,gplots
 Suggests:
-    testthat,knitr,rmarkdown,pca3d,limma
+    testthat,knitr,rmarkdown,pca3d,limma,R.rsp
 RoxygenNote: 7.1.0
 Encoding: UTF-8

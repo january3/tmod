@@ -7,7 +7,7 @@
 tmodUserGuide()
 }
 \value{
-invisibly return the location of the PDF file
+invisibly return the location of the user manual file
 }
 \description{
 Display the tmod user guide

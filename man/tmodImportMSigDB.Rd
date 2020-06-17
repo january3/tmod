@@ -21,6 +21,9 @@ tmodImportMSigDB(
 
 \item{fields}{Which fields to import to the MODULES data frame (only for "xml" format)}
 }
+\value{
+A tmod object
+}
 \description{
 Import data from an MSigDB file in either XML or GMT format
 }

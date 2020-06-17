@@ -552,6 +552,79 @@ pcaplot <- function(pca, components=1:2, group=NULL, col=NULL, pch=19, cex=2, le
 }
 
 
+.auto_labels <- function(labels, modules, mset) {
+
+  if(is.null(labels)) {
+    mset <- .getmodules2(NULL, mset)
+    
+    mn <- names(modules)
+    ids <- mset$MODULES[ mn, "ID" ]
+    titles <- mset$MODULES[ mn, "Title" ]
+    titles[is.na(titles)] <- mn[is.na(titles)]
+    ids[is.na(ids)]       <- mn[is.na(ids)]
+
+    labels <- titles
+    ne <- titles != ids
+    labels[ ne ] <- sprintf("%s (%s)", labels[ne], ids[ne])
+  }
+
+  if(is.null(labels)) labels <- names(modules)
+  names(labels) <- names(modules)
+
+  return(labels)
+}
+
+#' Plot a correlation heatmap for modules
+#'
+#' Plot a correlation heatmap for modules
+#' @param upper.cutoff Specify upper cutoff for the color palette
+#' @param labels Labels for the modules (if NULL, labels will be retrieved from `mset`)
+#' @param ... Any further parameters are passed to heatmap.2
+#' @inheritParams modOverlaps
+#' @importFrom gplots heatmap.2
+#' @importFrom RColorBrewer brewer.pal
+#' @importFrom grDevices colorRampPalette
+#' @export
+modCorPlot <- function(modules, mset=NULL, labels=NULL, stat="jaccard", upper.cutoff=.1, ...) {
+  n <- 13
+  
+  if(!is.list(modules)) {
+    mset <- .getmodules2(modules, mset)
+    modules <- mset$MODULES2GENES[modules]
+  } else {
+    mset <- .getmodules2(NULL, mset)
+  }
+
+  labels <- .auto_labels(labels, modules, mset)
+
+  crmat <- modOverlaps(modules, mset, stat=stat)
+
+  heatmap.args <- list(...)
+  default.args <- list(
+    x=crmat,
+    trace="n", 
+    col=colorRampPalette(c("black", "cyan"))(n),
+    breaks=seq(0, upper.cutoff, length.out=n + 1),
+    symm=TRUE,
+    margins=c(2, 15),
+    scale="n",
+    labRow=labels,
+    labCol="",
+    dendrogram="r")
+
+  for(.p in names(heatmap.args)) {
+    default.args[[.p]] <- heatmap.args[[.p]]
+  }
+
+
+  hm <- function(...) heatmap.2(...)
+  if(FALSE) heatmap.2()
+
+  do.call(hm, default.args)
+}
+
+
+
 ## return all combinations of modules sharing a certain number of elements
 ## min.size: minimum number of modules in a combination
 ## min.overlap: minimum number of genes to share between modules
@@ -626,7 +699,8 @@ pcaplot <- function(pca, components=1:2, group=NULL, col=NULL, pch=19, cex=2, le
 }
 
 
-.adapt_cex <- function(labels, lab.cex, horiz=1, vert=1, vert.expand=1.2, vert.mar=1, step=.95) {
+## automagically adapt font size to the given vertical and horizontal space
+.adapt_cex <- function(labels, lab.cex, horiz=1, vert=1, vert.expand=1.3, vert.mar=1, step=.95) {
 
   message("adapting fonts")
   while((maxwidth <- max(sapply(labels, strwidth, cex=lab.cex))) < horiz ||
@@ -718,23 +792,15 @@ upset <- function(modules, mset=NULL, min.size=2, min.overlap=2, max.comb=4,
   value <- match.arg(value, c("number", "jaccard", "soerensen", "overlap"))
   group.stat <- match.arg(group.stat, c("number", "jaccard", "soerensen", "overlap"))
 
-  mset <- .getmodules2(modules, mset)
 
   if(!is.list(modules)) {
+    mset <- .getmodules2(modules, mset)
     modules <- mset$MODULES2GENES[modules]
+  } else {
+    mset <- .getmodules2(NULL, mset)
   }
 
-  if(is.null(labels)) {
-    message("null labels")
-    labels <- mset$MODULES[ names(modules), "Title" ]
-    labels <- sprintf("%s (%s)", labels, names(modules))
-  }
-
-  if(is.null(labels)) {
-    labels <- names(modules)
-  }
-
-  names(labels) <- names(modules)
+  labels <- .auto_labels(labels, modules, mset)
 
   if(group) {
     modgroups <- .upset_find_groups(modules, mset, group.cutoff, min.group, group.stat)
@@ -770,11 +836,13 @@ upset <- function(modules, mset=NULL, min.size=2, min.overlap=2, max.comb=4,
   modlist <- unlist(lapply(ups, attr, "modules"))
   modules <- modules[ names(modules) %in% modlist ]
 
-
   # ----------- plotting ----------------------------------
 
   div.right <- ups.n + 1
   div.left   <- .3 * 2 * div.right
+  if((.mwidth <- max(sapply(labels, strwidth, cex=lab.cex))) < div.left) {
+    div.left <- 1.1 * .mwidth
+  }
   div.top <- 1.1 * max(ups.l)
   div.bottom <- .7 * 2 * div.top
 
@@ -833,4 +901,19 @@ upset <- function(modules, mset=NULL, min.size=2, min.overlap=2, max.comb=4,
   }
   dev.flush()
   return(invisible(modgroups))
+}
+
+
+upsetPlot <- function(items, labels, overlaps, add=FALSE, coords=NULL) {
+  if(is.null(names(labels))) {
+    names(labels) <- items
+  }
+
+  n <- length(items)
+
+  sel <- rep(c(TRUE, FALSE), floor(n/2))
+
+
+
+
 }

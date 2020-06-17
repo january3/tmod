@@ -83,7 +83,7 @@ if(!exists("tmod", .myDataEnv)) {
   }
 
   if(known.only) {
-    mset <- mset[ ! is.na(mset$MODULES$Title) & ! mset$MODULES$Title %in% c( "TBA", "Undetermined"), ]
+    mset <- mset[ ! is.na(mset$MODULES$Title) & ! mset$MODULES$Title %in% c( "TBA", "Undetermined", ""), ]
   }
 
   mset

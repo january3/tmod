@@ -122,6 +122,15 @@ modjaccard <- function(mset=NULL, g=NULL) {
 #'
 #' Calculate overlaps of the modules
 #'
+#' For a set of modules (aka gene sets) determine the similarity between
+#' these. You can run modOverlaps either on a character vector of module
+#' IDs or on a list. In the first case, the module elements are taken from
+#' `mset`, and if that is NULL, from the default tmod module set. 
+#'
+#' Alternatively, you can provide a list in which each element is a
+#' character vector. In this case, the names of the list are the module IDs,
+#' and the character vectors contain the associated elements.
+#'
 #' The different statistics available are:
 #'  * "number": total number of common genes (size of the overlap)
 #'  * "jaccard": Jaccard index, i.e. \eqn{\frac{|A \cap B|}{|A \cup B|}}
@@ -182,13 +191,13 @@ modOverlaps <- function(modules, mset=NULL, stat="jaccard") {
 #' mymods <- list(A=c(1, 2, 3), B=c(2, 3, 4), C=c(5, 6, 7))
 #' modGroups(mymods)
 #' @param min.overlap Minimum number of overlapping items if stat ==
-#'        number, minimum jaccard index if stat == jaccard.
+#'        number, minimum jaccard index if stat == jaccard etc.
 #' @param modules Either a list of modules or character vector. 
-#' @param stat statistics to use vor 
 #' @inheritParams tmodUtest
+#' @inheritParams modOverlaps
 #' @export
 modGroups <- function(modules, mset=NULL, min.overlap=2, stat="number") {
-  stat <- match.arg(stat, c("number", "jaccard"))
+  stat <- match.arg(stat, c("number", "jaccard", "soerensen", "overlap"))
 
   crmat <- modOverlaps(modules, mset, stat=stat)
   crmat[ crmat < min.overlap ] <- 0
