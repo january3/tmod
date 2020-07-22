@@ -124,9 +124,12 @@ rows from ranks}
 \item{bg}{background gene set for the HG test}
 }
 \value{
-A data frame with module names, additional statistic (e.g.
+The statistical tests return a data frame with module names, additional statistic (e.g.
 enrichment or AUC, depending on the test), P value and FDR q-value (P value corrected for multiple
 testing using the p.adjust function and Benjamini-Hochberg correction.
+The data frame has class 'colorDF' (see package colorDF for details),
+but except for printing using colors on the terminal behaves just like an
+ordinary data.frame. To strip the coloring, use [colorDF::uncolor()].
 }
 \description{
 Perform a statistical test of module expression

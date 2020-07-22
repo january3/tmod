@@ -26,6 +26,8 @@
   if( order.by == "pval" ) ret <- ret[ order( ret$P.Value ), ]
   if( order.by == "auc" )  ret <- ret[ order( ret$AUC ), ]
   class( ret ) <- c( "tmodReport", "colorDF", class( ret ) )
+
+  # set colorDF column type
   col_type(ret, c("P.Value", "adj.P.Val")) <- "pval"
 
   ret
@@ -89,9 +91,12 @@
 #' list are character vectors, and the values of these vectors must correspond
 #' to the ID column of the GENES data frame.
 #'
-#' @return A data frame with module names, additional statistic (e.g.
+#' @return The statistical tests return a data frame with module names, additional statistic (e.g.
 #' enrichment or AUC, depending on the test), P value and FDR q-value (P value corrected for multiple
 #' testing using the p.adjust function and Benjamini-Hochberg correction.
+#' The data frame has class 'colorDF' (see package colorDF for details),
+#' but except for printing using colors on the terminal behaves just like an
+#' ordinary data.frame. To strip the coloring, use [colorDF::uncolor()].
 #' @param l sorted list of HGNC gene identifiers
 #' @param fg foreground gene set for the HG test
 #' @param bg background gene set for the HG test
