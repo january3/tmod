@@ -4,12 +4,13 @@
 \name{show}
 \alias{show}
 \alias{show,tmod-method}
+\alias{[,tmod,ANY,ANY,ANY-method}
 \alias{[,tmod-method}
 \title{Shows the tmod object}
 \usage{
 \S4method{show}{tmod}(object)
 
-\S4method{[}{tmod}(x, i)
+\S4method{[}{tmod,ANY,ANY,ANY}(x, i)
 }
 \arguments{
 \item{object}{a tmod object}
