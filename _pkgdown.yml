@@ -7,7 +7,7 @@ home:
   - text: Online version
     href: http://tmod.online/
   - text: User guide and tutorial
-    href: ../vignettes/tmod.pdf
+    href: pdf/tmod.pdf
 reference:
   - title: "Gene set enrichment tests and analyses"
   - contents:
