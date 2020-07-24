@@ -1,0 +1,19 @@
+---
+title: "The tmod Visualization Gallery"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{The tmod Visualization Gallery}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(tmod)
+```

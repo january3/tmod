@@ -49,9 +49,9 @@ And the development version from [GitHub](https://github.com/) with:
 # install.packages("devtools")
 devtools::install_github("january3/tmod")
 ```
-## Example
+## Tmod manual
 
-This is a basic example which shows you how to solve a common problem:
+Access the documentation using `vignette("tmod")`
 
 ```{r example}
 library(tmod)

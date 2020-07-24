@@ -29,10 +29,10 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("january3/tmod")
 ```
 
-Example
--------
+Tmod manual
+-----------
 
-This is a basic example which shows you how to solve a common problem:
+Access the documentation using `vignette("tmod")`
 
 ``` r
 library(tmod)
