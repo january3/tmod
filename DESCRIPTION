@@ -18,5 +18,5 @@ Imports:
     beeswarm,tagcloud,XML,methods,plotwidgets,RColorBrewer,gplots,colorDF
 Suggests:
     testthat,knitr,rmarkdown,pca3d,R.rsp
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Encoding: UTF-8

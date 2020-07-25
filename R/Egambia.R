@@ -1,3 +1,22 @@
+#' Transcriptomic responses to vaccination
+#'
+#' Transcriptomic responses to vaccination
+#' 
+#' The data shows the time course of transcriptomic responses to influenza
+#' vaccination in healthy volunteers. The source of the data is 
+#' GEO project PRJNA515032, associated with the following paper:
+#' 
+#' Weiner, January, et al. "Characterization of potential
+#' biomarkers of reactogenicity of licensed antiviral vaccines: randomized
+#' controlled clinical trials conducted by the BIOVACSAFE consortium."
+#' Scientific reports 9.1 (2019): 1-14.
+#' 
+#' @name vaccination
+NULL
+
+
+
+
 #' Gene expression in TB patients and Healthy controls
 #'
 #' Gene expression in TB patients and Healthy controls
