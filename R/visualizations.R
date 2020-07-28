@@ -840,11 +840,11 @@ upset <- function(modules, mset=NULL, min.size=2, min.overlap=2, max.comb=4,
 
   div.right <- ups.n + 1
   div.left   <- .3 * 2 * div.right
-  if((.mwidth <- max(sapply(labels, strwidth, cex=lab.cex))) < div.left) {
-    div.left <- 1.1 * .mwidth
-  }
+ #if((.mwidth <- max(sapply(labels, strwidth, cex=lab.cex))) < div.left) {
+ #  div.left <- 1.1 * .mwidth
+ #}
   div.top <- 1.1 * max(ups.l)
-  div.bottom <- .7 * 2 * div.top
+  div.bottom <- 1.4 * div.top
 
   xlim <- c(-div.left, ups.n + 1)
   ylim <- c(-div.bottom, 1.1 * max(ups.l))
