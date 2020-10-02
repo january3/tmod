@@ -28,7 +28,8 @@
   class( ret ) <- c( "tmodReport", "colorDF", class( ret ) )
 
   # set colorDF column type
-  col_type(ret, c("P.Value", "adj.P.Val")) <- "pval"
+  col_type(ret, "P.Value")   <- "pval"
+  col_type(ret, "adj.P.Val") <- "pval"
 
   ret
 

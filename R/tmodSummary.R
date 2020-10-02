@@ -28,6 +28,7 @@
 #' @param pval.col The name of the p-value column
 #' @seealso tmodPanelPlot
 #' @examples
+#' \dontrun{
 #' data(Egambia)
 #' E <- Egambia[,-c(1:3)]
 #' pca <- prcomp(t(E), scale.=TRUE)
@@ -41,6 +42,7 @@
 #' }
 #' x <- apply(pca$rotation, 2, gn.f)
 #' tmodSummary(x)
+#' }
 #' @export
 tmodSummary <- function(x, clust=NULL, filter.empty=FALSE, filter.unknown=TRUE,
   select=NULL, 

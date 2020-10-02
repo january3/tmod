@@ -48,6 +48,7 @@ frame. You can use lapply() to generate a list with tmod results and use
 tmodSummary to convert it to a data frame.
 }
 \examples{
+\dontrun{
 data(Egambia)
 E <- Egambia[,-c(1:3)]
 pca <- prcomp(t(E), scale.=TRUE)
@@ -61,6 +62,7 @@ gn.f <- function(r) {
 }
 x <- apply(pca$rotation, 2, gn.f)
 tmodSummary(x)
+}
 }
 \seealso{
 tmodPanelPlot

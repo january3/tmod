@@ -1,7 +1,9 @@
 ## adds a grid behind the picture
 .plotGrid <- function(grid, x.vec, y.vec, row.h, col.w, grid.col="#33333333", scale.min=NULL, scale.max=NULL, text.cex=1) {
 
-  if(grid == "none") return ;
+  if(grid == "none") {
+    return()
+  }
 
   Nr <- length(y.vec)
   Nc <- length(x.vec)
