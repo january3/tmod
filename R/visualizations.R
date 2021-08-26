@@ -379,6 +379,7 @@ evidencePlot <- function(l, m, mset="all", rug=TRUE, roc=TRUE,
   }
 
   gene.labels <- gene.labels[ names(gene.labels) %in% l ]
+  gene.labels <- gene.labels[ !duplicated(names(gene.labels)) ]
   gene.labels <- gene.labels[ order(match(names(gene.labels), l)) ]
 
   # for each module to draw, find out which genes from l are found in that

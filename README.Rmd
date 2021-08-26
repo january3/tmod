@@ -33,11 +33,11 @@ utilities which comes bundled with a few libraries of gene sets
    functional analysis in infection and immune responses.
 
 An online version of tmod for demonstration purposes is available at
-[tmod.online](http://tmod.online).
+`http://tmod.online`.
 
 ## Installation
 
-You can install the released version of tmod from [CRAN](https://CRAN.R-project.org) with:
+You can install the released version of tmod from [CRAN](https://CRAN.R-project.org/) with:
 
 ``` r
 install.packages("tmod")

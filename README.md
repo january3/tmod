@@ -1,22 +1,32 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-tmod
-====
+
+# tmod
 
 <!-- badges: start -->
 <!-- badges: end -->
-Tmod is a suite of gene set enrichment algorithms, visualizations and utilities which comes bundled with a few libraries of gene sets ("modules"). Following features distinguish tmod from other packages:
 
--   "panel plot" visualizations which allow to compare results of gene set enrichments;
--   several enrichment algorithms are implemented in tmod, in particular the very efficient, versatile and [reproducible](https://academic.oup.com/bioinformatics/article/35/24/5146/5511403) algorithm called "CERNO";
--   it includes a library of gene sets derived from clustering of gene expression data from human blood, which is especially useful in functional analysis in infection and immune responses.
+Tmod is a suite of gene set enrichment algorithms, visualizations and
+utilities which comes bundled with a few libraries of gene sets
+(“modules”). Following features distinguish tmod from other packages:
 
-An online version of tmod for demonstration purposes is available at [tmod.online](http://tmod.online).
+-   “panel plot” visualizations which allow to compare results of gene
+    set enrichments;
+-   several enrichment algorithms are implemented in tmod, in particular
+    the very efficient, versatile and
+    [reproducible](https://academic.oup.com/bioinformatics/article/35/24/5146/5511403)
+    algorithm called “CERNO”;
+-   it includes a library of gene sets derived from clustering of gene
+    expression data from human blood, which is especially useful in
+    functional analysis in infection and immune responses.
 
-Installation
-------------
+An online version of tmod for demonstration purposes is available at
+`http://tmod.online`.
 
-You can install the released version of tmod from [CRAN](https://CRAN.R-project.org) with:
+## Installation
+
+You can install the released version of tmod from
+[CRAN](https://CRAN.R-project.org/) with:
 
 ``` r
 install.packages("tmod")
@@ -29,8 +39,7 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("january3/tmod")
 ```
 
-Tmod manual
------------
+## Tmod manual
 
 Access the documentation using `vignette("tmod")`
 

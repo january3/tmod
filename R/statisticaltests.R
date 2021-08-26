@@ -727,6 +727,8 @@ tmodDecideTests <- function(g, lfc=NULL, pval=NULL, lfc.thr=0.5, pval.thr=0.05,
     }
   }
 
+  pval[ is.na(pval) ] <- 1
+
   if(!is.null(lfc)) {
     lfc  <- as.matrix(lfc)
     if(is.null(labels) && !is.null(colnames(lfc))) 
@@ -737,6 +739,8 @@ tmodDecideTests <- function(g, lfc=NULL, pval=NULL, lfc.thr=0.5, pval.thr=0.05,
       pval <- matrix(0, ncol=nc, nrow=nr)
     }
   }
+
+  lfc[ is.na(lfc) ] <- 0
 
   if(length(pval.thr) == 1) pval.thr <- rep(pval.thr, nc)
   if(length(lfc.thr) == 1)  lfc.thr  <- rep(lfc.thr, nc)
