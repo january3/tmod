@@ -1,0 +1,5 @@
+^README\.Rmd$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^user_manual$

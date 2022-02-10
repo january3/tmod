@@ -1,0 +1,6 @@
+inst/doc
+user_manual/*.png
+user_manual/cache
+*.swp
+.Rhistory
+.RData
