@@ -1594,12 +1594,24 @@ gene sets (actually, multiple collections), including Reactome pathways,
 gene ontologies (GO) and many other data sets.  Moreover, it is the basis
 for the GSEA program.
 
-Unfortunately, MSigDB cannot be distributed or even accessed without a free
-registration, which imposes a heavy limination on third party tools such as
-tmod. Use the following guide to download and parse the database such that
-you can use it with R and tmod.
+The whole MSigDB is provided by the
+[msigdbr](https://cran.r-project.org/web/packages/msigdbr/) package from
+BioConductor. We can then use tmod function `makeTmodFromDataFrame` to 
+convert the msigdbr data frame into one large tmod object:
 
-First, you will need to download the MSigDB in XML
+
+```{r}
+library(msigdbr)
+msig <- msigdbr()
+msig <- makeTmodFromDataFrame(df=msig, 
+  feature_col="gene_symbol",
+  module_col="gs_id", title_col="gs_name", extra_module_cols=c("gs_cat", "gs_subcat"))
+```
+
+
+
+
+Alternatively, you can the MSigDB in XML
 format^[Note that even if you register with MSig, it is not possible to
 download the database directly from R in the XML format.].
 This
@@ -1608,7 +1620,7 @@ http://software.broadinstitute.org/gsea/msigdb/download_file.jsp?filePath=/resou
 -- follow the link, register and log in, and save the file on your disk (roughly 113 MB).
 
 
-Importing MSigDB is easy -- tmod has a function specifically for that
+Importing MSigDB from XML is easy -- tmod has a function specifically for that
 purpose.  Once you have downloaded the MSigDB file, you can create the
 tmod-compatible R object with one command^[MSigDB gene sets can be also downloaded as "GMT" files. This format
 contains less information and is therefore less usable.]. However, the tmod
@@ -1616,10 +1628,8 @@ function tmodImportMsigDB() can also use this format, look up the manual
 page:
 
 
-```{r msigdbparse1}
-
+```{r msigdbparse1, eval=FALSE}
 msig <- tmodImportMSigDB("msigdb_v6.1.xml")
-msig
 ```
 
 

@@ -1,7 +1,7 @@
 ---
 title: "tmod: Analysis of Transcriptional Modules"
 author: "January Weiner"
-date: "2022-02-09"
+date: "2022-02-10"
 output: 
   pdf_document:
     latex_engine: xelatex
@@ -202,12 +202,18 @@ head(resC, 15)
 ```
 ## # tmod report (class tmodReport) 8 x 15:
 ## # (Showing rows 1 - 5 out of 15)
-##          │ID       │Title                              │cerno│N1   │AUC  │cES  │P.Value│adj.P.Val
-##  LI.M37.0│ LI.M37.0│immune activation - generic cluster│  426│  100│ 0.75│  2.1│< 2e-16│6.3e-16  
-##  LI.M11.0│ LI.M11.0│enriched in monocytes (II)         │  114│   20│ 0.78│  2.8│5.3e-09│9.1e-07  
-##     LI.S4│    LI.S4│Monocyte surface signature         │   76│   10│ 0.90│  3.8│1.6e-08│1.9e-06  
-## LI.M112.0│LI.M112.0│complement activation (I)          │   74│   11│ 0.85│  3.3│1.7e-07│1.5e-05  
-##    LI.M75│   LI.M75│antiviral IFN signature            │   65│   10│ 0.89│  3.3│1.0e-06│7.2e-05
+##          │ID       │Title                              │cerno│N1   │AUC  │cES  
+##  LI.M37.0│ LI.M37.0│immune activation - generic cluster│  426│  100│ 0.75│  2.1
+##  LI.M11.0│ LI.M11.0│enriched in monocytes (II)         │  114│   20│ 0.78│  2.8
+##     LI.S4│    LI.S4│Monocyte surface signature         │   76│   10│ 0.90│  3.8
+## LI.M112.0│LI.M112.0│complement activation (I)          │   74│   11│ 0.85│  3.3
+##    LI.M75│   LI.M75│antiviral IFN signature            │   65│   10│ 0.89│  3.3
+##          │P.Value│adj.P.Val
+##  LI.M37.0│< 2e-16│6.3e-16  
+##  LI.M11.0│5.3e-09│9.1e-07  
+##     LI.S4│1.6e-08│1.9e-06  
+## LI.M112.0│1.7e-07│1.5e-05  
+##    LI.M75│1.0e-06│7.2e-05
 ```
 
 Only first 15 results are shown above.
@@ -636,18 +642,24 @@ head(res[order(res$perm.P.Val),
 ```
 ## # tmod report (class tmodReport) 5 x 6:
 ## # (Showing rows 1 - 5 out of 6)
-##        │ID     │Title                         │AUC  
-##  LI.M16│ LI.M16│TLR and inflammatory signaling│ 0.98
-##  LI.M59│ LI.M59│CCR1, 7 and cell signaling    │ 0.98
-##  LI.M67│ LI.M67│activated dendritic cells     │ 0.97
-## LI.M150│LI.M150│innate antiviral response     │ 0.95
-## LI.M127│LI.M127│type I interferon response    │ 0.95
-##        │adj.P.Val│perm.P.Val.adj
-##  LI.M16│  7.2e-05│             0
-##  LI.M59│  5.8e-02│             0
-##  LI.M67│  8.4e-05│             0
-## LI.M150│  1.0e-02│             0
-## LI.M127│  1.2e-02│             0
+##          │ID       
+##    LI.M16│   LI.M16
+## LI.M114.1│LI.M114.1
+##    LI.M67│   LI.M67
+##    LI.M78│   LI.M78
+##   LI.M150│  LI.M150
+##          │Title                                            
+##    LI.M16│TLR and inflammatory signaling                   
+## LI.M114.1│glycerophospholipid metabolism                   
+##    LI.M67│activated dendritic cells                        
+##    LI.M78│myeloid cell cytokines, metallopeptidases and la…
+##   LI.M150│innate antiviral response                        
+##          │AUC  │adj.P.Val│perm.P.Val.adj
+##    LI.M16│ 0.98│  7.2e-05│             0
+## LI.M114.1│ 0.98│  6.4e-02│             0
+##    LI.M67│ 0.97│  8.4e-05│             0
+##    LI.M78│ 0.96│  1.1e-01│             0
+##   LI.M150│ 0.95│  1.0e-02│             0
 ```
 
 Although the results are based on a small number of permutations, the results
@@ -702,24 +714,18 @@ tmodGeneSetTest(tt$GENE_SYMBOL, abs(tt$logFC))
 ```
 ## # tmod report (class tmodReport) 8 x 15:
 ## # (Showing rows 1 - 5 out of 15)
-##         │ID      
-##  LI.M4.3│ LI.M4.3
-## LI.M11.0│LI.M11.0
-##   LI.M20│  LI.M20
-## LI.M37.0│LI.M37.0
-##   LI.M67│  LI.M67
-##         │Title                                           
-##  LI.M4.3│myeloid cell enriched receptors and transporters
-## LI.M11.0│enriched in monocytes (II)                      
-##   LI.M20│AP-1 transcription factor network               
-## LI.M37.0│immune activation - generic cluster             
-##   LI.M67│activated dendritic cells                       
-##         │d    │M    │N1   │AUC  │P.Value│adj.P.Val
-##  LI.M4.3│  4.1│ 1.22│    5│ 0.89│<2e-16 │<2e-16   
-## LI.M11.0│  5.1│ 0.90│   20│ 0.78│<2e-16 │<2e-16   
-##   LI.M20│  5.6│ 1.41│    5│ 0.88│<2e-16 │<2e-16   
-## LI.M37.0│  9.1│ 0.82│  100│ 0.75│<2e-16 │<2e-16   
-##   LI.M67│  6.4│ 1.48│    6│ 0.97│<2e-16 │<2e-16
+##         │ID      │Title                              │d    
+## LI.M11.0│LI.M11.0│enriched in monocytes (II)         │  4.9
+##   LI.M16│  LI.M16│TLR and inflammatory signaling     │  5.3
+##   LI.M20│  LI.M20│AP-1 transcription factor network  │  5.3
+## LI.M37.0│LI.M37.0│immune activation - generic cluster│  9.2
+##   LI.M67│  LI.M67│activated dendritic cells          │  6.2
+##         │M    │N1   │AUC  │P.Value│adj.P.Val
+## LI.M11.0│ 0.90│   20│ 0.78│<2e-16 │<2e-16   
+##   LI.M16│ 1.38│    5│ 0.98│<2e-16 │<2e-16   
+##   LI.M20│ 1.41│    5│ 0.88│<2e-16 │<2e-16   
+## LI.M37.0│ 0.82│  100│ 0.75│<2e-16 │<2e-16   
+##   LI.M67│ 1.48│    6│ 0.97│<2e-16 │<2e-16
 ```
 
 In the above table, `d` is the difference between the mean value of the
@@ -810,6 +816,18 @@ chaotic and hard to read. Secondly, it is easy to manipulate such plots in
 order to make the effects more prominent than they really are. Thirdly,
 they use up a lot of space and ink to convey very little useful and
 interpretable information, which is a sin[@tufte2014visual].
+
+
+```
+## 
+## Attaching package: 'gplots'
+```
+
+```
+## The following object is masked from 'package:stats':
+## 
+##     lowess
+```
 
 ![plot of chunk heatmap1](tmod-heatmap1-1.png)
 
@@ -912,7 +930,7 @@ head(tmodSummary(resAll))
 ```
 
 ```
-## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'head': colnames for HG lack either column AUC or column adj.P.Val
+## Error in tmodSummary(resAll): colnames for HG lack either column AUC or column adj.P.Val
 ```
 
 The table below shows the results.
@@ -1276,7 +1294,7 @@ head(pie$TB[ order( pie$TB[,"Up"], decreasing=T), ])
 ```
 
 ```
-## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'head': subscript out of bounds
+## Error in pie$TB[, "Up"]: subscript out of bounds
 ```
 
 ```r
@@ -1650,6 +1668,13 @@ color of the tag, from grey (AUC=0.5, random) to black (1):
 
 ```r
 library(tagcloud)
+```
+
+```
+## Loading required package: Rcpp
+```
+
+```r
 w <- -log10(res$P.Value)
 c <- smoothPalette(res$AUC, min=0.5)
 tags <- strmultline(res$Title)
@@ -1732,6 +1757,13 @@ Alternatively, you can use the function "pca2d" from the pca3d package:
 
 ```r
 if(require(pca3d)) plotf <- pca2d
+```
+
+```
+## Loading required package: pca3d
+```
+
+```r
 ret <- tmodPCA(pca, genes=Egambia$GENE_SYMBOL, 
   components=3:4, plotfunc=plotf, plot.params=list(group=group))
 ```
@@ -1991,12 +2023,33 @@ gene sets (actually, multiple collections), including Reactome pathways,
 gene ontologies (GO) and many other data sets.  Moreover, it is the basis
 for the GSEA program.
 
-Unfortunately, MSigDB cannot be distributed or even accessed without a free
-registration, which imposes a heavy limination on third party tools such as
-tmod. Use the following guide to download and parse the database such that
-you can use it with R and tmod.
+The whole MSigDB is provided by the
+[msigdbr](https://cran.r-project.org/web/packages/msigdbr/) package from
+BioConductor. We can then use tmod function `makeTmodFromDataFrame` to 
+convert the msigdbr data frame into one large tmod object:
 
-First, you will need to download the MSigDB in XML
+
+
+```r
+library(msigdbr)
+msig <- msigdbr()
+msig <- makeTmodFromDataFrame(df=msig, 
+  feature_col="gene_symbol",
+  module_col="gs_id", title_col="gs_name", extra_module_cols=c("gs_cat", "gs_subcat"))
+```
+
+```
+## unlisting m2g
+```
+
+```
+## making Tmod
+```
+
+
+
+
+Alternatively, you can the MSigDB in XML
 format^[Note that even if you register with MSig, it is not possible to
 download the database directly from R in the XML format.].
 This
@@ -2005,7 +2058,7 @@ http://software.broadinstitute.org/gsea/msigdb/download_file.jsp?filePath=/resou
 -- follow the link, register and log in, and save the file on your disk (roughly 113 MB).
 
 
-Importing MSigDB is easy -- tmod has a function specifically for that
+Importing MSigDB from XML is easy -- tmod has a function specifically for that
 purpose.  Once you have downloaded the MSigDB file, you can create the
 tmod-compatible R object with one command^[MSigDB gene sets can be also downloaded as "GMT" files. This format
 contains less information and is therefore less usable.]. However, the tmod
@@ -2016,12 +2069,6 @@ page:
 
 ```r
 msig <- tmodImportMSigDB("msigdb_v6.1.xml")
-msig
-```
-
-```
-## An object of class "tmod"
-## 	14645 modules, 32403 genes
 ```
 
 
@@ -2037,18 +2084,24 @@ head(res)
 ```
 ## # tmod report (class tmodReport) 8 x 6:
 ## # (Showing rows 1 - 5 out of 6)
-##       │ID    │Title                                      
-##  M3408│ M3408│GSE1432 ctrl vs ifng 24h microglia dn      
-## M14329│M14329│Go immune response                         
-##  M3010│ M3010│Hecker ifnb1 targets                       
-##  M3286│ M3286│GSE13485 ctrl vs day3 yf17d vaccine pbmc dn
-##  M3288│ M3288│GSE13485 ctrl vs day7 yf17d vaccine pbmc dn
+##       │ID    
+## M40997│M40997
+## M40868│M40868
+## M40996│M40996
+## M40995│M40995
+## M40998│M40998
+##       │Title                                               
+## M40997│HOWARD_PBMC_INACT_MONOV_INFLUENZA_A_INDONESIA_05_20…
+## M40868│ZAK_PBMC_MRKAD5_HIV_1_GAG_POL_NEF_AGE_20_50YO_1DY_UP
+## M40996│HOWARD_NEUTROPHIL_INACT_MONOV_INFLUENZA_A_INDONESIA…
+## M40995│HOWARD_MONOCYTE_INACT_MONOV_INFLUENZA_A_INDONESIA_0…
+## M40998│HOWARD_DENDRITIC_CELL_INACT_MONOV_INFLUENZA_A_INDON…
 ##       │cerno│N1   │AUC  │cES  │P.Value│adj.P.Val
-##  M3408│  239│   39│ 0.80│  3.1│< 2e-16│4.3e-14  
-## M14329│  857│  267│ 0.62│  1.6│< 2e-16│1.4e-13  
-##  M3010│  244│   43│ 0.85│  2.8│< 2e-16│2.2e-13  
-##  M3286│  247│   45│ 0.73│  2.7│< 2e-16│5.2e-13  
-##  M3288│  272│   54│ 0.72│  2.5│3.6e-16│1.1e-12
+## M40997│  685│  111│ 0.82│  3.1│<2e-16 │<2e-16   
+## M40868│  723│  147│ 0.74│  2.5│<2e-16 │<2e-16   
+## M40996│  498│   80│ 0.81│  3.1│<2e-16 │<2e-16   
+## M40995│  430│   73│ 0.78│  2.9│<2e-16 │<2e-16   
+## M40998│  361│   54│ 0.84│  3.3│<2e-16 │<2e-16
 ```
 
 The results are quite typical for MSigDB, which is quite abundant with
@@ -2066,20 +2119,7 @@ tmodCERNOtest(tt$GENE_SYMBOL, mset=msig[sel] )
 ```
 
 ```
-## # tmod report (class tmodReport) 8 x 9:
-## # (Showing rows 1 - 5 out of 9)
-##      │ID   │Title                             │cerno│N1   
-## M5913│M5913│Hallmark interferon gamma response│  222│   41
-## M5921│M5921│Hallmark complement               │  218│   56
-## M5911│M5911│Hallmark interferon alpha response│  108│   20
-## M5946│M5946│Hallmark coagulation              │  179│   50
-## M5890│M5890│Hallmark tnfa signaling via nfkb  │  149│   47
-##      │AUC  │cES  │P.Value│adj.P.Val
-## M5913│ 0.78│  2.7│8.5e-15│4.3e-13  
-## M5921│ 0.70│  1.9│8.6e-09│2.2e-07  
-## M5911│ 0.76│  2.7│3.2e-08│5.3e-07  
-## M5946│ 0.68│  1.8│2.0e-06│2.5e-05  
-## M5890│ 0.65│  1.6│0.00027│0.0023
+## NULL
 ```
 
 
@@ -2166,6 +2206,106 @@ gene IDs are in the `EG` column of the `Egambia` object.
 
 ```r
 library(org.Hs.eg.db)
+```
+
+```
+## Loading required package: AnnotationDbi
+```
+
+```
+## Loading required package: stats4
+```
+
+```
+## Loading required package: BiocGenerics
+```
+
+```
+## Loading required package: parallel
+```
+
+```
+## 
+## Attaching package: 'BiocGenerics'
+```
+
+```
+## The following objects are masked from 'package:parallel':
+## 
+##     clusterApply, clusterApplyLB, clusterCall,
+##     clusterEvalQ, clusterExport, clusterMap,
+##     parApply, parCapply, parLapply, parLapplyLB,
+##     parRapply, parSapply, parSapplyLB
+```
+
+```
+## The following object is masked from 'package:limma':
+## 
+##     plotMA
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     IQR, mad, sd, var, xtabs
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     anyDuplicated, append, as.data.frame, basename,
+##     cbind, colnames, dirname, do.call, duplicated,
+##     eval, evalq, Filter, Find, get, grep, grepl,
+##     intersect, is.unsorted, lapply, Map, mapply,
+##     match, mget, order, paste, pmax, pmax.int, pmin,
+##     pmin.int, Position, rank, rbind, Reduce,
+##     rownames, sapply, setdiff, sort, table, tapply,
+##     union, unique, unsplit, which.max, which.min
+```
+
+```
+## Loading required package: Biobase
+```
+
+```
+## Welcome to Bioconductor
+## 
+##     Vignettes contain introductory material; view
+##     with 'browseVignettes()'. To cite Bioconductor,
+##     see 'citation("Biobase")', and for packages
+##     'citation("pkgname")'.
+```
+
+```
+## Loading required package: IRanges
+```
+
+```
+## Loading required package: S4Vectors
+```
+
+```
+## 
+## Attaching package: 'S4Vectors'
+```
+
+```
+## The following object is masked from 'package:gplots':
+## 
+##     space
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     expand.grid, I, unname
+```
+
+```
+## 
+```
+
+```r
 mtab <- toTable(org.Hs.egGO)
 ```
 
@@ -2254,6 +2394,10 @@ names(go_ids) <- msig.bp$MODULES$ID
 msig.bp <- renameMods(msig.bp, go_ids)
 ```
 
+```
+## Error in renameMods(msig.bp, go_ids): no names(newids) match the IDs from mset
+```
+
 Now we can run the enrichment on `tt` with both data sets and compare the
 results. Note, however, that while systematic gene names are used in
 MSigDB, the object `goset` was created from `org.Hs.eg.db` and uses Entrez
@@ -2264,13 +2408,40 @@ they are not significant.
 
 ```r
 both <- intersect(msig.bp$MODULES$ID, goset$MODULES$ID)
-msig.bp <- msig.bp[both]
-goset.both <- goset[both]
+```
 
+```
+## Error in h(simpleError(msg, call)): error in evaluating the argument 'y' in selecting a method for function 'intersect': object 'goset' not found
+```
+
+```r
+msig.bp <- msig.bp[both]
+```
+
+```
+## Error in .local(x, i, ...): object 'both' not found
+```
+
+```r
+goset.both <- goset[both]
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'goset' not found
+```
+
+```r
 rescomp <- list()
 
 rescomp$orghs  <- 
   tmodCERNOtest(tt$EG, mset=goset.both, qval=Inf, order.by="n")
+```
+
+```
+## Error in is(mset, "list"): object 'goset.both' not found
+```
+
+```r
 rescomp$msigdb  <- 
   tmodCERNOtest(tt$GENE_SYMBOL, mset=msig.bp, qval=Inf, order.by="n")
 all(rownames(rescomp$msigdb) == rownames(rescomp$orghs))
@@ -2283,10 +2454,17 @@ all(rownames(rescomp$msigdb) == rownames(rescomp$orghs))
 ```r
 plot(rescomp$msigdb$P.Value, rescomp$orghs$P.Value, log="xy",
   xlab="MSigDB GO", ylab="org.Hs.eg.db GO", bty="n")
-abline(0, 1, col="grey")
+```
+
+```
+## Error in plot.window(...): need finite 'xlim' values
 ```
 
 ![plot of chunk orghs5](tmod-orghs5-1.png)
+
+```r
+abline(0, 1, col="grey")
+```
 
 The differences are quite apparent, and most likely due to the differences
 in the versions of the GO database.
@@ -2340,7 +2518,18 @@ tmodImportMsigDB is using:
 ```r
 library(XML)
 foo  <- xmlParse( "msigdb_v6.1.xml" )
+```
+
+```
+## Error: XML content does not seem to be XML: ''
+```
+
+```r
 foo2 <- xmlToList(foo)
+```
+
+```
+## Error in xmlToList(foo): object 'foo' not found
 ```
 
 
@@ -2351,11 +2540,18 @@ Each member of foo2 is a named character vector:
 
 ```r
 path1 <- foo2[[1]]
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'foo2' not found
+```
+
+```r
 class(path1)
 ```
 
 ```
-## [1] "character"
+## Error in eval(expr, envir, enclos): object 'path1' not found
 ```
 
 
@@ -2365,19 +2561,7 @@ names(path1)
 ```
 
 ```
-##  [1] "STANDARD_NAME"        "SYSTEMATIC_NAME"     
-##  [3] "HISTORICAL_NAMES"     "ORGANISM"            
-##  [5] "PMID"                 "AUTHORS"             
-##  [7] "GEOID"                "EXACT_SOURCE"        
-##  [9] "GENESET_LISTING_URL"  "EXTERNAL_DETAILS_URL"
-## [11] "CHIP"                 "CATEGORY_CODE"       
-## [13] "SUB_CATEGORY_CODE"    "CONTRIBUTOR"         
-## [15] "CONTRIBUTOR_ORG"      "DESCRIPTION_BRIEF"   
-## [17] "DESCRIPTION_FULL"     "TAGS"                
-## [19] "MEMBERS"              "MEMBERS_SYMBOLIZED"  
-## [21] "MEMBERS_EZID"         "MEMBERS_MAPPING"     
-## [23] "FOUNDER_NAMES"        "REFINEMENT_DATASETS" 
-## [25] "VALIDATION_DATASETS"
+## Error in eval(expr, envir, enclos): object 'path1' not found
 ```
 
 For our example analysis, we will use only human gene sets. We further need
@@ -2387,18 +2571,34 @@ to make sure there are no NULLs in the list.
 
 ```r
 orgs <- sapply(foo2, function(x) x["ORGANISM"])
+```
+
+```
+## Error in h(simpleError(msg, call)): error in evaluating the argument 'X' in selecting a method for function 'sapply': object 'foo2' not found
+```
+
+```r
 unique(orgs)
 ```
 
 ```
-## [1] "Homo sapiens"      "Mus musculus"     
-## [3] "Rattus norvegicus" "Danio rerio"      
-## [5] "Macaca mulatta"    NA
+## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'unique': object 'orgs' not found
 ```
 
 ```r
 foo3 <- foo2[ orgs == "Homo sapiens" ]
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'foo2' not found
+```
+
+```r
 foo3 <- foo3[ ! sapply(foo3, is.null) ]
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'foo3' not found
 ```
 
 
@@ -2412,8 +2612,26 @@ subcategory:
 modules <- t(sapply(foo3, 
   function(x) 
     x[ c("SYSTEMATIC_NAME", "STANDARD_NAME", "CATEGORY_CODE", "SUBCATEGORY_CODE") ])) 
+```
+
+```
+## Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 't': error in evaluating the argument 'X' in selecting a method for function 'sapply': object 'foo3' not found
+```
+
+```r
 colnames(modules) <- c( "ID", "Title", "Category", "Subcategory" )
+```
+
+```
+## Error in colnames(modules) <- c("ID", "Title", "Category", "Subcategory"): object 'modules' not found
+```
+
+```r
 modules <- data.frame(modules, stringsAsFactors=FALSE)
+```
+
+```
+## Error in data.frame(modules, stringsAsFactors = FALSE): object 'modules' not found
 ```
 
 
@@ -2426,15 +2644,34 @@ list of gene symbols belonging to a particular module:
 ```r
 m2g <- lapply(foo3, 
   function(x) strsplit( x["MEMBERS_SYMBOLIZED"], "," )[[1]])
-names(m2g) <- modules$ID
+```
 
+```
+## Error in h(simpleError(msg, call)): error in evaluating the argument 'X' in selecting a method for function 'lapply': object 'foo3' not found
+```
+
+```r
+names(m2g) <- modules$ID
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'modules' not found
+```
+
+```r
 mymsig <- makeTmod(modules=modules, modules2genes=m2g)
+```
+
+```
+## Error in is(modules, "data.frame"): object 'modules' not found
+```
+
+```r
 mymsig
 ```
 
 ```
-## An object of class "tmod"
-## 	14645 modules, 32403 genes
+## Error in eval(expr, envir, enclos): object 'mymsig' not found
 ```
 
 From now on, you can use the object mymsig with tmod enrichment tests.
@@ -2929,9 +3166,27 @@ following code:
 
 ```r
 ord <- order(lrt$table$PValue)
+```
+
+```
+## Error in eval(quote(list(...)), env): object 'lrt' not found
+```
+
+```r
 res.rnaseq <- list()
 res.rnaseq$tmod <- tmodCERNOtest(lrt$genes$Symbol[ord])
+```
+
+```
+## Error in unique(l): object 'lrt' not found
+```
+
+```r
 res.rnaseq$goset <- tmodCERNOtest(lrt$genes$EG[ord], mset=goset)
+```
+
+```
+## Error in is(mset, "list"): object 'goset' not found
 ```
 
 So far, so good. However, an alternative to using MSD is test the log fold
@@ -2950,13 +3205,36 @@ lrt.treat <- glmTreat(fit, coef="TissueT", lfc=log2(2))
 
 ```r
 ord <- order(lrt.treat$table$PValue)
+```
+
+```
+## Error in eval(quote(list(...)), env): object 'lrt.treat' not found
+```
+
+```r
 res.rnaseq$treat.tmod <- tmodCERNOtest(lrt$genes$Symbol[ord])
+```
+
+```
+## Error in unique(l): object 'lrt' not found
+```
+
+```r
 res.rnaseq$treat.goset <- tmodCERNOtest(lrt$genes$EG[ord], mset=goset)
+```
+
+```
+## Error in is(mset, "list"): object 'goset' not found
+```
+
+```r
 res.rnaseq <- res.rnaseq[c(1,3,2,4)]
 tmodPanelPlot(res.rnaseq, filter.rows.pval=1e-3)
 ```
 
-![plot of chunk edgeR4](tmod-edgeR4-1.png)
+```
+## Error in .xcheck(x): No usable elements of x
+```
 
 The results are very similar, but the p-values are lower.
 
