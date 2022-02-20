@@ -1,14 +1,3 @@
-## we need to use the tmod data set internally
-.myDataEnv <- new.env(parent=emptyenv())
-
-if(!exists("tmod", .myDataEnv)) {
-  data("tmod", package="tmod", envir=.myDataEnv)
-}
-
-.gettmod <- function() {
-  .myDataEnv[["tmod"]]
-}
-
 
 ## check user provided mset for sanity
 .mset_sanity_check <- function(mset, modules=NULL) {
@@ -88,7 +77,6 @@ if(!exists("tmod", .myDataEnv)) {
 
   mset
 }
-
 
 #' Convert between matrix representation of modules and tmod objects 
 #'
@@ -334,6 +322,13 @@ mbind <- function(x, ...) {
 #' S4 class for tmod
 #'
 #' S4 class for tmod
+#'
+#' This class has been retired. It is kept here only for reference and will
+#' be removed from future versions of tmod. The replacement class is called
+#' `tmodGS`.
+#'
+#' Please use the new functions producing objects of class `tmodGS`, e.g.
+#' makeTmodGS().
 #'
 #' An object of class tmod contains the module annotations (tmod$MODULES), gene to
 #' module (tmod$GENES2MODULES) and module to gene (tmod$MODULES2GENES) mappings

@@ -1,31 +1,33 @@
 ## this is the function that does the actual testing and concocting the
 ## results
-.tmodTest <- function( mod.test, post.test=NULL, qval= 0.05, order.by= "pval", mset=NULL, cols="Title"  ) {
-
+.tmodTest <- function(mod.test, post.test=NULL, qval= 0.05, order.by= "pval", mset=NULL, 
+                      cols=c("ID", "Description", "Title")) {
   if(is.null(mset)) stop("Something went wrong in .tmodTest")
-  modules <- mset$MODULES$ID
+  gs_ids <- mset$gs$ID
 
-  order.by <- match.arg( order.by, c( "pval", "none", "auc" ) )
+  order.by <- match.arg(order.by, c("pval", "none", "auc"))
 
   # --------------------------------------------------------------
   #                  The actual test
-  ret <- data.frame(t( sapply( modules, mod.test ) ), stringsAsFactors=FALSE)
-  if( ! is.null( post.test ) ) ret <- post.test( ret )
+  ret <- lapply(1:length(gs_ids), mod.test)
+  ret <- tibble(as.data.frame(Reduce(rbind, ret)))
+  if(!is.null(post.test)) ret <- post.test(ret)
   # --------------------------------------------------------------
 
-  ret2 <- data.frame( ID= modules, stringsAsFactors=FALSE )
-  cols <- cols[ cols %in% colnames(mset$MODULES) ]
-  ret3 <- mset$MODULES[modules, cols, drop=FALSE]
-  colnames(ret3) <- cols
-  ret <- cbind(ret2, ret3, ret)
 
-  ret$adj.P.Val <- p.adjust( ret$P.Value, method= "fdr" )
+  cols <- intersect(c("ID", cols), colnames(mset$gs))
+  ret2 <- tibble(mset$gs[ ret$n_id, cols, drop=FALSE ])
+
+  ret <- cbind(ret2, ret)
+  ret$n_id <- NULL
+
+  ret$adj.P.Val <- p.adjust(ret$P.Value, method= "fdr")
   rownames(ret) <- ret$ID
   ret <- ret[ ret$adj.P.Val < qval,, drop= FALSE ]
 
-  if( order.by == "pval" ) ret <- ret[ order( ret$P.Value ), ]
-  if( order.by == "auc" )  ret <- ret[ order( ret$AUC ), ]
-  class( ret ) <- c( "tmodReport", "colorDF", class( ret ) )
+  if(order.by == "pval") ret <- ret[ order(ret$P.Value), ]
+  if(order.by == "auc")  ret <- ret[ order(ret$AUC), ]
+  class(ret) <- c("tmodReport", "colorDF", class(ret))
 
   # set colorDF column type
   col_type(ret, "P.Value")   <- "pval"
@@ -141,44 +143,43 @@ tmodUtest <- function( l, modules=NULL, qval= 0.05,
   cols="Title",
   useR=FALSE, nodups=TRUE) {
 
-  # prepare the variables specific to that test
-  l <- as.character(l)
-  if(nodups) l <- unique(l)
-
   # process mset parameter
-  mset <- .getmodules2(modules, mset)
+  mset <- .getmodules_gs(modules, mset)
 
-  if( sum( l %in% mset$GENES$ID ) == 0 ) {
+  # prepare the variables specific to that test
+  l <- .prep_list(l, mset, filter=filter, nodups=nodups)
+
+  if(is.null(l)) {
     warning( "No genes in l match genes in GENES" )
     return(NULL)
   }
 
-  if( filter ) l <- l[ l %in% mset$GENES$ID ]
-  N <- length( l )
-
+  N <- length(l)
 
   # set up the test function
-  mod.test <- function( m ) {
-    x <- l %in% mset$MODULES2GENES[[m]]
-    pos <- which( x )
-    N1 <- length( pos )
+mod.test <- function(m) {
+    x <- l %in% mset$gs2gv[[m]]
+    pos <- which(x)
+    N1 <- length(pos)
     R1 <- sum(pos)
-    if( !useR ) return( c( N1=N1, R1=R1 ) )
+    if (!useR)
+        return(c(n_id = m, N1 = N1, R1 = R1))
 
     # if useR:
-    neg <- which( ! x )
+    neg <- which(!x)
     AUC <- sum(1 - pos/N)/N1
 
-    if( N1 == 0 ) {
-      ret <- c(U=NA, N1=NA, AUC=NA, P.Value=1)  
+    if (N1 == 0) {
+        ret <- c(n_id = m, U = NA, N1 = NA, AUC = NA, P.Value = 1)
     } else {
-      tt <- wilcox.test( pos, neg, alternative= "less" )
-      ret <- c( U=unname(tt$statistic), N1=N1, AUC=AUC, P.Value=tt$p.value )
+        tt <- wilcox.test(pos, neg, alternative = "less")
+        ret <- c(n_id = m, U = unname(tt$statistic), N1 = N1, AUC = AUC, P.Value = tt$p.value)
     }
     ret
-  }
+}
+
   # homebrew U test; post.test function
-  post.test <- function( ret ) {
+  post.test <- function(ret) {
     if(useR) return(ret)
 
     # if useR is FALSE
@@ -191,10 +192,10 @@ tmodUtest <- function( l, modules=NULL, qval= 0.05,
     z  <- (-abs(U-Mu)+0.5)/Su
     P  <- pnorm(z)
     AUC <- U/(N1*N2)
-    return( data.frame(U=U, N1=N1, AUC=AUC, P.Value=P, stringsAsFactors=FALSE) )
+    return(data.frame(n_id=ret$n_id, U=U, N1=N1, AUC=AUC, P.Value=P, stringsAsFactors=FALSE))
   }
 
-  ret <- .tmodTest( mod.test, post.test, qval=qval, order.by=order.by, mset=mset, cols=cols )
+  ret <- .tmodTest(mod.test, post.test, qval=qval, order.by=order.by, mset=mset, cols=cols)
   ret
 }
 
@@ -258,39 +259,57 @@ tmodGeneSetTest <- function(l, x, modules=NULL, qval= 0.05, order.by= "pval", fi
 
   ret <- .tmodTest( mod.test, post.test, qval=qval, order.by=order.by, mset=mset, cols=cols )
   ret
-
-
 }
 
-#' @name tmodUtest
-#' @export
-tmodCERNOtest <- function( l, modules=NULL, qval= 0.05, order.by= "pval", filter= FALSE, mset="LI", 
-  cols="Title", nodups=TRUE) {
 
-  # process mset parameter
-  mset <- .getmodules2(modules, mset)
+## prepare the list of the genes for the analysis
+## returns NULL if no genes match the genes in mset
+.prep_list <- function(l, mset, nodups=TRUE, filter=FALSE) {
 
   # prepare the variables specific to that test
   if(nodups) l <- unique(l)
-  l <- as.character(l)
 
-  if( sum( l %in% mset$GENES$ID ) == 0 ) {
-    warning( "No genes in l match genes in GENES" )
+  l_ret <- match(l, mset$gv)
+
+  if(all(is.na(l_ret))) {
     return(NULL)
   }
 
-  if( filter ) l <- l[ l %in% mset$GENES$ID ]
-  N <- length( l )
+  .max_n <- length(mset$gv) + 1
+  nas <- is.na(l_ret)
+  l_ret[ nas ] <- seq(.max_n, length.out=sum(nas))
+
+  if(filter) l_ret <- l_ret[ l_ret < .max_n ]
+
+  l_ret
+}
+
+
+#' @name tmodUtest
+#' @export
+tmodCERNOtest <- function(l, modules=NULL, qval= 0.05, order.by= "pval", filter= FALSE, mset="LI", 
+  cols="Title", nodups=TRUE) {
+
+  # process mset parameter
+  mset <- .getmodules_gs(modules, mset)
+
+  l <- .prep_list(l, mset, nodups=nodups, filter=filter)
+
+  if(is.null(l)) {
+    warning( "No genes in l match genes in GENES" )
+  }
+
+  N <- length(l)
 
   # set up the test function
-  mod.test <- function( m ) {
-    x <- l %in% mset$MODULES2GENES[[m]]
+  mod.test <- function(m) {
+    x <- l %in% mset$gs2gv[[m]]
     N1 <- sum(x)
 
     ranks <- c(1:N)[x]
     cerno <- -2 * sum( log(ranks/N) )
     cES <- cerno/(2*N1)
-    ret <- c(cerno=cerno, N1=N1, R1=sum(ranks), cES=cES, P.Value=1)
+    ret <- c(n_id=m, cerno=cerno, N1=N1, R1=sum(ranks), cES=cES, P.Value=1)
     ret
   }
 
@@ -301,12 +320,12 @@ tmodCERNOtest <- function( l, modules=NULL, qval= 0.05, order.by= "pval", filter
     R1 <- ret$R1
     U  <- N1*N2+N1*(N1+1)/2-R1
     ret$AUC <- U/(N1*N2)
-    ret <- ret[ , c( "cerno", "N1", "AUC", "cES" ) ]
+    ret <- ret[ , c("n_id", "cerno", "N1", "AUC", "cES" ) ]
     ret$P.Value= pchisq(ret$cerno, 2*ret$N1, lower.tail=FALSE)
     ret
   }
 
-  ret <- .tmodTest( mod.test, post.test, qval=qval, order.by=order.by, mset=mset, cols=cols )
+  ret <- .tmodTest(mod.test, post.test, qval=qval, order.by=order.by, mset=mset, cols=cols)
   ret
 }
 
@@ -608,48 +627,39 @@ tmodAUC <- function(l, ranks, modules=NULL,
 tmodHGtest <- function(fg, bg, modules=NULL, qval= 0.05, order.by= "pval", filter= FALSE, mset="LI",
   cols="Title", nodups=TRUE) {
 
-  mset <- .getmodules2(modules, mset)
+  mset <- .getmodules_gs(modules, mset)
 
-  fg <- as.character(fg)
-  bg <- as.character(bg)
-  if(nodups) {
-    fg <- unique(fg)
-    bg <- unique(bg)
-  }
-  bg <- setdiff(bg, fg)
-  if(length(bg) == 0) stop( "Insufficient bg" )
+  fg <- .prep_list(fg, mset, filter=filter, nodups=nodups)
+  bg <- .prep_list(bg, mset, filter=filter, nodups=nodups)
 
-  if( sum( bg %in% mset$GENES$ID ) == 0 ) {
+  if(is.null(bg)) {
     warning( "No genes in bg match any of the genes in the GENES" )
   }
 
-  if( sum( fg %in% mset$GENES$ID ) == 0 ) {
+  if(is.null(fg)) {
     warning( "No genes in fg match any of the genes in the GENES" )
     return( NULL )
   }
 
-  if( filter ) {
-    fg <- fg[ fg %in% mset$GENES$ID ]
-    bg <- bg[ bg %in% mset$GENES$ID ]
-  }
+  bg <- setdiff(bg, fg)
+  if(length(bg) == 0) stop( "All features from bg in fg." )
 
+  tot <- unique(c( fg, bg ))
+  n   <- length(tot)
+  k   <- length(fg)
 
-  tot <- unique( c( fg, bg ) )
-  n   <- length( tot )
-  k   <- length( fg )
-
-  mod.test <- function( m ) {
-    mg <- mset$MODULES2GENES[[m]]
+  mod.test <- function(n_id) {
+    mg <- mset$gs2gv[[n_id]]
     q <- sum( fg %in% mg ) 
     m <- sum( tot %in% mg )
 
     if( m == 0 ) { E <- NA } 
     else { E <- (q/k)/(m/n) }
 
-    if( q == 0 || m == 0 ) return( c( b=q, B=m, n=k, N=n, E=E, P.Value=1 ) )
+    if( q == 0 || m == 0 ) return( c(n_id=n_id, b=q, B=m, n=k, N=n, E=E, P.Value=1 ) )
 
     pv <- phyper( q-1, m, n-m, k, lower.tail= FALSE )
-    c( b=q, B=m, n=k, N=n, E=E, P.Value=pv )
+    c(n_id=n_id, b=q, B=m, n=k, N=n, E=E, P.Value=pv)
   }
 
 

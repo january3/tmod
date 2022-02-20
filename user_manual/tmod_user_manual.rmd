@@ -1543,36 +1543,32 @@ These custom definition of gene sets takes form of a list which is then
 provided as the `mset` parameter to the test functions. The list in
 question must have the following members:
 
- * **MODULES** A data frame which contains at least the columns "ID" and
+ * **gs** (gene sets) A data frame which contains at least the columns "ID" and
 "Title". The IDs must correspond to the names of MODULES2GENES.
- * **GENES** (optional) A data frame which contains at least the column "ID". The gene IDs
-must correspond to the gene IDs used in MODULES2GENES.
- * **MODULES2GENES** A list. The names of the list are the IDs from the
-MODULES data frame. The items in the list are character vectors with names
-of the genes that are associated with each module.
-* **GENES2MODULES** (optional) A list with the reverse mapping from genes
-to modules. Names on that list must correspond to GENES\$ID, and the
-character vector members of the list must correspond to MODULES\$ID.
-
+ * **gs2gv** A list. Mapping between gene sets and the gene vector. Each
+   element is an *integer* vector which contains the positions of the given
+   gene in the *gv* vector.
+ * **gv** Gene vector. Character vector of genes.
+   
 The tests in the tmod package will accept a simple list that contains the
-above fields. However, the function `makeTmod` can be used conveniently to
-create a tmod object.
+above fields. However, the function `makeTmodGS` can be used conveniently to
+create a tmod object. This function requires only two parameters: `gs` – a
+data frame, as described above – and a mapping between gene sets *and gene
+identifiers*, in the parameter `gs2gene`. 
 
 Here is a minimal definition of such a set:
 
 ```{r exmset}
-mymset <- makeTmod(
-  modules=data.frame(ID=c("A", "B"),
+mymset <- makeTmodGS(
+  gs=data.frame(ID=c("A", "B"),
              Title=c("A title", 
                       "B title")),
-  modules2genes=list(
+  gs2gene=list(
     A=c("G1", "G2"),
     B=c("G3", "G4"))
 )
 mymset
 ```
-
-Both GENES and GENES2MODULES will be automatically created by `makeTmod`.
 
 Whether the gene IDs are Entrez, or something else entirely does not
 matter, as long as they matched the provided input to the test functions.

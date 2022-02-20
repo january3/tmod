@@ -24,7 +24,7 @@
 #' cor(eigv) 
 #' @export
 eigengene <- function(x, g, mset=NULL, k=1) {
-  mset <- .getmodules2(NULL, mset)
+  mset <- .getmodules_gs(NULL, mset)
 
   x <- t(x)
 
@@ -36,6 +36,9 @@ eigengene <- function(x, g, mset=NULL, k=1) {
 
   x <- x[, sel, drop=F]
   g <- g[sel]
+
+  g <- .prep_list(g, mset, filter=FALSE, nodups=FALSE)
+
   x <- scale(x)
   n <- nrow(x)  # number of samples
 
@@ -46,15 +49,17 @@ eigengene <- function(x, g, mset=NULL, k=1) {
     ret
   }
  
-  ret <- sapply(mset$MODULES$ID, function(id) {
-    sel <- g %in% mset$MODULES2GENES[[id]]
+  ret <- lapply(1:nrow(mset$gs), function(n_id) {
+    sel <- g %in% mset$gs2gv[[n_id]]
     if(sum(sel) < k) {
       ret <- NULL
     } else {
       ret <- .eig(x[, sel, drop=FALSE ])
     }
     ret
-  }, simplify=FALSE)
+  })
+
+  names(ret) <- mset$gs$ID
 
   ret <- ret[!sapply(ret, is.null)]
   ret <- t(simplify2array(ret))
@@ -80,8 +85,6 @@ eigengene <- function(x, g, mset=NULL, k=1) {
 #' @param ... any further parameters will be passed to the cor() function
 #' @export
 modcors <- function(x, g, mset=NULL, ...) {
-  mset <- .getmodules2(NULL, mset)
-
   eigengenes <- eigengene(x, g, mset)
 
   cor(t(eigengenes), ...)
@@ -102,13 +105,21 @@ modcors <- function(x, g, mset=NULL, ...) {
 #' used.
 #' @export
 modjaccard <- function(mset=NULL, g=NULL) {
-  mset <- .getmodules2(NULL, mset)
+  mset <- .getmodules_gs(NULL, mset)
   if(length(mset) < 2) stop("mset must contain at least 2 modules")
 
-  if(is.null(g)) g <- mset$GENES$ID
+  if(is.null(g)) {
+    g <- 1:length(mset$gv)
+  } else {
+    g <- match(g, mset$gv)
+    g <- g[ !is.na(g) ]
+    if(!length(g)) {
+      stop("No genes in g match genes in mset")
+    }
+  }
 
-  n <- length(mset$MODULES2GENES)
-  mat <- sapply(mset$MODULES2GENES, function(x) g %in% x)
+  n <- length(mset$gs2gv)
+  mat <- sapply(mset$gs2gv, function(x) g %in% x)
   sums <- apply(mat, 2, sum)
   crmat <- crossprod(mat)
 
@@ -135,24 +146,37 @@ modjaccard <- function(mset=NULL, g=NULL) {
 #'  * "number": total number of common genes (size of the overlap)
 #'  * "jaccard": Jaccard index, i.e. \eqn{\frac{|A \cap B|}{|A \cup B|}}
 #'    (number of common elements divided by the total number of unique elements);
-#'  * "soerensen": Soerensen-Dice coefficient, defined as \eqn{\frac{2 \cdot |A \cap B|}{|A| + |B|}} 
+#'  * "soerensen": Soerensen-Dice coefficient, defined as \eqn{\frac{2 \cdot |A \cap B|}{|A| + |B|}} – number of common genes in relation to the total number of elements (divided by two, such that the maximum is 1)
 #'    (number of common elements divided by the average size of both gene sets)
-#'  * "overlap": Szymkiewicz-Simpson coefficient, defined as \eqn{\frac{|A \cap B|}{\min(|A|, |B|)}} 
+#'  * "overlap": Szymkiewicz-Simpson coefficient, defined as \eqn{\frac{|A \cap B|}{\min(|A|, |B|)}} – this is the number of common genes scaled by the size of the smaller of the two gene sets
 #'    (number of common elements divided by the size of the smaller gene set)
 #' 
 #' @param modules either a character vector with module IDs from mset, or a list which
 #'        contains the module members
 #' @param stat Type of statistics to return. 
-#'        "number": number of common genes (default);
-#'        "jaccard": Jaccard index;
+#'        "jaccard": Jaccard index (default);
+#'        "number": number of common genes;
 #'        "soerensen": Soerensen-Dice coefficient;
 #'        "overlap": Szymkiewicz-Simpson coefficient.
 #' @inheritParams tmodUtest
 #' @export
-modOverlaps <- function(modules, mset=NULL, stat="jaccard") {
-  if(!is.list(modules)) {
-    mset <- .getmodules2(modules, mset)
-    modules <- mset$MODULES2GENES[modules]
+modOverlaps <- function(modules=NULL, mset=NULL, stat="jaccard") {
+
+  if(is.null(modules)) {
+    if(is.null(mset)) {
+      stop("Either mset or modules must be provided")
+    }
+
+    modules <- mset$gs2gv
+    names(modules) <- mset$gs$ID
+  } else if(!is.list(modules)) {
+    mset <- .getmodules_gs(modules, mset)
+    if(!length(modules)) {
+      stop("None of the modules are found in the mset")
+    }
+    tmp <- mset$gs2gv[ match(modules, mset$gs$ID) ]
+    names(tmp) <- modules
+    modules <- tmp
   }
 
   stat <- match.arg(stat, c("jaccard", "number", "soerensen", "overlap"))
@@ -188,7 +212,7 @@ modOverlaps <- function(modules, mset=NULL, stat="jaccard") {
 #' list, then each element is assumed to be a character vector with module
 #' IDs.
 #' @examples
-#' mymods <- list(A=c(1, 2, 3), B=c(2, 3, 4), C=c(5, 6, 7))
+#' mymods <- list(A=c(1, 2, 3), B=c(2, 3, 4, 5), C=c(5, 6, 7))
 #' modGroups(mymods)
 #' @param min.overlap Minimum number of overlapping items if stat ==
 #'        number, minimum jaccard index if stat == jaccard etc.
@@ -203,8 +227,10 @@ modGroups <- function(modules, mset=NULL, min.overlap=2, stat="number") {
   crmat[ crmat < min.overlap ] <- 0
 
   if(!is.list(modules)) {
-    mset <- .getmodules2(modules, mset)
-    modules <- mset$MODULES2GENES[modules]
+    mset <- .getmodules_gs(modules, mset)
+    tmp <- mset$gs2gv[ match(modules, mset$gs$ID) ]
+    names(tmp) <- modules
+    modules <- tmp
   }
 
   colnames(crmat) <- rownames(crmat) <- names(modules)

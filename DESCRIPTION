@@ -15,7 +15,7 @@ LazyData: false
 VignetteBuilder: knitr
 URL: http://bioinfo.mpiib-berlin.mpg.de/tmod/
 Imports:
-    beeswarm,tagcloud,XML,methods,plotwidgets,RColorBrewer,gplots,colorDF
+    beeswarm,tagcloud,XML,methods,plotwidgets,RColorBrewer,gplots,colorDF,tibble
 Suggests:
     testthat,knitr,rmarkdown,pca3d,dplyr
 RoxygenNote: 7.1.1

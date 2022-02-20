@@ -13,23 +13,22 @@
 #' @export
 tmodLEA <- function(l, modules, mset="all", nodups=TRUE, filter=FALSE) {
   # prepare the variables specific to that test
-  l <- as.character(l)
-  if(nodups) l <- unique(l)
+  mset <- .getmodules_gs(modules, mset)
 
-  mset <- .getmodules2(modules, mset)
+  l <- .prep_list(l, mset, nodups=nodups, filter=filter)
 
-  if( filter ) l <- l[ l %in% mset$GENES$ID ]
-
-  if( sum( l %in% mset$GENES$ID ) == 0 ) {
+  if(is.null(l)) {
     warning( "No genes in l match genes in GENES" )
     return(NULL)
   }
 
   ret <- lapply(modules, function(m) {
-    x <- l %in% mset$MODULES2GENES[[m]] 
+    m <- match(m, mset$gs$ID)
+    x <- l %in% mset$gs2gv[[m]] 
     mi <- which.max(cumsum(x)/sum(x) - cumsum(!x)/sum(!x))
     #mi <- which.max(cumsum(x)/1:length(l))
     .ret <- l[1:mi][ x[1:mi] ]
+    .ret <- mset$gv[ .ret ]
     attr(.ret, "N") <- sum(x)
     attr(.ret, "LEA") <- mi
     attr(.ret, "LEA.frac") <- sum(x[1:mi])/sum(x)
@@ -57,10 +56,12 @@ tmodLEASummary <- function(lea, genes=FALSE, labels=NULL, mset=NULL) {
     stop("parameter lea must be of class `tmodLEA`")
 
   ret <- data.frame(ID=names(lea))
+
   if(is.null(labels)) {
-    mset <- .getmodules2(names(lea), mset)
-    labels <- mset$MODULES$Title
+    mset <- .getmodules_gs(names(lea), mset)
+    labels <- mset$gs$Title
   }
+
   labels[is.na(labels)] <- ""
   ret$Title <- labels
   ret$N <- sapply(lea, attr, "N")
