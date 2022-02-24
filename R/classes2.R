@@ -38,6 +38,10 @@ if(!exists("tmod", .myDataEnv)) {
     }
   }
 
+  if(!"tmodGS" %in% class(mset)) {
+    class(mset) <- c(class(mset), "tmodGS")
+  }
+
   mset
 }
 
@@ -84,6 +88,7 @@ if(!exists("tmod", .myDataEnv)) {
 #' Check an object of class tmodGS
 #'
 #' Check an object of class tmodGS
+#' @param object an object of class tmodGS
 #' @export
 check_tmod_gs <- function(object) {
 
@@ -110,9 +115,9 @@ check_tmod_gs <- function(object) {
 
 
 
-#' S4 class for tmod gene set collections
+#' S3 class for tmod gene set collections
 #'
-#' S4 class for tmod gene set collections
+#' S3 class for tmod gene set collections
 #'
 #' An object of class tmod contains the gene set annotations (`tmod$gs`), 
 #' a character vector of gene identifiers (`tmod$gv`)
@@ -142,141 +147,15 @@ check_tmod_gs <- function(object) {
 #' @rdname tmodGS-class
 #' @importFrom methods setClass setMethod loadMethod is new representation signature
 #' @seealso tmod-data
+#' @param gs2gene A list with module IDs as names. Each member of the list is a character vector with IDs of genes contained in that module
+#' @param gs [Optional] A data frame with at least columns ID and Title
+#' @param weights [Optional] a named numeric vector of weights for each gene set
+#' @param info [Optional] a list containing meta-information about the gene set collection
 #' @examples
 #' # A minimal example
 #' gs <- data.frame(ID=letters[1:3], Title=LETTERS[1:3])
 #' gs2gv <- list(a=c("g1", "g2"), b=c("g3", "g4"), c=c("g1", "g2", "g4"))
 #' mymset <- makeTmodGS(gs=gs, gs2gv=gs2gv)
-#' @exportClass tmod
-setClass( "tmodGS",
-  representation("list"),
-  validity=check_tmod_gs
-)
-
-## how to display a tmod object
-
-#' Shows the tmod object
-#'
-#' @name show
-#' @param object a tmod object
-#' @aliases show,tmod-method
-#' @rdname extract-methods
-#' @docType methods
-setMethod( "show", "tmodGS",
-  function(object) {
-    .catf( "An object of class \"%s\"\n", class(object) )
-    .catf( "\t%d gene sets, %d genes\n", 
-      nrow(object$gs),
-      length(object$gv) )
-  })
-
-
-
-#' Shows the length of a tmod object
-#'
-#' @name length
-#' @param x a tmod object
-#' @aliases length,tmod-method
-#' @rdname length
-#' @docType methods
-setMethod("length", "tmodGS",
-  function(x) {
-    nrow(x$gs)
-  })
-
-## allow easy subsetting of tmod objects
-
-#' Extracts parts of a tmod object
-#'
-#' @param x a tmod object
-#' @param i indices specifying elements to extract or replace
-#' @aliases [,tmod-method
-#' @rdname extract-methods
-setMethod("[", c(x="tmodGS", i="ANY"),
-
-  function(x, i) {
-
-    object  <- x
-    modules <- i
-
-    if(is.numeric(modules)) {
-      modules <- object$gs[ modules, "ID" ]
-    } 
-
-    sel <- match(modules, object$gs$ID)
-    #modules <- modules[ modules %in% object$MODULES$ID ]
-
-    gs  <- object$gs[sel, , drop=FALSE]
-    gs2gv <- object$gs2gv[sel]
-
-    ## gene list: complicated
-
-    gv <- object$gv[ unique(unlist(gs2gv)) ]
-
-    gs2gv <- lapply(gs2gv, function(x) {
-                    orig_gv <- object$gv[ x ]
-                    new_gv  <- match(orig_gv, gv)
-    })
-
-
-    if(!is.null(object$weights)) {
-      weights <- object$weights[sel]
-    } else {
-      weights <- NULL
-    }
-
-    new( "tmodGS", list( 
-      gs=gs,
-      gs2gv=gs2gv,
-      gv=gv,
-      info=object$info,
-      weights=weights))
-  }
-)
-
-#' Convert the old tmod objects to the tmodGS objects
-#'
-#' Convert the old tmod objects to the tmodGS objects
-#'
-#' The old tmod representation was very inefficient. This function converts
-#' the objects to a new representation which is both allowing faster
-#' computations and more memory efficient.
-#' @param x an object of class tmod
-#' @return Returns an object of class tmodGS.
-#' @importFrom tibble tibble
-#' @export
-tmod2tmodGS <- function(x) {
-  stopifnot(check_tmod(x))
-
-  gs <- tibble(x$MODULES)
-  gs2gv <- x$MODULES2GENES[ gs$ID ]
-  gv <- sort(unique(unlist(gs2gv)))
-
-  gs2gv <- lapply(gs2gv, function(.) {
-                  match(., gv)
-  })
-  names(gs2gv) <- NULL
-
-  if(!is.null(x$WEIGHTS)) {
-    weights <- x$WEIGHTS[ gs$ID ]
-  } else {
-    weights <- NULL
-  }
-
-  new( "tmodGS", list( 
-    gs=gs,
-    gs2gv=gs2gv,
-    gv=gv,
-    info=x$info,
-    weights=weights))
-}
-
-
-#' @param gs2gene A list with module IDs as names. Each member of the list is a character vector with IDs of genes contained in that module
-#' @param gs [Optional] A data frame with at least columns ID and Title
-#' @param weights [Optional] a named numeric vector of weights for each gene set
-#' @param info [Optional] a list containing meta-information about the gene set collection
-#' @rdname tmodGS-class
 #' @export
 makeTmodGS <- function(gs2gene, gs=NULL, weights=NULL, info=NULL) {
 
@@ -308,13 +187,167 @@ makeTmodGS <- function(gs2gene, gs=NULL, weights=NULL, info=NULL) {
   gs2gv <- lapply(gs2gene, function(.) { match(., gv) })
   names(gs2gv) <- NULL
 
-  new( "tmodGS", list( 
+  ret <- list( 
     gs=gs,
     gs2gv=gs2gv,
     gv=gv,
     info=info,
-    weights=weights))
+    weights=weights)
+  class(ret) <- c(class(ret), "tmodGS")
 
+  ret
 }
 
 
+#' @rdname tmodGS-class
+#' @param check_sanity whether the tmodGS object should be tested for correctness
+#' @export
+as_tmodGS <- function(x, check_sanity=FALSE) {
+  stopifnot(is.list(x)) 
+  
+  if(!"tmodGS" %in% class(x)) {
+    class(x) <- c("tmodGS", class(x))
+  }
+
+  if(check_sanity) {
+    x <- .mset_sanity_check_gs(x)
+  }
+
+  x
+}
+
+
+## how to display a tmod object
+
+#' @param x a tmod object
+#' @rdname tmodGS-class
+#' @export
+print.tmodGS <- function(x, ...) {
+    .catf("An object of class \"tmodGS\"\n" )
+    .catf("\t%d gene sets, %d genes\n", 
+      nrow(x$gs),
+      length(x$gv))
+}
+
+#' Query and set IDs of gene sets in a tmodGS object
+#' 
+#' Query and set IDs of gene sets in a tmodGS object
+#' @param x an object of class tmodGS
+#' @param value a character vector of unique IDs
+#' @return Returns character vector corresponding to x$gs$ID
+#' @examples
+#' data(tmod)
+#' mset <- tmod[ c("LI.M37.0", "LI.M75", "LI.M3") ]
+#' tmod_ids(mset)
+#' tmod_ids(mset) <- c("em", "pstrem", "bzdrem")
+#' @export
+tmod_ids <- function(x) {
+  x$gs$ID
+}
+
+#' @rdname tmod_ids
+#' @export
+`tmod_ids<-` <- function(x, value) {
+  stopifnot(length(value) == nrow(x$gs))
+  stopifnot(all(!duplicated(value)))
+  x$gs$ID <- value
+  x
+}
+
+
+#' @param x a tmod object
+#' @rdname tmodGS-class
+#' @export
+length.tmodGS <- function(x) {
+    nrow(x$gs)
+}  
+
+#' @param x a tmod object
+#' @param i indices specifying elements to extract or replace
+#' @rdname tmodGS-class
+#' @export
+`[.tmodGS` <- function(x, i) {
+
+  object  <- x
+
+  if(!is.numeric(i)) {
+    stopifnot(all(i %in% object$gs$ID))
+    sel <- match(i, object$gs$ID)
+  } else {
+    sel <- i
+  }
+
+
+
+  #modules <- modules[ modules %in% object$MODULES$ID ]
+
+  gs  <- object$gs[sel, , drop=FALSE]
+  gs2gv <- object$gs2gv[sel]
+
+  ## gene list: complicated
+
+  gv <- object$gv[ unique(unlist(gs2gv)) ]
+
+  gs2gv <- lapply(gs2gv, function(x) {
+                  orig_gv <- object$gv[ x ]
+                  new_gv  <- match(orig_gv, gv)
+  })
+
+
+  if(!is.null(object$weights)) {
+    weights <- object$weights[sel]
+  } else {
+    weights <- NULL
+  }
+
+  as_tmodGS(list( 
+    gs=gs,
+    gs2gv=gs2gv,
+    gv=gv,
+    info=object$info,
+    weights=weights), check_sanity=FALSE)
+}
+
+#' Convert the old tmod objects to the tmodGS objects
+#'
+#' Convert the old tmod objects to the tmodGS objects
+#'
+#' The old tmod representation was very inefficient. This function converts
+#' the objects to a new representation which is both allowing faster
+#' computations and more memory efficient.
+#' @param x an object of class tmod
+#' @return Returns an object of class tmodGS.
+#' @importFrom tibble tibble
+#' @export
+tmod2tmodGS <- function(x) {
+  stopifnot(check_tmod(x))
+
+  gs <- tibble(x$MODULES)
+  gs2gv <- x$MODULES2GENES[ gs$ID ]
+  gv <- sort(unique(unlist(gs2gv)))
+
+  gs2gv <- lapply(gs2gv, function(.) {
+                  match(., gv)
+  })
+  names(gs2gv) <- NULL
+
+  if(!is.null(x$WEIGHTS)) {
+    weights <- x$WEIGHTS[ gs$ID ]
+  } else {
+    weights <- NULL
+  }
+
+  as_tmodGS(list( 
+    gs=gs,
+    gs2gv=gs2gv,
+    gv=gv,
+    info=x$info,
+    weights=weights))
+}
+
+
+.invert_hash <- function(l) {
+  if(is.null(names(l))) names(l) <- seq_along(l)
+  ret <- split(rep(names(l), lengths(l)), unlist(l))
+  ret
+}

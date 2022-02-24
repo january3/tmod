@@ -6,7 +6,6 @@
 \alias{tmodCERNOtest}
 \alias{tmodPLAGEtest}
 \alias{tmodZtest}
-\alias{tmodWZtest}
 \alias{tmodHGtest}
 \title{Perform a statistical test of module expression}
 \usage{
@@ -55,6 +54,7 @@ tmodPLAGEtest(
   order.by = "pval",
   mset = "LI",
   cols = "Title",
+  filter = FALSE,
   nodups = TRUE
 )
 
@@ -65,18 +65,8 @@ tmodZtest(
   order.by = "pval",
   filter = FALSE,
   mset = "LI",
-  cols = "Title"
-)
-
-tmodWZtest(
-  l,
-  modules = NULL,
-  weights = NULL,
-  qval = 0.05,
-  order.by = "pval",
-  filter = FALSE,
-  mset = "LI",
-  cols = "Title"
+  cols = "Title",
+  nodups = TRUE
 )
 
 tmodHGtest(
@@ -117,11 +107,11 @@ rows from ranks}
 
 \item{group}{group assignments for the tmodPLAGEtest}
 
-\item{weights}{for tmodWZtest}
-
 \item{fg}{foreground gene set for the HG test}
 
 \item{bg}{background gene set for the HG test}
+
+\item{weights}{for tmodWZtest}
 }
 \value{
 The statistical tests return a data frame with module names, additional statistic (e.g.

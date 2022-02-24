@@ -22,8 +22,8 @@ contains the module members}
 \item{labels}{Labels for the modules (if NULL, labels will be retrieved from `mset`)}
 
 \item{stat}{Type of statistics to return. 
-"number": number of common genes (default);
-"jaccard": Jaccard index;
+"jaccard": Jaccard index (default);
+"number": number of common genes;
 "soerensen": Soerensen-Dice coefficient;
 "overlap": Szymkiewicz-Simpson coefficient.}
 

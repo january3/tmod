@@ -16,31 +16,34 @@
   # remove NULLs
   foo <- foo[ ! sapply(foo, is.null) ]
 
-  msig$MODULES <- t(sapply(foo,
-    function(x) x[ fields ]))
-  colnames(msig$MODULES) <- field.names
-  msig$MODULES <- data.frame(msig$MODULES, stringsAsFactors=FALSE, row.names=NULL)
+  msig$gs <- t(sapply(foo, function(x) x[ fields ]))
 
-  if(any(duplicated(msig$MODULES$ID))) {
+  colnames(msig$gs) <- field.names
+  msig$gs <- as_tibble(msig$gs)
+
+  if(any(duplicated(msig$gs$ID))) {
     warning("Duplicated IDs found; automatic IDs will be generated")
-    msig$MODULES$oldID <- msig$MODULES$ID
-    msig$MODULES$ID    <- make.unique(as.character(msig$MODULES$ID))
+    msig$gs$oldID <- msig$gs$ID
+    msig$gs$ID    <- make.unique(as.character(msig$gs$ID))
   }
 
-  rownames(msig$MODULES) <- msig$MODULES[,"ID"]
+  #rownames(msig$gs) <- msig$MODULES[,"ID"]
 
-  msig$MODULES2GENES <- lapply(foo, function(x) strsplit( x["MEMBERS_SYMBOLIZED"], "," )[[1]])
+  msig$gs2gv <- sapply(foo, function(x) x[ "MEMBERS_SYMBOLIZED" ])
+  msig$gs2gv <- strsplit(msig$gs2gv, ",")
 
-  names(msig$MODULES2GENES) <- msig$MODULES$ID
-  msig$GENES <- data.frame( ID=unique(unlist(msig$MODULES2GENES)))
+  msig$gv <- unique(unlist(msig$gs2gv))
+  msig$gs2gv <- lapply(msig$gs2gv, function(x) match(x, msig$gv))
 
-  msig <- new("tmod", msig)
-  msig
+  #names(msig$gs2gv) <- msig$gs$ID
+
+  as_tmodGS(msig)
 }
 
 
 ## imports the GMT format of MSigDB
 .importMsigDBGMT <- function(file) {
+  stop("This does not work at the present.")
   msig <- list()
 
   con <- file(file, open="r")
@@ -84,15 +87,17 @@
 #' @param fields Which fields to import to the MODULES data frame (only for "xml" format)
 #' @return A tmod object
 #' @importFrom XML xmlParse xmlToList
+#' @importFrom tibble as_tibble
 #' @examples
 #' \dontrun{
-#' ## First, download the file "msigdb_v5.0.xml" from http://www.broadinstitute.org/gsea/downloads.jsp
-#' msig <- tmodImportMSigDB( "msigdb_v5.0.xml" )
+#' ## First, download the file "msigdb_v7.5.1.xml" 
+#' ## from http://www.broadinstitute.org/gsea/downloads.jsp
+#' msig <- tmodImportMSigDB("msigdb_v7.5.1.xml")
 #' }
 #' @export
 
 tmodImportMSigDB <- function( file=NULL, format="xml", organism="Homo sapiens",
-  fields=c( "STANDARD_NAME", "CATEGORY_CODE", "SUB_CATEGORY_CODE", "EXTERNAL_DETAILS_URL") ) {
+  fields=c( "STANDARD_NAME", "CATEGORY_CODE", "SUB_CATEGORY_CODE", "EXACT_SOURCE", "EXTERNAL_DETAILS_URL") ) {
 
   if(length(file) != 1) stop("Incorrect file parameter")
   if(!file.exists(file)) stop( sprintf("File %s does not exist", file))
@@ -102,31 +107,29 @@ tmodImportMSigDB <- function( file=NULL, format="xml", organism="Homo sapiens",
     xml=.importMsigDBXML(file, fields, organism),
     gmt=.importMsigDBGMT(file))
 
-  s <- msig$MODULES$Title
-  msig$MODULES$Title <- paste0(toupper(substring(s, 1,1)), tolower(substring(s, 2)) )
-  msig$MODULES$Title <- gsub( "^Gse([0-9])", "GSE\\1", msig$MODULES$Title )
-  msig$MODULES$Title <- gsub( "_", " ", msig$MODULES$Title )
+  s <- msig$gs$Title
+  msig$gs$Title <- paste0(toupper(substring(s, 1,1)), tolower(substring(s, 2)) )
+  msig$gs$Title <- gsub( "^Gse([0-9])", "GSE\\1", msig$gs$Title )
+  msig$gs$Title <- gsub( "_", " ", msig$gs$Title )
 
-  msig$MODULES$B <- sapply(msig$MODULES2GENES, length)
+  msig$gs$B <- sapply(msig$gs2gv, length)
   msig
 }
 
 
 .tmod2DataFrameRowsModule <- function(mset, module_col, feature_col, sep) {
-  ret <- mset$MODULES
-  ret[ , feature_col ] <- sapply(mset$MODULES2GENES, function(x) paste(x, collapse=sep))
+  ret <- mset$gs
+  ret[ , feature_col ] <- sapply(mset$gs2gv, function(x) paste(mset$gv[ x ], collapse=sep))
   colnames(ret)[ colnames(ret) == "ID" ] <- module_col
   ret
 }
 
 .tmod2DataFrameRowsFeatures <- function(mset, module_col, feature_col, sep) {
-  ret <- mset$GENES
+  ret <- tibble(ID=mset$gv)
+  colnames(ret) <- feature_col
 
-  if(is.null(mset$GENES2MODULES)) {
-    mset$GENES2MODULES <- .invert_hash(mset$MODULES2GENES)
-  }
-  colnames(ret)[ colnames(ret) == "ID" ] <- feature_col
-  ret[ , module_col ] <- sapply(mset$GENES2MODULES, function(x) paste(x, collapse=sep))
+  gv2gs <- split(rep(mset$gs$ID, lengths(mset$gs2gv)), mset$gv[ unlist(mset$gs2gv) ])
+  ret[ , module_col ] <- sapply(gv2gs, function(x) paste(x, collapse=sep))
   ret
 }
 
@@ -145,7 +148,7 @@ tmodImportMSigDB <- function( file=NULL, format="xml", organism="Homo sapiens",
 #' @seealso \code{\link{tmod-class}}, \code{\link{makeTmod}}
 #' @export
 tmod2DataFrame <- function(mset, rows="modules", module_col="module_id", feature_col="feature_id", sep=",") {
-  mset <- .getmodules2(NULL, mset)
+  mset <- .getmodules_gs(NULL, mset)
 
   rows <- match.arg(rows, c("modules", "features"))
 
@@ -195,32 +198,26 @@ tmod2DataFrame <- function(mset, rows="modules", module_col="module_id", feature
 makeTmodFromDataFrame <- function(df, feature_col=1, module_col=2, title_col=NULL, extra_module_cols=NULL, extra_gene_cols=NULL) {
   if(!is.data.frame(df)) stop("df must be a data.frame")
   df <- df[ !is.na(df[, feature_col]) & !is.na(df[, module_col]), ] 
-  df <- as.data.frame(df) ## if it were a tibble...
+  df <- as.data.frame(df) ## in case it is a tibble
 
   df_unique <- df[ !duplicated(df[, module_col ]), ]
-  mods <- data.frame(ID=df_unique[ , module_col ], stringsAsFactors=FALSE)
+  mods <- tibble(ID=df_unique[ , module_col ])
 
   #m2g <- lapply(mods[ , "ID" ], function(m) df[ df[ , module_col ] == m, feature_col])
-  m2g <- tapply(df[ , feature_col ], df[ , module_col ], unique)
-  m2g <- lapply(m2g, function(x) x)
+  gv <- unique(df[ , feature_col ])
+  df[ , feature_col ] <- match(df[ , feature_col ], gv)
+  gs2gv <- tapply(df[ , feature_col ], df[ , module_col ], unique)
 
   if(is.null(title_col)) {
     title_col <- module_col
   }
+
   mods[ , "Title"] <- df_unique[ , title_col ]
+
   if(!is.null(extra_module_cols)) {
     mods <- cbind(mods, df_unique[ , extra_module_cols ])
   }
 
-  message("unlisting m2g")
-  g_ids <- unique(unlist(m2g))
-  gens <- data.frame(ID=g_ids, stringsAsFactors=FALSE)
-
-  if(!is.null(extra_gene_cols)) {
-    df_matched <- df[ match(g_ids, df[ , feature_col ]), ]
-    gens <- cbind(gens, df_matched[, extra_gene_cols])
-  }
-
   message("making Tmod")
-  makeTmod(modules=mods, modules2genes=m2g, genes=gens)
+  as_tmodGS(list(gs=mods, gs2gv=gs2gv, gv=gv))
 }

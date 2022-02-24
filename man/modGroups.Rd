@@ -15,8 +15,8 @@ modGroups(modules, mset = NULL, min.overlap = 2, stat = "number")
 number, minimum jaccard index if stat == jaccard etc.}
 
 \item{stat}{Type of statistics to return. 
-"number": number of common genes (default);
-"jaccard": Jaccard index;
+"jaccard": Jaccard index (default);
+"number": number of common genes;
 "soerensen": Soerensen-Dice coefficient;
 "overlap": Szymkiewicz-Simpson coefficient.}
 }
@@ -32,6 +32,6 @@ list, then each element is assumed to be a character vector with module
 IDs.
 }
 \examples{
-mymods <- list(A=c(1, 2, 3), B=c(2, 3, 4), C=c(5, 6, 7))
+mymods <- list(A=c(1, 2, 3), B=c(2, 3, 4, 5), C=c(5, 6, 7))
 modGroups(mymods)
 }

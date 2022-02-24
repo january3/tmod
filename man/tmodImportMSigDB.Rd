@@ -8,7 +8,7 @@ tmodImportMSigDB(
   file = NULL,
   format = "xml",
   organism = "Homo sapiens",
-  fields = c("STANDARD_NAME", "CATEGORY_CODE", "SUB_CATEGORY_CODE",
+  fields = c("STANDARD_NAME", "CATEGORY_CODE", "SUB_CATEGORY_CODE", "EXACT_SOURCE",
     "EXTERNAL_DETAILS_URL")
 )
 }
@@ -34,7 +34,8 @@ contains less information).
 }
 \examples{
 \dontrun{
-## First, download the file "msigdb_v5.0.xml" from http://www.broadinstitute.org/gsea/downloads.jsp
-msig <- tmodImportMSigDB( "msigdb_v5.0.xml" )
+## First, download the file "msigdb_v7.5.1.xml" 
+## from http://www.broadinstitute.org/gsea/downloads.jsp
+msig <- tmodImportMSigDB("msigdb_v7.5.1.xml")
 }
 }

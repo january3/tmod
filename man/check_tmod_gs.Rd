@@ -6,6 +6,9 @@
 \usage{
 check_tmod_gs(object)
 }
+\arguments{
+\item{object}{an object of class tmodGS}
+}
 \description{
 Check an object of class tmodGS
 }

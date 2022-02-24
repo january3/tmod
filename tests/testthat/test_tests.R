@@ -1,4 +1,6 @@
 library(tmod)
+data(Egambia)
+data(tmod)
 context("Statistical tests")
 
 tt <- read.csv( "sample_data.csv", stringsAsFactors=FALSE)[,1]
@@ -42,3 +44,43 @@ test_that("tmodLEA", {
   expect_equal(res$LEA, res_e$LEA)
 })
 
+test_that("tmodPLAGEtest", {
+  res_e <- read.csv("res_PLAGE.csv", stringsAsFactors=FALSE, row.names=1)
+  x <- Egambia[ , -1:-3 ]
+  l <- Egambia$GENE_SYMBOL
+  group <- gsub("\\..*", "", colnames(x))
+  res <- tmodPLAGEtest(l, x, group)
+  testRes(res, res_e, test_auc=FALSE)
+})
+
+test_that("tmodZtest", {
+  res_e <- read.csv("res_Z.csv", stringsAsFactors=FALSE, row.names=1)
+  res <- tmodZtest(tt)
+  testRes(res, res_e, test_auc=FALSE)
+})
+
+
+test_that("tmodAUC", {
+
+  res_e <- read.csv("res_AUC.csv", stringsAsFactors=FALSE, row.names=1)
+  res <- data.frame(tmodAUC(tt, 1:length(tt)))
+
+  expect_equal(nrow(res), sum(tmod$gs$SourceID == "LI"))
+  expect_equal(ncol(res), 1)
+  expect_equal(res[,1], res_e[,1])
+
+
+})
+
+test_that("tmodDecideTests", {
+  res_tt <- read.csv("sample_results.csv")
+  res_e <- read.csv("res_tmodDecideTests.csv", row.names=1)
+  res   <- tmodDecideTests(res_tt$GENE_SYMBOL, lfc=res_tt$logFC, pval=res_tt$adj.P.Val)
+  expect_equal(length(res), 1)
+  expect_is(res, "list")
+  res   <- as.data.frame(res[[1]])
+  expect_equal(res_e, res)
+
+
+
+})

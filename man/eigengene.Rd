@@ -31,7 +31,7 @@ component of a PCA on the gene expression of all genes from a module.
 data(Egambia)
 data(tmod)
 x <- Egambia[ , -c(1:3) ]
-ifns <- tmod[ grep("[Ii]nterferon", tmod$MODULES$Title) ]
+ifns <- tmod[ grep("[Ii]nterferon", tmod$gs$Title) ]
 eigv <- eigengene(x, Egambia$GENE_SYMBOL, ifns)
 plot(eigv["LI.M127", ], eigv["DC.M1.2",])
 

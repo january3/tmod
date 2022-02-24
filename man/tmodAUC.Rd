@@ -11,8 +11,7 @@ tmodAUC(
   stat = "AUC",
   recalculate.ranks = TRUE,
   filter = FALSE,
-  mset = "LI",
-  nodups = TRUE
+  mset = "LI"
 )
 }
 \arguments{
@@ -32,9 +31,6 @@ want this behavior. If unsure, stay with TRUE}
 \item{filter}{Remove gene names which have no module assignments}
 
 \item{mset}{Which module set to use. "LI", "DC" or "all" (default: LI)}
-
-\item{nodups}{Remove duplicate gene names in l and corresponding
-rows from ranks}
 }
 \value{
 A matrix with the same number of columns as "ranks" and as many
@@ -49,11 +45,18 @@ function is the use in randomization tests. While tmodCERNOtest and
 tmodUtest both calculate, for each module, the enrichment in a single
 sorted list of genes, tmodAUC takes any number of such sorted lists. Or,
 actually, sortings -- vectors with ranks of the genes in each replicate.
+
 Note that the input for this function
 is different from tmodUtest and related functions: the ordering of l
 and the matrix ranks does not matter, as long as the matrix ranks
 contains the actual rankings. Each column in the ranks matrix is treated as
 a separate sample.
+
+Also, the `nodups` parameter which is available (and TRUE by default) for 
+other tests cannot be used here. This means that the AUCs calculated here
+might be slightly different from the AUCs calculated with default
+parameters in tests such as the [tmodCERNOtest()]. Use `nodups=FALSE`
+with [tmodCERNOtest()] to obtain identical results as with `tmodAUC`.
 }
 \examples{
 data(tmod)

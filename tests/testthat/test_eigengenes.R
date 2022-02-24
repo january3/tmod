@@ -6,7 +6,7 @@ data(tmod)
 
 x <- Egambia[ , -1:-3 ]
 g <- Egambia$GENE_SYMBOL 
-mset <- tmod[c("LI.M37.0", "LI.M75", "LI.M3"),]
+mset <- tmod[c("LI.M37.0", "LI.M75", "LI.M3")]
 
 test_that("Checking eigengene calculations", {
 

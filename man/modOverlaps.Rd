@@ -4,7 +4,7 @@
 \alias{modOverlaps}
 \title{Calculate overlaps of the modules}
 \usage{
-modOverlaps(modules, mset = NULL, stat = "jaccard")
+modOverlaps(modules = NULL, mset = NULL, stat = "jaccard")
 }
 \arguments{
 \item{modules}{either a character vector with module IDs from mset, or a list which
@@ -13,8 +13,8 @@ contains the module members}
 \item{mset}{Which module set to use. Either a character vector ("LI", "DC" or "all", default: LI) or an object of class tmod (see "Custom module definitions" below)}
 
 \item{stat}{Type of statistics to return. 
-"number": number of common genes (default);
-"jaccard": Jaccard index;
+"jaccard": Jaccard index (default);
+"number": number of common genes;
 "soerensen": Soerensen-Dice coefficient;
 "overlap": Szymkiewicz-Simpson coefficient.}
 }
@@ -35,8 +35,8 @@ The different statistics available are:
  * "number": total number of common genes (size of the overlap)
  * "jaccard": Jaccard index, i.e. \eqn{\frac{|A \cap B|}{|A \cup B|}}
    (number of common elements divided by the total number of unique elements);
- * "soerensen": Soerensen-Dice coefficient, defined as \eqn{\frac{2 \cdot |A \cap B|}{|A| + |B|}} 
+ * "soerensen": Soerensen-Dice coefficient, defined as \eqn{\frac{2 \cdot |A \cap B|}{|A| + |B|}} – number of common genes in relation to the total number of elements (divided by two, such that the maximum is 1)
    (number of common elements divided by the average size of both gene sets)
- * "overlap": Szymkiewicz-Simpson coefficient, defined as \eqn{\frac{|A \cap B|}{\min(|A|, |B|)}} 
+ * "overlap": Szymkiewicz-Simpson coefficient, defined as \eqn{\frac{|A \cap B|}{\min(|A|, |B|)}} – this is the number of common genes scaled by the size of the smaller of the two gene sets
    (number of common elements divided by the size of the smaller gene set)
 }
