@@ -13,7 +13,6 @@ License: GPL (>=2.0)
 Depends: R (>= 2.10)
 LazyData: false
 VignetteBuilder: knitr
-URL: http://bioinfo.mpiib-berlin.mpg.de/tmod/
 Imports:
     beeswarm,tagcloud,XML,methods,plotwidgets,RColorBrewer,gplots,colorDF,tibble,pheatmap
 Suggests:
