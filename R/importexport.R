@@ -145,7 +145,7 @@ tmodImportMSigDB <- function( file=NULL, format="xml", organism="Homo sapiens",
 #' @param module_col Name of the column with module (gene set) IDs
 #' @param feature_col Name of the column with feature (gene) IDs
 #' @param sep separator used to collate module IDs (if rows=="features") or feature IDs (if rows=="modules")
-#' @seealso \code{\link{tmod-class}}, \code{\link{makeTmod}}
+#' @seealso \code{\link{makeTmodGS}}, \code{\link{makeTmod}}
 #' @export
 tmod2DataFrame <- function(mset, rows="modules", module_col="module_id", feature_col="feature_id", sep=",") {
   mset <- .getmodules_gs(NULL, mset)
@@ -183,7 +183,7 @@ tmod2DataFrame <- function(mset, rows="modules", module_col="module_id", feature
 #'        be taken from the module_col)
 #' @param extra_module_cols Additional columns to include in the module data frame
 #' @param extra_gene_cols Additional gene columns to include in the genes data frame
-#' @seealso \code{\link{tmod-class}}, \code{\link{makeTmod}}
+#' @seealso \code{\link{makeTmodGS}}, \code{\link{makeTmodGS}}
 #' @return A tmod object
 #' @examples
 #' df <- data.frame(

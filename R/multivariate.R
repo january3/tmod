@@ -24,8 +24,8 @@
 #' @return Either NULL or whatever tagcloud returns
 #' @examples
 #' data(tmod)
-#' fg <- tmod$MODULES2GENES[["LI.M127"]]
-#' bg <- tmod$GENES$ID
+#' fg <- getModuleMembers("LI.M127")[[1]]
+#' bg <- tmod$gv
 #' result <- tmodHGtest( fg, bg )
 #' tmodTagcloud(result)
 #' @export
@@ -38,8 +38,13 @@ tmodTagcloud <- function( results, filter=TRUE, simplify=TRUE, tag.col="Title",
   if(!is(res, "data.frame")) stop("res must be a data frame")
   if(!is.null(maxn) && nrow(res) > maxn) res <- res[1:maxn, ] 
 
-  res <- res[ res$AUC > min.auc, ]
-  res <- res[ res$adj.P.Val < max.qval, ]
+  if("AUC" %in% colnames(res)) {
+    res <- res[ res$AUC > min.auc, ]
+  }
+
+  if("adj.P.Val" %in% colnames(res)) {
+    res <- res[ res$adj.P.Val < max.qval, ]
+  }
 
   if( weights.col == "auto" ) {
     if( "AUC" %in% colnames(res)) {

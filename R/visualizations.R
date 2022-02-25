@@ -82,49 +82,6 @@ tmodPal <- function(n=NULL, set="friendly", alpha=0.7, func=FALSE) {
 }
 
 
-#' Select genes belonging to a module from a data frame
-#'
-#' Select genes belonging to a module from a data frame or vector
-#' 
-#' showModule filters a data frame or a vector such that only genes from a module are
-#' shown. Use it, for example, to show a subset of topTable result from
-#' limma in order to see which genes from a module are significantly
-#' regulated. In essence, this is just a wrapper around "subset()".
-#' @return Either a filtered vector or (if extra==TRUE) a data frame.
-#' @param x a data frame or a vector
-#' @param genes a character vector with gene IDs
-#' @param module a single character value, ID of the module to be shown
-#' @param mset Module set to use; see "tmodUtest" for details
-#' @param extra If TRUE, additional information about the features will be shown
-#' @export
-showModule <- function(x, genes, module, mset="all", extra=TRUE) {
-  mset <- .getmodules2(NULL, mset)
-
-  if(!is(x, "data.frame") && !is(x, "vector") && !is(x, "factor")) 
-    stop( "x must be a data frame, a factor or a vector" )
-
-  is.df <- is(x, "data.frame")
-
-  if(!module %in% mset$MODULES$ID) stop("no such module")
-  genes <- as.character(genes)
-
-  if(is.df && length(genes) != nrow(x)) 
-    stop("genes must be of length equal to the number of rows of x")
-
-  if(!is.df && length(genes) != length(x))
-    stop("genes must be of length equal to the length of x")
-
-  sel <- genes %in% mset$MODULES2GENES[[module]]
-
-  if(sum(sel) == 0) warning("No genes belonging to that module found")
-
-  x   <- subset(x, sel)
-  genes <- genes[sel]
-
-  if(extra) x <- cbind(x, mset$GENES[genes,])
-
-  x
-}
 
 
 #' A combined beeswarm / boxplot
@@ -167,41 +124,6 @@ showGene <- function( data, group, main= "", pch= 19,
 }
 
 
-#' Get genes belonging to a module
-#'
-#' Get genes belonging to a module
-#'
-#' Create a data frame mapping each module to a comma separated list of
-#' genes. If genelist is provided, then only genes in that list will be
-#' shown. An optional column, "fg" informs which genes are in the "foreground"
-#' data set.
-#' @return data frame containing module to gene mapping, or a list (if
-#' as.list == TRUE
-#' @param modules module IDs 
-#' @param genelist list of genes 
-#' @param mset module set to use
-#' @param fg genes which are in the foreground set
-#' @param as.list should a list of genes rather than a data frame be returned
-#' @export
-getGenes <- function(modules, genelist=NULL, fg=NULL, mset="LI", as.list=FALSE) {
-  mset <- .getmodules2(modules, mset)
-
-  if(!is.null(genelist)) 
-    mset$MODULES2GENES <- lapply(mset$MODULES2GENES, function(x) x[ x %in% genelist ])
-
-  if(as.list) return(mset$MODULES2GENES)
-
-  ret <- data.frame(ID=mset$MODULES$ID)
-  rownames(ret) <- ret$ID
-  ret$N <- sapply(mset$MODULES2GENES, length)
-  ret$Genes <- sapply(mset$MODULES2GENES, function(x) paste(x, collapse=","))
-
-  if(!is.null(fg)) {
-    ret$fg <- sapply(mset$MODULES2GENES, function(x) paste(x[x %in% fg], collapse=","))
-  }
-  ret
-}
-
 
 
 
@@ -214,28 +136,38 @@ getGenes <- function(modules, genelist=NULL, fg=NULL, mset="LI", as.list=FALSE) 
 #' It is the counterpart 
 #' @param fg the foreground set of genes
 #' @param bg the background set of genes (gene universe)
-#' @param m module for which the plot should be created
+#' @param m gene set for which the plot should be created
 #' @param mset Which module set to use (see tmodUtest for details)
 #' @param ... additional parameters to be passed to the plotting function
 #' @seealso \code{\link{tmod-package}}, \code{\link{evidencePlot}}
 #' @examples 
 #' set.seed(123)
 #' data(tmod)
-#' bg <- tmod$GENES$ID
-#' fg <- sample(c(tmod$MODULES2GENES[["LI.M127"]], bg[1:1000]))
+#' bg <- tmod$gv
+#' fg <- getGenes("LI.M127", as.list=TRUE)[[1]]
+#' fg <- sample(c(fg, bg[1:100]))
 #' hgEnrichmentPlot(fg, bg, "LI.M127")
 #' @export
 hgEnrichmentPlot <- function(fg, bg, m, mset="all", ...) {
 
-  mset <- .getmodules2(NULL, mset)
+  mset <- .getmodules_gs(NULL, mset)
 
-  if(is.null(mset$MODULES2GENES[[m]])) stop("No such module")
+  if(!m %in% mset$gs$ID) {
+    stop("No such gene set")
+  }
+
+  m <- match(m, mset$gs$ID)
 
   fg <- unique(fg)
   bg <- unique(c(fg, bg))
-  b <- sum(fg %in% mset$MODULES2GENES[[m]])
+
+  fg <- .prep_list(fg, mset=mset, filter=FALSE, nodups=FALSE)
+  bg <- .prep_list(bg, mset=mset, filter=FALSE, nodups=FALSE)
+
+
+  b <- sum(fg %in% mset$gs2gv[[m]])
   n <- length(fg)
-  B <- sum(bg %in% mset$MODULES2GENES[[m]])
+  B <- sum(bg %in% mset$gs2gv[[m]])
   N <- length(bg)
 
   mm <- matrix(c(b/n, 1-b/n, B/N, 1-B/N), byrow= F, nrow= 2)
@@ -292,8 +224,9 @@ hgEnrichmentPlot <- function(fg, bg, m, mset="all", ...) {
 #' # artificially enriched list of genes
 #' set.seed(123)
 #' data(tmod)
-#' bg <- tmod$GENES$ID
-#' fg <- sample(c(tmod$MODULES2GENES[["LI.M127"]], bg[1:1000]))
+#' bg <- sample(tmod$gv)
+#' fg <- getGenes("LI.M127", as.list=TRUE)[[1]]
+#' fg <- sample(c(fg, bg[1:1000]))
 #' l <- unique(c(fg, bg))
 #' evidencePlot(l, "LI.M127")
 #' evidencePlot(l, filter=TRUE, "LI.M127")
@@ -319,23 +252,35 @@ evidencePlot <- function(l, m, mset="all", rug=TRUE, roc=TRUE,
 
   # standardize the modules
   m <- as.character(m)
-  mset <- .getmodules2(NULL, mset)
+  mset <- .getmodules_gs(NULL, mset)
 
-  if(! all(m %in% names(mset$MODULES2GENES))) stop("No such module")
+  if(! all(m %in% tmod_ids(mset))) stop("No such gene set")
+  m_orig <- m
+  m <- match(m, tmod_ids(mset))
 
-  #if(filter) l <- l[ l %in% mset$GENES$ID ]
-  keep <- rep(TRUE, length(l))
-  if(filter) keep[ ! l %in% mset$GENES$ID ] <- FALSE
-  #if(unique) l <- unique(l)
-  if(unique) keep[ duplicated(l) ] <- FALSE
-  l <- l[ keep ]
+  # #if(filter) l <- l[ l %in% mset$GENES$ID ]
+  # keep <- rep(TRUE, length(l))
+  # if(filter) keep[ ! l %in% mset$GENES$ID ] <- FALSE
+  # #if(unique) l <- unique(l)
+  # if(unique) keep[ duplicated(l) ] <- FALSE
+  # l <- l[ keep ]
+  l_orig <- l
+  tmp    <- .prep_list(l, x=l_orig, mset=mset, filter=filter, nodups=unique)
+  keep <- l_orig %in% tmp$x
+  l_orig <- tmp$x
+  l      <- tmp$l
 
   # gene colors
   if(!is.null(gene.colors)) {
-    if(is.null(names(gene.colors))) {
-      gene.colors <- gene.colors[ keep ]
-      stopifnot(length(gene.colors) == length(l))
-      names(gene.colors) <- l
+    if(is.null(names(gene.colors)) && length(gene.colors) == 1) {
+      gene.colors <- rep(gene.colors, length(l_orig))
+      names(gene.colors) <- l_orig
+    } else {
+      if(is.null(names(gene.colors))) {
+        gene.colors <- gene.colors[ keep ]
+        stopifnot(length(gene.colors) == length(l))
+        names(gene.colors) <- l_orig
+      }
     }
   }
 
@@ -344,12 +289,12 @@ evidencePlot <- function(l, m, mset="all", rug=TRUE, roc=TRUE,
   if(is.null(names(gene.lines))) {
     if(length(gene.lines) == 1) {
       gene.lines <- rep(gene.lines, length(l))
-      names(gene.lines) <- l
+      names(gene.lines) <- l_orig
     } else if(length(gene.lines) != length(keep)) {
       stop("if gene.lines is shorter than l, then it must be named")
     }
     gene.lines <- gene.lines[keep]
-    names(gene.lines) <- l
+    names(gene.lines) <- l_orig
   }
 
 
@@ -365,9 +310,9 @@ evidencePlot <- function(l, m, mset="all", rug=TRUE, roc=TRUE,
   if(!is.null(gene.labels)) {
 
     if(is.logical(gene.labels) && gene.labels) {
-      sel <- unlist(unique(lapply(m, function(mm) l[ l %in% mset$MODULES2GENES[[mm]] ])))
-      gene.labels <- sel
-      names(gene.labels) <- sel
+      sel <- unlist(unique(lapply(m, function(mm) l[ l %in% mset$gs2gv[[mm]] ])))
+      gene.labels <- mset$gv[ sel ]
+      names(gene.labels) <- gene.labels
     }
 
     #gene.labels <- unique(as.character(gene.labels))
@@ -378,13 +323,13 @@ evidencePlot <- function(l, m, mset="all", rug=TRUE, roc=TRUE,
 
   }
 
-  gene.labels <- gene.labels[ names(gene.labels) %in% l ]
+  gene.labels <- gene.labels[ names(gene.labels) %in% l_orig ]
   gene.labels <- gene.labels[ !duplicated(names(gene.labels)) ]
-  gene.labels <- gene.labels[ order(match(names(gene.labels), l)) ]
+  gene.labels <- gene.labels[ order(match(names(gene.labels), l_orig)) ]
 
   # for each module to draw, find out which genes from l are found in that
   # module
-  x <- sapply(m, function(mm) l %in% mset$MODULES2GENES[[mm]])
+  x <- sapply(m, function(mm) l %in% mset$gs2gv[[mm]])
 
   # cumulative sum or scaled cumulative sum
   if(roc) {
@@ -439,7 +384,7 @@ evidencePlot <- function(l, m, mset="all", rug=TRUE, roc=TRUE,
     # draw each individual rug
     for(i in 1:Nm) {
       w <- which(x[,i]) # which genes to show for module m[i]
-      gi <- l[w] # gene ids to show
+      gi <- l_orig[w] # gene ids to show
 
       if(is.null(gene.colors)) {
         cols <- col[i]
@@ -459,7 +404,7 @@ evidencePlot <- function(l, m, mset="all", rug=TRUE, roc=TRUE,
       lw <- lw[2] - lw[1]
       lpos <- lw * 1.5 * (1:length(gene.labels))
       gi <- names(gene.labels)
-      rpos <- match(gi, l)
+      rpos <- match(gi, l_orig)
 
       if(is.null(gene.colors)) {
         cols <- "black"
@@ -484,7 +429,7 @@ evidencePlot <- function(l, m, mset="all", rug=TRUE, roc=TRUE,
 
   # add a legend
   if(!is.null(legend)) {
-    legend(legend, m, col=col, lty=lty, lwd=lwd, bty= "n")
+    legend(legend, m_orig, col=col, lty=lty, lwd=lwd, bty= "n")
   }
 }
 
@@ -556,17 +501,15 @@ pcaplot <- function(pca, components=1:2, group=NULL, col=NULL, pch=19, cex=2, le
 .auto_labels <- function(labels, modules, mset) {
 
   if(is.null(labels)) {
-    mset <- .getmodules2(NULL, mset)
+    mset <- .getmodules_gs(NULL, mset)
     
-    mn <- names(modules)
-    ids <- mset$MODULES[ mn, "ID" ]
-    titles <- mset$MODULES[ mn, "Title" ]
+    mn     <- tmod_ids(mset)
+    titles <- tmod_titles(mset)
     titles[is.na(titles)] <- mn[is.na(titles)]
-    ids[is.na(ids)]       <- mn[is.na(ids)]
 
     labels <- titles
-    ne <- titles != ids
-    labels[ ne ] <- sprintf("%s (%s)", labels[ne], ids[ne])
+    ne <- titles != mn
+    labels[ ne ] <- sprintf("%s (%s)", labels[ne], mn[ne])
   }
 
   if(is.null(labels)) labels <- names(modules)
@@ -580,48 +523,59 @@ pcaplot <- function(pca, components=1:2, group=NULL, col=NULL, pch=19, cex=2, le
 #' Plot a correlation heatmap for modules
 #' @param upper.cutoff Specify upper cutoff for the color palette
 #' @param labels Labels for the modules (if NULL, labels will be retrieved from `mset`)
-#' @param ... Any further parameters are passed to heatmap.2
+#' @param heatmap_func function drawing the heatmap
+#' @param ... Any further parameters are passed to the heatmap function (by
+#'        default, [pheatmap()].
+#' @return Returns the return value of heatmap_func (by default, a pheatmap object).
 #' @inheritParams modOverlaps
 #' @importFrom gplots heatmap.2
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom grDevices colorRampPalette
+#' @importFrom pheatmap pheatmap
 #' @export
-modCorPlot <- function(modules, mset=NULL, labels=NULL, stat="jaccard", upper.cutoff=.1, ...) {
+modCorPlot <- function(modules, mset=NULL, heatmap_func=pheatmap, labels=NULL, stat="jaccard", upper.cutoff=NULL, ...) {
   n <- 13
+
+  mod_orig <- modules
   
   if(!is.list(modules)) {
-    mset <- .getmodules2(modules, mset)
-    modules <- mset$MODULES2GENES[modules]
+    mset <- .getmodules_gs(modules, mset)
+    m_label <- modules
+    modules <- mset$gs2gv[modules]
+    labels <- .auto_labels(labels, modules, mset)
   } else {
-    mset <- .getmodules2(NULL, mset)
+    mset <- .getmodules_gs(NULL, mset)
+    modules <- lapply(modules, function(x) match(x, mset$gv))
+    if(is.null(labels)) {
+      labels <- names(modules)
+    }
   }
 
-  labels <- .auto_labels(labels, modules, mset)
 
-  crmat <- modOverlaps(modules, mset, stat=stat)
+  crmat <- modOverlaps(mod_orig, mset, stat=stat)
+  if(is.null(upper.cutoff)) {
+    upper.cutoff <- max(crmat)
+  }
 
   heatmap.args <- list(...)
+  if(identical(pheatmap, heatmap_func)) {
   default.args <- list(
-    x=crmat,
     trace="n", 
-    col=colorRampPalette(c("black", "cyan"))(n),
+    color=colorRampPalette(c("black", "cyan"))(n),
     breaks=seq(0, upper.cutoff, length.out=n + 1),
-    symm=TRUE,
-    margins=c(2, 15),
-    scale="n",
-    labRow=labels,
-    labCol="",
+    scale="none",
+    treeheight_col=0,
+    labels_row=labels,
+    labels_col=rep("", length(labels)),
     dendrogram="r")
-
-  for(.p in names(heatmap.args)) {
-    default.args[[.p]] <- heatmap.args[[.p]]
+  } else {
+    default.args <- list()
   }
 
+  heatmap.args <- c(heatmap.args, default.args)
+  heatmap.args <- heatmap.args[ !duplicated(names(heatmap.args)) ]
 
-  hm <- function(...) heatmap.2(...)
-  if(FALSE) heatmap.2()
-
-  do.call(hm, default.args)
+  do.call(heatmap_func, c(list(crmat), heatmap.args))
 }
 
 
@@ -667,6 +621,8 @@ modCorPlot <- function(modules, mset=NULL, labels=NULL, stat="jaccard", upper.cu
 
   message("generating combinations")
   ups <- lapply(modgroups, function(g) {
+    message("generating combinations for group: ")
+    print(g)
     .ups <- .combn_upset(modules[g], min.size=min.size, min.overlap=min.overlap, max.comb=max.comb)
     vals <- sapply(.ups, attr, value)
     .ups <- .ups[ order(-vals) ]
@@ -694,6 +650,7 @@ modCorPlot <- function(modules, mset=NULL, labels=NULL, stat="jaccard", upper.cu
   }
 
   modgroups <- modgroups[ sapply(modgroups, length) >= min.group ]
+  modgroups <- lapply(modgroups, function(x) match(x, tmod_ids(mset)))
   message("done")
 
   return(modgroups)
@@ -790,32 +747,40 @@ upset <- function(modules, mset=NULL, min.size=2, min.overlap=2, max.comb=4,
   pal=brewer.pal(8, "Dark2"),
   lab.cex=1) {
 
+
+
   value <- match.arg(value, c("number", "jaccard", "soerensen", "overlap"))
   group.stat <- match.arg(group.stat, c("number", "jaccard", "soerensen", "overlap"))
 
-
   if(!is.list(modules)) {
-    mset <- .getmodules2(modules, mset)
-    modules <- mset$MODULES2GENES[modules]
+    mset <- .getmodules_gs(modules, mset)
+    labels <- .auto_labels(labels, modules, mset)
+    names(labels) <- modules
+
+    modules_n <- modules
+    modules <- mset$gs2gv
+    names(modules) <- modules_n
   } else {
-    mset <- .getmodules2(NULL, mset)
+    mset <- .getmodules_gs(NULL, mset)
+    labels <- modules
+    names(labels) <- modules
   }
 
-  labels <- .auto_labels(labels, modules, mset)
 
   if(group) {
-    modgroups <- .upset_find_groups(modules, mset, group.cutoff, min.group, group.stat)
+    modgroups <- .upset_find_groups(modules_n, mset, group.cutoff, min.group, group.stat)
     group.n <- length(modgroups)
     pal <- rep(pal, ceiling(group.n/length(pal)))
     pal <- pal[1:group.n]
     names(pal) <- names(modgroups)
   } else {
-    modgroups <- list(all=names(modules))
+    modgroups <- list(all=modules_n)
     pal <- c(all="#333333")
     pal.bar <- c(all="#333333")
   }
 
   message(sprintf("Number of groups: %d", length(modgroups)))
+  ## translate mod IDs to numeric values
 
   ups <- .upset_generate_combinations(modules, modgroups, min.size, min.overlap, max.comb, value)
   ord <- order(-sapply(ups, attr, "maxval"))

@@ -105,7 +105,6 @@
 #' @param bg background gene set for the HG test
 #' @param x Expression matrix for the tmodPLAGEtest; a vector for tmodGeneSetTest
 #' @param group group assignments for the tmodPLAGEtest
-#' @param weights for tmodWZtest 
 #' @param modules optional list of modules for which to make the test
 #' @param qval Threshold FDR value to report
 #' @param nodups Remove duplicate gene names in l and corresponding
@@ -205,42 +204,34 @@ tmodGeneSetTest <- function(l, x, modules=NULL, qval= 0.05, order.by= "pval", fi
   cols="Title", Nsim=1000, nodups=TRUE) {
 
   # process mset parameter
-  mset <- .getmodules2(modules, mset)
+  mset <- .getmodules_gs(modules, mset)
 
   # prepare the variables specific to that test
-  l <- as.character(l)
-  if(nodups) {
-    sel <- !duplicated(l)
-    l <- l[sel]
-    x <- x[sel]
-  }
-
-  if( sum( l %in% mset$GENES$ID ) == 0 ) {
+  tmp <- .prep_list(l, mset, x=x, filter=filter, nodups=nodups)
+  if(is.null(tmp)) {
     warning( "No genes in l match genes in GENES" )
     return(NULL)
   }
 
-  if( filter ) {
-    sel <-  l %in% mset$GENES$ID 
-    l <- l[ sel ]
-    x <- x[ sel ]
-  }
-  N <- length( l )
+  l <- tmp$l
+  x <- tmp$x
+
+  N <- length(l)
 
   # generate N samples
   x.rand <- replicate(Nsim, sample(x))
 
   # set up the test function
-  mod.test <- function( m ) {
-    xi <- l %in% mset$MODULES2GENES[[m]]
+  mod.test <- function(m) {
+    xi <- l %in% mset$gs2gv[[m]]
     N1 <- sum(xi)
     mm <- mean(x[xi])
-    mm.rand <- apply(x.rand[xi,,drop=FALSE], 2, mean)
+    mm.rand <- apply(x.rand[xi, ], 2, mean)
     p <- sum(mm.rand > mm)/Nsim
     d <- (mm - mean(mm.rand))/sd(mm.rand)
     ranks <- c(1:N)[xi]
     
-    ret <- c(d=d, M=mm, R1=sum(ranks), N1=N1, P.Value=p)
+    ret <- c(n_id=m, d=d, M=mm, R1=sum(ranks), N1=N1, P.Value=p)
     ret
   }
 
@@ -252,7 +243,7 @@ tmodGeneSetTest <- function(l, x, modules=NULL, qval= 0.05, order.by= "pval", fi
     U  <- N1*N2+N1*(N1+1)/2-R1
 
     ret$AUC <- U/(N1*N2)
-    ret <- ret[ , c( "d", "M", "N1", "AUC", "P.Value" ) ]
+    ret <- ret[ , c("n_id", "d", "M", "N1", "AUC", "P.Value" ) ]
     ret$P.Value[ is.na(ret$P.Value) ] <- 1
     ret
   }
@@ -275,7 +266,7 @@ tmodGeneSetTest <- function(l, x, modules=NULL, qval= 0.05, order.by= "pval", fi
     sel <- !duplicated(l)
     l <- l[ sel ]
     if(!is.null(x)) {
-      x <- x[ sel, , drop=FALSE ]
+      x <- subset(x, sel)
     }
   }
 
@@ -293,7 +284,7 @@ tmodGeneSetTest <- function(l, x, modules=NULL, qval= 0.05, order.by= "pval", fi
     sel <- l_ret < .max_n
     l_ret <- l_ret[ sel ]
     if(!is.null(x)) {
-      x <- x[ sel, , drop=F ]
+      x <- subset(x, sel)
     }
   }
 
@@ -579,7 +570,7 @@ tmodZtest <- function(l, modules=NULL, qval= 0.05, order.by= "pval",
 #' @seealso tmod-package
 #' @examples 
 #' data(tmod)
-#' l <- tmod$GENES$ID
+#' l <- tmod_ids(tmod)
 #' ranks <- 1:length(l)
 #' res <- tmodAUC(l, ranks)
 #' head(res)

@@ -264,4 +264,88 @@ modGroups <- function(modules, mset=NULL, min.overlap=2, stat="number") {
 }
 
 
+#' Get genes belonging to a gene set
+#'
+#' Get genes belonging to a gene set
+#'
+#' Create a data frame mapping each module to a comma separated list of
+#' genes. If genelist is provided, then only genes in that list will be
+#' shown. An optional column, "fg" informs which genes are in the "foreground"
+#' data set.
+#' @return data frame containing module to gene mapping, or a list (if
+#' as.list == TRUE
+#' @param gs gene set IDs; if NULL, returns all genes from all gene sets
+#' @param genes character vector with gene IDs. If not NULL, only genes
+#'        from this parameter will be considered.
+#' @param mset module set to use
+#' @param fg genes which are in the foreground set
+#' @param as.list should a list of genes rather than a data frame be returned
+#' @export
+getGenes <- function(gs=NULL, genes=NULL, fg=NULL, mset="LI", as.list=FALSE) {
+  mset <- .getmodules_gs(gs, mset)
+
+  g <- .prep_list(gs, mset, FALSE, FALSE)
+
+  if(!is.null(genes)) 
+    mset$gs2gv <- lapply(mset$gs2gv, function(x) x[ mset$gv[x] %in% genes ])
+
+  if(as.list) {
+    ret <- mset$gs2gv
+    names(ret) <- mset$gs$ID
+    ret <- lapply(ret, function(x) mset$gv[ x ])
+    return(ret)
+  }
+
+  ret <- data.frame(ID=mset$gs$ID)
+  rownames(ret) <- ret$ID
+  ret$N <- sapply(mset$gs2gv, length)
+  ret$Genes <- sapply(mset$gs2gv, function(x) paste(mset$gv[ x ], collapse=","))
+
+  if(!is.null(fg)) {
+    ret$fg <- sapply(mset$gs2gv, 
+      function(x) {
+        x <- mset$gv[ x ]
+        paste(x[x %in% fg], collapse=",")
+    })
+  }
+  ret
+}
+
+#' Filter by genes belonging to a gene set from a data frame
+#'
+#' Filter a data frame or vector by genes belonging to a gene set
+#' 
+#' filterGS filters a vector of gene IDs based on whether the IDs belong to
+#' a given set of gene sets, returning a logical vector.
+#' 
+#' The showModule function is deprecated and will be removed in future.
+#'
+#' @return filterGS returns a logical vector of length equal to genes, with
+#' TRUE indicating that the given gene is a member of the gene sets in `gs`.
+#' @param x a data frame or a vector
+#' @param genes a character vector with gene IDs
+#' @param gs a character vector corresponding to the IDs of the gene sets to be shown
+#' @param mset Module set to use; see "tmodUtest" for details
+#' @param extra no longer used.
+#' @examples
+#' data(Egambia)
+#' ## LI.M127 – type I interferon response
+#' sel <- filterGS("LI.M127", Egambia$GENE_SYMBOL)
+#' head(Egambia[sel, ])
+#' @export
+filterGS <- function(genes, gs, mset="all") {
+  mset <- .getmodules_gs(gs, mset)
+
+  genes %in% mset$gv
+}
+
+#' @rdname filterGS
+#' @export
+showModule <- function(x, genes, gs, mset="all", extra=NULL) {
+  if(is.factor(genes)) genes <- as.character(genes)
+  sel <- filterGS(genes, gs, mset)
+
+  subset(x, sel)
+}
+
 

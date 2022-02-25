@@ -1,7 +1,7 @@
 Package: tmod
 Type: Package
 Title: Feature Set Enrichment Analysis for Metabolomics and Transcriptomics
-Version: 0.50.01
+Version: 0.50.02
 Date: 2022-02-09
 Author: January Weiner
 Maintainer: January Weiner <january.weiner@gmail.com>
@@ -15,7 +15,7 @@ LazyData: false
 VignetteBuilder: knitr
 URL: http://bioinfo.mpiib-berlin.mpg.de/tmod/
 Imports:
-    beeswarm,tagcloud,XML,methods,plotwidgets,RColorBrewer,gplots,colorDF,tibble
+    beeswarm,tagcloud,XML,methods,plotwidgets,RColorBrewer,gplots,colorDF,tibble,pheatmap
 Suggests:
     testthat,knitr,rmarkdown,pca3d,dplyr
 RoxygenNote: 7.1.1

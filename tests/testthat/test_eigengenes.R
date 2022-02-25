@@ -45,6 +45,12 @@ test_that("Checking modOverlaps", {
   expect_equal(mo1[1, 1], 1)
   expect_equal(mo1[2, 1], 0.008196721)
 
+  mymods <- list(A=LETTERS[1:10], B=LETTERS[5:15], c=LETTERS[5:25])
+  mo4 <- modOverlaps(mymods, stat="number")
+  expect_equal(mo4[2,1], 6)
+  expect_equal(mo4[2,3], 11)
+
+
 })
 
 test_that("modGroups – finding groups of gene sets", {

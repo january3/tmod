@@ -29,5 +29,5 @@ each gene.}
 Convert a tmod module set into a data frame
 }
 \seealso{
-\code{\link{tmod-class}}, \code{\link{makeTmod}}
+\code{\link{makeTmodGS}}, \code{\link{makeTmod}}
 }

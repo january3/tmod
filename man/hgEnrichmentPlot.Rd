@@ -11,7 +11,7 @@ hgEnrichmentPlot(fg, bg, m, mset = "all", ...)
 
 \item{bg}{the background set of genes (gene universe)}
 
-\item{m}{module for which the plot should be created}
+\item{m}{gene set for which the plot should be created}
 
 \item{mset}{Which module set to use (see tmodUtest for details)}
 
@@ -28,8 +28,9 @@ It is the counterpart
 \examples{
 set.seed(123)
 data(tmod)
-bg <- tmod$GENES$ID
-fg <- sample(c(tmod$MODULES2GENES[["LI.M127"]], bg[1:1000]))
+bg <- tmod$gv
+fg <- getGenes("LI.M127", as.list=TRUE)[[1]]
+fg <- sample(c(fg, bg[1:100]))
 hgEnrichmentPlot(fg, bg, "LI.M127")
 }
 \seealso{

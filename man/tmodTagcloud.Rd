@@ -59,8 +59,8 @@ Any data frame can be used as long as it contains the specified columns.
 }
 \examples{
 data(tmod)
-fg <- tmod$MODULES2GENES[["LI.M127"]]
-bg <- tmod$GENES$ID
+fg <- getModuleMembers("LI.M127")[[1]]
+bg <- tmod$gv
 result <- tmodHGtest( fg, bg )
 tmodTagcloud(result)
 }

@@ -2,6 +2,7 @@
 % Please edit documentation in R/classes2.R
 \name{makeTmodGS}
 \alias{makeTmodGS}
+\alias{makeTmod}
 \alias{as_tmodGS}
 \alias{print.tmodGS}
 \alias{length.tmodGS}
@@ -9,6 +10,8 @@
 \title{S3 class for tmod gene set collections}
 \usage{
 makeTmodGS(gs2gene, gs = NULL, weights = NULL, info = NULL)
+
+makeTmod(gs2gene, gs = NULL, weights = NULL, info = NULL)
 
 as_tmodGS(x, check_sanity = FALSE)
 
@@ -30,6 +33,8 @@ as_tmodGS(x, check_sanity = FALSE)
 \item{x}{a tmod object}
 
 \item{check_sanity}{whether the tmodGS object should be tested for correctness}
+
+\item{...}{further arguments passed to `print()`}
 
 \item{i}{indices specifying elements to extract or replace}
 }
@@ -66,7 +71,8 @@ See the package vignette for more on constructing custom module sets.
 # A minimal example
 gs <- data.frame(ID=letters[1:3], Title=LETTERS[1:3])
 gs2gv <- list(a=c("g1", "g2"), b=c("g3", "g4"), c=c("g1", "g2", "g4"))
-mymset <- makeTmodGS(gs=gs, gs2gv=gs2gv)
+mymset <- makeTmodGS(gs2gene=gs2gv, gs=gs)
+str(mymset)
 }
 \seealso{
 tmod-data

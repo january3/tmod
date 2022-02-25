@@ -2,25 +2,26 @@
 % Please edit documentation in R/helpers.R
 \name{getModuleMembers}
 \alias{getModuleMembers}
-\title{Return the contents of a module}
+\title{Return the contents of a gene set}
 \usage{
 getModuleMembers(x, mset = "all")
 }
 \arguments{
-\item{x}{a character vector of module names}
+\item{x}{a character vector of gene set names}
 
-\item{mset}{optional, a module set}
+\item{mset}{optional, a gene set collection}
 }
 \value{
-A list of modules
+A list of gene sets
 }
 \description{
-Return the contents of a module
+Return the contents of a gene set
 }
 \details{
-This function returns the selected modules from a module set.
+This function returns the selected gene sets from a collection.
 }
 \examples{
 # show the interferon related modules
 getModuleMembers(c("LI.M127", "LI.M158.0", "LI.M158.0"))
+getModuleMembers("LI.M127")
 }

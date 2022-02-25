@@ -110,8 +110,6 @@ rows from ranks}
 \item{fg}{foreground gene set for the HG test}
 
 \item{bg}{background gene set for the HG test}
-
-\item{weights}{for tmodWZtest}
 }
 \value{
 The statistical tests return a data frame with module names, additional statistic (e.g.

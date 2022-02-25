@@ -54,5 +54,5 @@ res <- makeTmodFromDataFrame(df,
   title_col="geneset_description")
 }
 \seealso{
-\code{\link{tmod-class}}, \code{\link{makeTmod}}
+\code{\link{makeTmodGS}}, \code{\link{makeTmodGS}}
 }

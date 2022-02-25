@@ -60,7 +60,7 @@ with [tmodCERNOtest()] to obtain identical results as with `tmodAUC`.
 }
 \examples{
 data(tmod)
-l <- tmod$GENES$ID
+l <- tmod_ids(tmod)
 ranks <- 1:length(l)
 res <- tmodAUC(l, ranks)
 head(res)

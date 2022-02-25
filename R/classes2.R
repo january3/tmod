@@ -50,6 +50,17 @@ if(!exists("tmod", .myDataEnv)) {
 ## prepare the modules set
 .getmodules_gs <- function(modules=NULL, mset="all", known.only=FALSE, skipcheck=FALSE) {
 
+  if(is(mset, "tmod")) {
+    warning(
+"You are loading an obsolete version of tmod R object.
+The class `tmod` has been retired.
+The data will still work, but it will incur a penalty
+on the computational time. Please use the `tmod2tmodGS`
+function to convert your object to the new tmodGS class.")
+    mset <- tmod2tmodGS(mset)
+  }
+
+
   # user provided mset
   if(is(mset, "list")) {
     mset <- .mset_sanity_check_gs(mset, modules)
@@ -147,6 +158,7 @@ check_tmod_gs <- function(object) {
 #' @rdname tmodGS-class
 #' @importFrom methods setClass setMethod loadMethod is new representation signature
 #' @seealso tmod-data
+#' @param ... further arguments passed to `print()`
 #' @param gs2gene A list with module IDs as names. Each member of the list is a character vector with IDs of genes contained in that module
 #' @param gs [Optional] A data frame with at least columns ID and Title
 #' @param weights [Optional] a named numeric vector of weights for each gene set
@@ -155,7 +167,8 @@ check_tmod_gs <- function(object) {
 #' # A minimal example
 #' gs <- data.frame(ID=letters[1:3], Title=LETTERS[1:3])
 #' gs2gv <- list(a=c("g1", "g2"), b=c("g3", "g4"), c=c("g1", "g2", "g4"))
-#' mymset <- makeTmodGS(gs=gs, gs2gv=gs2gv)
+#' mymset <- makeTmodGS(gs2gene=gs2gv, gs=gs)
+#' str(mymset)
 #' @export
 makeTmodGS <- function(gs2gene, gs=NULL, weights=NULL, info=NULL) {
 
@@ -179,7 +192,7 @@ makeTmodGS <- function(gs2gene, gs=NULL, weights=NULL, info=NULL) {
   if(is.null(gs)) {
     gs <- tibble(ID=names(gs2gene))
   } else {
-    gs <- gs[ match(gs$ID, names(gs2gene)) ]
+    gs <- gs[ match(gs$ID, names(gs2gene)), ]
   }
 
 
@@ -196,6 +209,12 @@ makeTmodGS <- function(gs2gene, gs=NULL, weights=NULL, info=NULL) {
   class(ret) <- c(class(ret), "tmodGS")
 
   ret
+}
+
+#' @rdname tmodGS-class
+#' @export
+makeTmod <- function(gs2gene, gs=NULL, weights=NULL, info=NULL) {
+  makeTmodGS(gs2gene, gs=gs, weights=weights, info=info)
 }
 
 
@@ -231,7 +250,7 @@ print.tmodGS <- function(x, ...) {
 
 #' Query and set IDs of gene sets in a tmodGS object
 #' 
-#' Query and set IDs of gene sets in a tmodGS object
+#' Query and set IDs (tmod_id) or Titles (tmod_title) of gene sets in a tmodGS object
 #' @param x an object of class tmodGS
 #' @param value a character vector of unique IDs
 #' @return Returns character vector corresponding to x$gs$ID
@@ -240,6 +259,8 @@ print.tmodGS <- function(x, ...) {
 #' mset <- tmod[ c("LI.M37.0", "LI.M75", "LI.M3") ]
 #' tmod_ids(mset)
 #' tmod_ids(mset) <- c("em", "pstrem", "bzdrem")
+#' tmod_titles(mset) <- c("foo", "bar", "baz")
+#' mset$gs
 #' @export
 tmod_ids <- function(x) {
   x$gs$ID
@@ -251,6 +272,21 @@ tmod_ids <- function(x) {
   stopifnot(length(value) == nrow(x$gs))
   stopifnot(all(!duplicated(value)))
   x$gs$ID <- value
+  x
+}
+
+#' @rdname tmod_ids
+#' @export
+tmod_titles <- function(x) {
+  x$gs$Title
+}
+
+#' @rdname tmod_ids
+#' @export
+`tmod_titles<-` <- function(x, value) {
+  stopifnot(length(value) == nrow(x$gs))
+  stopifnot(all(!duplicated(value)))
+  x$gs$Title <- value
   x
 }
 
@@ -351,3 +387,32 @@ tmod2tmodGS <- function(x) {
   ret <- split(rep(names(l), lengths(l)), unlist(l))
   ret
 }
+
+
+## checking anold style tmod object
+check_tmod <- function(object) {
+
+  if(is.null(object$MODULES))       return("Required list member MODULES missing")
+  if(is.null(object$MODULES2GENES)) return("Required list member MODULES2GENES missing")
+
+  if(!is(object$MODULES, "data.frame")) return("MODULES must be a data frame")
+  if(!is(object$MODULES2GENES, "list")) return("MODULES2GENES must be a list")
+
+  if(is.null(object$MODULES$ID))    return("MODULES must have columns ID and Title")
+  if(is.null(object$MODULES$Title)) return("MODULES must have columns ID and Title")
+
+  if(!all(object$MODULES$ID %in% names(object$MODULES2GENES)))
+    return("All MODULES$ID must be found in names of MODULES2GENES")
+
+
+  if(!is.null(object$WEIGHTS)) {
+    if(!all(object$MODULES$ID %in% names(object$WEIGHTS)))
+      return("All MODULES$ID must be found in names of WEIGHTS")
+  }
+
+  TRUE
+
+}
+
+
+

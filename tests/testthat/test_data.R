@@ -17,3 +17,20 @@ test_that("tmod is sane", {
   expect_equal(nrow(mset$gs), length(mset$gs2gv))
 
 })
+
+test_that("makeTmodGS works", {
+
+  gs <- data.frame(ID=letters[1:3], Title=LETTERS[1:3])
+  gs2gv <- list(a=c("g1", "g2"), b=c("g3", "g4"), c=c("g1", "g2", "g4"))
+  mset <- makeTmodGS(gs2gene=gs2gv, gs=gs)
+  expect_s3_class(mset, "tmodGS")
+  expect_setequal(names(mset), c( "gs", "gs2gv", "gv", "info", "weights" ))
+  expect_equal(length(mset$gv), 4)
+
+  mods <- tmod_ids(mset)
+  expect_setequal(mods, letters[1:3])
+
+  expect_setequal(mset$gv[ mset$gs2gv[[ 1 ]] ], c("g1", "g2"))
+  expect_equal(length(mset$gs2gv), nrow(mset$gs))
+
+})

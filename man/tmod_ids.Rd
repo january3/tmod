@@ -3,11 +3,17 @@
 \name{tmod_ids}
 \alias{tmod_ids}
 \alias{tmod_ids<-}
+\alias{tmod_titles}
+\alias{tmod_titles<-}
 \title{Query and set IDs of gene sets in a tmodGS object}
 \usage{
 tmod_ids(x)
 
 tmod_ids(x) <- value
+
+tmod_titles(x)
+
+tmod_titles(x) <- value
 }
 \arguments{
 \item{x}{an object of class tmodGS}
@@ -18,11 +24,13 @@ tmod_ids(x) <- value
 Returns character vector corresponding to x$gs$ID
 }
 \description{
-Query and set IDs of gene sets in a tmodGS object
+Query and set IDs (tmod_id) or Titles (tmod_title) of gene sets in a tmodGS object
 }
 \examples{
 data(tmod)
 mset <- tmod[ c("LI.M37.0", "LI.M75", "LI.M3") ]
 tmod_ids(mset)
 tmod_ids(mset) <- c("em", "pstrem", "bzdrem")
+tmod_titles(mset) <- c("foo", "bar", "baz")
+mset$gs
 }
