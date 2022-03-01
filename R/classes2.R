@@ -219,7 +219,7 @@ makeTmodGS <- function(gs2gene, gs=NULL, weights=NULL, info=NULL) {
 #' @rdname tmodGS-class
 #' @export
 makeTmod <- function(modules, modules2genes, genes2modules=NULL, genes=NULL) {
-  makeTmodGS(gs2gene, gs=gs, weights=weights, info=info)
+  makeTmodGS(gs2gene=modules2genes, gs=modules, weights=NULL, info=NULL)
 }
 
 
