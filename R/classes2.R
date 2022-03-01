@@ -306,6 +306,12 @@ length.tmodGS <- function(x) {
 
   object  <- x
 
+  if(is.logical(i)) {
+    stopifnot(length(i) == nrow(object$gs))
+    i <- which(i)
+  }
+
+
   if(!is.numeric(i)) {
     stopifnot(all(i %in% object$gs$ID))
     sel <- match(i, object$gs$ID)
