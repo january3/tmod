@@ -153,14 +153,19 @@ check_tmod_gs <- function(object) {
 #' by calling the function makeTmodGS(). This function check the validity and
 #' consistency of the provided objects.
 #'
+#' The makeTmod function remains for compatibility with previous versions
+#' of the package. It produces the objects of the new class tmodGS,
+#' however.
+#'
 #' See the package vignette for more on constructing custom module sets.
 #'
 #' @rdname tmodGS-class
 #' @importFrom methods setClass setMethod loadMethod is new representation signature
 #' @seealso tmod-data
 #' @param ... further arguments passed to `print()`
-#' @param gs2gene A list with module IDs as names. Each member of the list is a character vector with IDs of genes contained in that module
-#' @param gs [Optional] A data frame with at least columns ID and Title
+#' @param gs2gene,modules2genes A list with module IDs as names. Each member of the list is a character vector with IDs of genes contained in that module
+#' @param gs,modules [Optional] A data frame with at least columns ID and Title
+#' @param genes2modules,genes Ignored
 #' @param weights [Optional] a named numeric vector of weights for each gene set
 #' @param info [Optional] a list containing meta-information about the gene set collection
 #' @examples
@@ -213,7 +218,7 @@ makeTmodGS <- function(gs2gene, gs=NULL, weights=NULL, info=NULL) {
 
 #' @rdname tmodGS-class
 #' @export
-makeTmod <- function(gs2gene, gs=NULL, weights=NULL, info=NULL) {
+makeTmod <- function(modules, modules2genes, genes2modules=NULL, genes=NULL) {
   makeTmodGS(gs2gene, gs=gs, weights=weights, info=info)
 }
 
@@ -318,8 +323,6 @@ length.tmodGS <- function(x) {
   } else {
     sel <- i
   }
-
-
 
   #modules <- modules[ modules %in% object$MODULES$ID ]
 
