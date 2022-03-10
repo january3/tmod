@@ -10,7 +10,10 @@ panglo.df <- panglo %>% filter(cell.type %in% sel) %>%
   filter(grepl("Hs", species)) %>%
   select(gene=official.gene.symbol, Title=cell.type) %>%
   mutate(Title=gsub("cells$", "cell", Title)) %>%
-  mutate(source="PanglaoDB")
+  mutate(source="PanglaoDB") %>% 
+  mutate(ID=sprintf("PG%05d", as.numeric(factor(Title))))
+
+
 
 ## source: http://bio-bigdata.hrbmu.edu.cn/CellMarker/download/Human_cell_markers.txt
 cmark <- read.delim("Human_cell_markers.txt.gz", sep="\t") %>%
@@ -28,8 +31,8 @@ cmark.df <- cmark %>% filter(cellName %in% cmark.sel) %>%
   mutate(source="CellMarker") %>%
   separate_rows(gene, sep = ", *") %>%
   mutate(gene=gsub("[^[:alnum:]]", "", gene)) %>%
-  filter(!duplicated(paste(gene, Title)))
-  
+  filter(!duplicated(paste(gene, Title))) %>% 
+  mutate(ID=sprintf("CM%05d", as.numeric(factor(Title))))
 
 ## source: CIBERSORT, LM22 signature file
 csort <- read_tsv("LM22.txt")
@@ -45,10 +48,9 @@ csort.markers <- map_dfr(c(10, 25, 50), ~ {
   }) %>% imap_dfr(~ {
     data.frame(gene=.x, Title=paste0(.y, " top", ntop), source="CIBERSORT")
   })
-}) 
+}) %>% mutate(ID=sprintf("CS%05d", as.numeric(factor(Title))))
 
-cell_signatures_df <- rbind(cmark.df, panglo.df, csort.markers) %>% 
-  mutate(ID=sprintf("CT%05d", as.numeric(factor(Title))))
+cell_signatures_df <- rbind(cmark.df, panglo.df, csort.markers) 
 cell_signatures <- makeTmodFromDataFrame(cell_signatures_df, feature_col = "gene",
                                          module_col = "ID", title_col = "Title",
                                          extra_module_cols="source")
