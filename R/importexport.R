@@ -215,7 +215,8 @@ makeTmodFromDataFrame <- function(df, feature_col=1, module_col=2, title_col=NUL
   mods[ , "Title"] <- df_unique[ , title_col ]
 
   if(!is.null(extra_module_cols)) {
-    mods <- cbind(mods, df_unique[ , extra_module_cols ])
+    extr <- df_unique[ , extra_module_cols, drop=FALSE ]
+    mods <- cbind(mods, extr)
   }
 
   message("making Tmod")
