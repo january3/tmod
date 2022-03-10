@@ -3,6 +3,11 @@
 \name{vaccination}
 \alias{vaccination}
 \title{Transcriptomic responses to vaccination}
+\format{
+Data frame with one row per gene containing log fold changes and FDR (q
+values) for the Fluad vaccine as compared to placebo on day 0, day 1, day 2
+and day 3 after the vaccination.
+}
 \description{
 Transcriptomic responses to vaccination
 }
@@ -15,4 +20,6 @@ Weiner, January, et al. "Characterization of potential
 biomarkers of reactogenicity of licensed antiviral vaccines: randomized
 controlled clinical trials conducted by the BIOVACSAFE consortium."
 Scientific reports 9.1 (2019): 1-14.
+
+For the data set, 3000 genes with top variance were chosen.
 }

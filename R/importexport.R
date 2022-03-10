@@ -206,7 +206,8 @@ makeTmodFromDataFrame <- function(df, feature_col=1, module_col=2, title_col=NUL
   #m2g <- lapply(mods[ , "ID" ], function(m) df[ df[ , module_col ] == m, feature_col])
   gv <- unique(df[ , feature_col ])
   df[ , feature_col ] <- match(df[ , feature_col ], gv)
-  gs2gv <- tapply(df[ , feature_col ], df[ , module_col ], unique)
+  gs2gv <- tapply(df[ , feature_col ], df[ , module_col ], unique, simplify=FALSE)
+  gs2gv <- lapply(gs2gv, function(.) .)
 
   if(is.null(title_col)) {
     title_col <- module_col

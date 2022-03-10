@@ -11,7 +11,7 @@
 \usage{
 makeTmodGS(gs2gene, gs = NULL, weights = NULL, info = NULL)
 
-makeTmod(gs2gene, gs = NULL, weights = NULL, info = NULL)
+makeTmod(modules, modules2genes, genes2modules = NULL, genes = NULL)
 
 as_tmodGS(x, check_sanity = FALSE)
 
@@ -22,13 +22,15 @@ as_tmodGS(x, check_sanity = FALSE)
 \method{[}{tmodGS}(x, i)
 }
 \arguments{
-\item{gs2gene}{A list with module IDs as names. Each member of the list is a character vector with IDs of genes contained in that module}
+\item{gs2gene, modules2genes}{A list with module IDs as names. Each member of the list is a character vector with IDs of genes contained in that module}
 
-\item{gs}{[Optional] A data frame with at least columns ID and Title}
+\item{gs, modules}{[Optional] A data frame with at least columns ID and Title}
 
 \item{weights}{[Optional] a named numeric vector of weights for each gene set}
 
 \item{info}{[Optional] a list containing meta-information about the gene set collection}
+
+\item{genes2modules, genes}{Ignored}
 
 \item{x}{a tmod object}
 
@@ -64,6 +66,10 @@ the positions of the gene identifiers in the `tmod$gv` character vector.
 Objects of class tmodGS should be constructed 
 by calling the function makeTmodGS(). This function check the validity and
 consistency of the provided objects.
+
+The makeTmod function remains for compatibility with previous versions
+of the package. It produces the objects of the new class tmodGS,
+however.
 
 See the package vignette for more on constructing custom module sets.
 }
