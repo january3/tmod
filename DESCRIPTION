@@ -1,8 +1,8 @@
 Package: tmod
 Type: Package
 Title: Feature Set Enrichment Analysis for Metabolomics and Transcriptomics
-Version: 0.50.02
-Date: 2022-02-09
+Version: 0.50.03
+Date: 2022-03-31
 Author: January Weiner
 Maintainer: January Weiner <january.weiner@gmail.com>
 Description: Methods and feature set definitions for feature or gene set

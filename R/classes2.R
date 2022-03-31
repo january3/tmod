@@ -197,7 +197,8 @@ makeTmodGS <- function(gs2gene, gs=NULL, weights=NULL, info=NULL) {
   if(is.null(gs)) {
     gs <- tibble(ID=names(gs2gene))
   } else {
-    gs <- gs[ match(gs$ID, names(gs2gene)), ]
+    stopifnot(all(names(gs2gene) %in% gs$ID))
+    gs <- gs[ match(names(gs2gene), gs$ID), ]
   }
 
 
