@@ -284,7 +284,11 @@ tmod_ids <- function(x) {
 #' @rdname tmod_ids
 #' @export
 tmod_titles <- function(x) {
-  x$gs$Title
+  if("Title" %in% names(x$gs)) {
+    return(x$gs$Title)
+  } else {
+    return(NULL)
+  }
 }
 
 #' @rdname tmod_ids
