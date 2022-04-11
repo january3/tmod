@@ -301,14 +301,13 @@ tmod_titles <- function(x) {
 }
 
 
-#' @param x a tmod object
 #' @rdname tmodGS-class
 #' @export
 length.tmodGS <- function(x) {
     nrow(x$gs)
 }  
 
-#' @param x a tmod object
+#' @param x a tmodGS or tmod object
 #' @param i indices specifying elements to extract or replace
 #' @rdname tmodGS-class
 #' @export
@@ -356,6 +355,26 @@ length.tmodGS <- function(x) {
     gv=gv,
     info=object$info,
     weights=weights), check_sanity=FALSE)
+}
+
+
+## Obsolete: old tmod objects. We need to handle them, though
+
+#' @param x a tmodGS or tmod object
+#' @param i indices specifying elements to extract or replace
+#' @rdname tmodGS-class
+#' @export
+`[.tmod` <- function(x, i) {
+
+    warning(
+"You are loading an obsolete version of tmod R object.
+The class `tmod` has been retired.
+The data will still work, but it will incur a penalty
+on the computational time. Please use the `tmod2tmodGS`
+function to convert your object to the new tmodGS class.")
+    x <- tmod2tmodGS(x)
+
+  x[ i ]
 }
 
 #' Convert the old tmod objects to the tmodGS objects

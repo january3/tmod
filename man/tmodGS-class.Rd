@@ -7,6 +7,7 @@
 \alias{print.tmodGS}
 \alias{length.tmodGS}
 \alias{[.tmodGS}
+\alias{[.tmod}
 \title{S3 class for tmod gene set collections}
 \usage{
 makeTmodGS(gs2gene, gs = NULL, weights = NULL, info = NULL)
@@ -20,6 +21,8 @@ as_tmodGS(x, check_sanity = FALSE)
 \method{length}{tmodGS}(x)
 
 \method{[}{tmodGS}(x, i)
+
+\method{[}{tmod}(x, i)
 }
 \arguments{
 \item{gs2gene, modules2genes}{A list with module IDs as names. Each member of the list is a character vector with IDs of genes contained in that module}
@@ -32,7 +35,7 @@ as_tmodGS(x, check_sanity = FALSE)
 
 \item{genes2modules, genes}{Ignored}
 
-\item{x}{a tmod object}
+\item{x}{a tmodGS or tmod object}
 
 \item{check_sanity}{whether the tmodGS object should be tested for correctness}
 
