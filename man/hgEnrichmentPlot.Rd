@@ -34,5 +34,5 @@ fg <- sample(c(fg, bg[1:100]))
 hgEnrichmentPlot(fg, bg, "LI.M127")
 }
 \seealso{
-\code{\link{tmod-package}}, \code{\link{evidencePlot}}
+\code{\link{tmod-package}}, [evidencePlot()]
 }

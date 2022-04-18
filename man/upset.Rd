@@ -103,5 +103,5 @@ upset(res$ID, group.cutoff=.1, value="jaccard")
 }
 }
 \seealso{
-modGroups, modOverlaps
+[modGroups()], [modOverlaps()]
 }

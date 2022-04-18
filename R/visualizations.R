@@ -6,10 +6,8 @@
   x
 }
 
-
 ## This function implements a friendly palette to be used in graphics
 .mypalette <- function (n = NULL, transparent = "99") {
-
 
     pal="E69F00 56B4E9 009E73 F0E442 0072B2 D55E00 CC79A7 669900 660099 996600 990066 666633 666600 aa3366 5B4E85 FF6A5C ADAEA3 A0A376 FF8040 A2D6DA DA9CA5"
 
@@ -81,6 +79,277 @@ tmodPal <- function(n=NULL, set="friendly", alpha=0.7, func=FALSE) {
   return(pal)
 }
 
+## cluster modules by overlaps
+.cluster_mods <- function(ids, mset=NULL) {
+
+  mset <- .getmodules_gs(ids, mset)
+  if(!all(ids %in% tmod_ids(mset))) {
+    warning("gene set IDs not in mset, not clustering")
+    return(rev(sort(ids)))
+  }
+
+  ovr  <- modOverlaps(tmod_ids(mset), mset)
+  hc <- hclust(as.dist(1 - ovr))
+
+  ids[ hc$order ]    
+}
+
+
+#' Create a tmod panel plot using ggplot
+#'
+#' Create a tmod panel plot using ggplot
+#'
+#' Panel plot is a kind of a heatmap. This is the most compact way of
+#' representing the results of several gene set enrichment analyses. Each row of a
+#' panel plot shows the result for one gene set, and each column shows
+#' corresponds to one analysis. For example, if one tests gene set enrichment
+#' for a number of different contrasts, then each contrast will be represented
+#' in a separate column.
+#' 
+#' Each cell of a panel plot shows both the effect size and the p-value.
+#' The p-value is encoded as transparency: the enrichments with a lower
+#' p-value have stronger colors. The size of the bar corresponds to the effect
+#' size, however it is defined. For example, in case of the tmodCERNOtest,
+#' tmodZtest or tmodUtest it is the area under curve, AUC.
+#'
+#' In addition, the bars may also encode information about the number of
+#' up- or down-regulated genes. For this, an object must be created using the
+#' function tmodDecideTests. This object provides  information about which
+#' genes in a particular gene set are regulated in which direction.
+#'
+#' The order of the gene sets displayed is, by default, determined by
+#' clustering the gene sets based on their overlaps. For this to work,
+#' gg_panelplot must know about what genes are contained in which gene sets.
+#' This is provided by the parameter `mset`. By default (when mset is NULL)
+#' this is the built-in list of gene sets. If, however, the results of gene
+#' set enrichment come from a different set of gene sets, you need to specify
+#' it with the mset parameter. See Examples.
+#' @param res a list with tmod results (each element of the list is a data
+#' frame returned by a tmod test function)
+#' @param sgenes a list with summaries of significantly DE genes by gene set.
+#' Each a element of the list is a matrix returned by tmodDecideTests. If
+#' NULL, the bars on the plot will be monochromatic.
+#' @seealso [tmodDecideTests()], [tmodPanelPlot()]
+#' @param colors character vector with at least 1 (when sgenes is NULL) or 3
+#'        (when sgenes is not NULL) elements
+#' @param effect_size name of the column which contains the effect sizes
+#' @param auc_thr gene sets enrichments with AUC (or other effect size) below `auc_thr` will not be shown
+#' @param q_thr gene sets enrichments with q (adjusted P value) above `q_thr` will not be shown
+#' @param filter_row_q Gene sets will only be shown if at least in one
+#' contrast q is smaller than `filter_row_q`
+#' @param filter_row_auc Gene sets will only be shown if at least in one
+#' contrast AUC (or other effect size if specified) is larger than `filter_row_auc`
+#' @param q_cutoff Any q value below `q_cutoff` will be considered equal to
+#' `q_cutoff`
+#' @param label_angle The angle at which column labels are shown
+#' @param add_ids add IDs of gene sets to their titles on the plot
+#' @param cluster whether to cluster the IDs by similarity
+#' @param id_order character vector specifying the order of IDs to be
+#' shown. This needs not to contain all IDs shown, but whatever IDs are in this
+#' vector, they will be shown on top in the given order.
+#' @param mset an object of the type 'tmodGS'. If the option `cluster` is
+#' TRUE, the mset object is used to cluster the gene sets. By default, the
+#' built-in transcription modules are used. See details.
+#' @importFrom tidyr pivot_longer pivot_wider 
+#' @importFrom purrr imap map
+#' @importFrom rlang .data
+#' @importFrom ggplot2 ggplot aes aes_string geom_bar geom_boxplot geom_point guides guide_legend lims ylab 
+#' @importFrom ggplot2 ylab xlab element_text element_blank coord_flip
+#' @importFrom ggplot2 scale_x_discrete scale_y_continuous scale_fill_manual facet_wrap theme
+#' @importFrom tidyselect all_of starts_with
+#' @return The object returned is a ggplot2 object which can be further
+#'         modified the usual way.
+#' @examples
+#' ## prepare a set of results
+#' data(Egambia)
+#' genes <- Egambia$GENE_SYMBOL
+#' exprs <- Egambia[ , -1:-4 ]
+#' group <- gsub("\\..*", "", colnames(exprs))
+#' ## test differential expression using limma
+#' design <- cbind(Intercept=rep(1, 30), TB=rep(c(0,1), each= 15))
+#' library(limma)
+#' fit <- eBayes( lmFit(Egambia[,-c(1:3)], design))
+#' tt <- topTable(fit, coef=2, number=Inf, genelist=Egambia[,1:3] )
+#' res <- tmodCERNOtest(tt$GENE_SYMBOL)
+#' ## show the results using a panel plot
+#' gg_panelplot(list(limma=res))
+#' ## add information about the significant genes
+#' sgenes <- tmodDecideTests(tt$GENE_SYMBOL, lfc=tt$logFC, pval=tt$adj.P.Val)
+#' names(sgenes) <- "limma"
+#' gg_panelplot(list(limma=res), sgenes=sgenes)
+#' ## we will now compare the results of enrichments for different types of
+#' ## differential expression tests on the data
+#' res_utest <- apply(exprs, 1, function(x) wilcox.test(x ~ group)$p.value)
+#' res_ttest <- apply(exprs, 1, function(x) t.test(x ~ group)$p.value)
+#' ## Calculate the gene set enrichment analysis results for each of the
+#' ## different types of tests
+#' res_tmod <- list()
+#' res_tmod$limma <- res
+#' res_tmod$utest <- tmodCERNOtest(genes[order(res_utest)])
+#' res_tmod$ttest <- tmodCERNOtest(genes[order(res_ttest)])
+#' gg_panelplot(res_tmod)
+#' ## Using the `mset` parameter
+#' ## First, we generate results using a different set of gene sets
+#' data(cell_signatures)
+#' res_cs <- tmodCERNOtest(tt$GENE_SYMBOL, mset=cell_signatures)
+#' ## the following will triger a warning that no clustering is possible
+#' gg_panelplot(list(res=res_cs))
+#' ## better use the mset parameter
+#' gg_panelplot(list(res=res_cs), mset=cell_signatures)
+#' @export
+gg_panelplot <- function(res, sgenes=NULL, auc_thr=.5, q_thr=.05,
+                         filter_row_q=.01,
+                         filter_row_auc=.65,
+                         q_cutoff=1e-12,
+                         cluster=TRUE,
+                         id_order=NULL,
+                         effect_size=c("AUC", "E", "D"),
+                         colors=c("red", "grey", "blue"),
+                         label_angle=45, add_ids=TRUE,
+                         mset=NULL) {
+
+  label_angle=as.numeric(label_angle)
+  resS <- tmodSummary(res) 
+
+  if(any(resS$Title != resS$ID)) {
+    modnames <- resS$Title
+    if(add_ids) {
+      modnames <- paste(resS$ID, modnames)
+    }
+  } else {
+    modnames <- resS$ID
+  }
+  names(modnames) <- resS$ID
+
+  if(!is.null(id_order)) {
+    id_ord <- id_order[ id_order %in% resS$ID ]
+    id_ord <- c(id_ord, setdiff(resS$ID, id_ord))
+    id_ord <- rev(id_ord)
+  } else {
+    if(cluster) {
+      id_ord <- .cluster_mods(resS$ID, mset)
+    } else {
+      id_ord <- sort(resS$ID)
+    }
+  }
+
+  ## choose the column for effect size
+  effect_size <- effect_size[ which(effect_size %in% colnames(res[[1]]))[1] ]
+
+  if(is.na(effect_size)) {
+    stop(sprintf("the effect size column(s) '%s' is not found in the results",
+    paste(effect_size, collapse=", ")))
+  }
+    
+
+  resS_l <- pivot_longer(resS, starts_with(c(effect_size, "q")), 
+                 names_to=c("Param", "Contrast"), 
+                 names_sep="\\.", 
+                 values_to="Value") 
+  resS_l <- pivot_wider(resS_l, all_of(c("ID", "Title", "Contrast")), 
+                names_from="Param", 
+                values_from="Value") 
+
+  resS_l[["q"]] <- ifelse(is.na(resS_l[["q"]]), 1, resS_l[["q"]])
+  resS_l[[effect_size]] <- ifelse(is.na(resS_l[[effect_size]]), .5, resS_l[[effect_size]])
+  resS_l <- resS_l[ resS_l[[effect_size]] > auc_thr & resS_l[["q"]] < q_thr, ]
+
+  if(!is.na(q_cutoff)) {
+    resS_l[["q"]] <- ifelse(resS_l[["q"]] < q_cutoff, q_cutoff, resS_l[["q"]])
+  }
+
+  resS_l[["alpha"]] <- -log10(resS_l[["q"]]) / -log10(q_cutoff)
+  selMod <- resS$ID
+
+  if(!is.na(filter_row_auc)) {
+    .s <- resS_l$ID[ resS_l[[effect_size]] > filter_row_auc ]
+    selMod <- intersect(selMod, .s)
+  }
+
+  if(!is.na(filter_row_q)) {
+    .s <- resS_l$ID[ resS_l[["q"]] < filter_row_q ]
+    selMod <- intersect(selMod, .s)
+  }
+
+  resS_l <- resS_l[ resS_l[["ID"]] %in% selMod, ]
+
+  minq <- max(-log10(resS_l[["q"]]))
+
+  if(is.null(sgenes)) {
+    resS_l$ID <- factor(resS_l$ID, levels=id_ord)
+
+  ret <- ggplot(resS_l, aes(x=.data[["ID"]], y=.data[[effect_size]], 
+                 contrast=.data[["Contrast"]],
+                 id=.data[["ID"]],
+                 alpha=-log10(.data[["q"]]))) + 
+    facet_wrap(~ .data[["Contrast"]], nrow=1, drop=FALSE) + 
+    geom_bar(stat="identity", fill=colors[1]) + 
+    coord_flip() +
+    scale_x_discrete(breaks=names(modnames), labels=modnames) +
+    theme(strip.text.x = element_text(angle=label_angle), strip.background=element_blank(),
+          axis.text.x=element_text(angle=90), axis.title.y=element_blank()) +
+    scale_y_continuous(breaks=c(0, .5, 1), labels=c("0", ".5", "1"), limits=c(0, 1)) +
+    guides(alpha = guide_legend(override.aes = list(fill = colors[1]))) +
+    lims(alpha = c(0, minq)) +
+    ylab("Effect size")
+ 
+
+    #stop("Don't know how to do it yet :-(")
+    return(ret)
+  }
+
+  pieS <- imap(sgenes, ~ { 
+               colnames(.x) <- paste0(.y, '.', colnames(.x))
+               .x <- as.data.frame(.x)
+               .x$ID <- rownames(.x)
+               .x
+                })
+
+  pieS <- Reduce(function(x, y) merge(x, y, all=TRUE, by="ID"), pieS) 
+
+  pieS <-  pivot_longer(pieS, -which(colnames(pieS) == "ID"), names_to=c("Contrast", "Direction"), 
+                 names_sep="\\.", 
+                 values_to="Number")
+
+  ## add pie information about significant genes
+  df <- merge(resS_l, pieS, by=c("ID", "Contrast"), all.x=TRUE) 
+  df$id.cntr <- paste(df$ID, df$Contrast)
+
+  tots <- tapply(df$Number, df$id.cntr, sum)
+  df$Tot <- tots[ df$id.cntr ]
+  df$Number <- df$Number * df[[effect_size]] / df$Tot
+  df$Direction <- factor(df$Direction, levels=c("up", "N", "down"))
+
+ #df <- df %>% group_by(paste0(.data[["Contrast"]], .data[["Direction"]])) %>%
+ #  slice(match(resS$ID, .data[["ID"]])) %>%
+ #  ungroup()
+
+  df$Contrast <- factor(df$Contrast, levels=names(res))
+
+  names(colors) <- levels(df$Direction)
+
+  df$ID <- factor(df$ID, levels=rev(id_ord))
+
+  ggplot(df, aes(x=.data[["ID"]], y=.data[["Number"]], 
+                 fill=.data[["Direction"]],
+                 contrast=.data[["Contrast"]],
+                 id=.data[["ID"]],
+                 alpha=-log10(.data[["q"]]))) + 
+    facet_wrap(~ .data[["Contrast"]], nrow=1, drop=FALSE) + 
+    geom_bar(stat="identity") + 
+    coord_flip() +
+    scale_fill_manual(values=colors) +
+    scale_x_discrete(breaks=names(modnames), labels=modnames) +
+    theme(strip.text.x = element_text(angle=label_angle), strip.background=element_blank(),
+          axis.text.x=element_text(angle=90), axis.title.y=element_blank()) +
+    scale_y_continuous(breaks=c(0, .5, 1), labels=c("0", ".5", "1"), limits=c(0, 1)) +
+    guides(alpha = guide_legend(override.aes = list(fill = "grey"))) +
+    lims(alpha = c(0, minq)) +
+    ylab("Effect size")
+    
+}
+
+
 
 
 
@@ -139,7 +408,7 @@ showGene <- function( data, group, main= "", pch= 19,
 #' @param m gene set for which the plot should be created
 #' @param mset Which module set to use (see tmodUtest for details)
 #' @param ... additional parameters to be passed to the plotting function
-#' @seealso \code{\link{tmod-package}}, \code{\link{evidencePlot}}
+#' @seealso \code{\link{tmod-package}}, [evidencePlot()]
 #' @examples 
 #' set.seed(123)
 #' data(tmod)
@@ -180,6 +449,99 @@ hgEnrichmentPlot <- function(fg, bg, m, mset="all", ...) {
 }
 
 
+#' Create an evidence plot for a module (ggplot2 version)
+#' 
+#' @inheritParams evidencePlot
+#' @importFrom ggrepel geom_text_repel
+#' @importFrom ggplot2 geom_line geom_polygon geom_segment
+#' @importFrom ggplot2 scale_color_manual
+#' @importFrom purrr imap_dfr map_dfr 
+#' @export
+gg_evidencePlot <- function(l, m, mset=NULL, filter=FALSE, unique=TRUE,
+  gene.labels=NULL,
+  gene.colors=NULL
+  ) {
+
+  mset <- .getmodules_gs(m, mset)
+
+  l_orig <- l
+  tmp    <- .prep_list(l, x=l_orig, mset=mset, filter=filter, nodups=unique)
+  keep <- l_orig %in% tmp$x
+  l_orig <- tmp$x
+  l      <- tmp$l
+
+  mods <- tmod_ids(mset)
+  names(mods) <- mods
+
+  mm <- getModuleMembers(mods, mset)  
+  mm <- map(mm, ~ .x[ .x %in% l_orig ])
+
+  coords <- imap_dfr(mm, ~ {
+
+    pos <- sort(match(.x, l_orig) - cumsum(1:length(.x)))
+    pos <- rep(pos, each=2)
+    pos <- c(1, pos, length(l_orig))
+    y <- rep(c(0:length(.x)), each=2) / length(.x)
+    data.frame(x=pos, y=y, "mod"=.y)
+  })
+
+  coords_segm <- imap_dfr(mm, ~ {
+
+    x <- sort(match(.x, l_orig) - cumsum(1:length(.x)))
+    y <- rep(c(0:length(.x)), each=2) / length(.x)
+    data.frame(x=x, y=-.1, xend=x, yend=0, "mod"=.y, label=.x, gene=.x)
+  })
+
+
+  if(length(mm) > 1) {
+    pal <- tmodPal(length(mm), alpha=1)
+  } else {
+    pal <- "black"
+  }
+  names(pal) <- names(mm)
+
+  if(!is.null(gene.colors)) {
+    pal <- c(pal, gene.colors)
+    names(pal) <- c(names(mm), names(gene.colors))
+  }
+
+
+  ret <- ggplot(coords, aes_string(x="x", y="y", color="mod")) 
+
+  ret <- ret + geom_line() + 
+      geom_polygon(data=data.frame(x=c(1, 1, length(l_orig), length(l_orig)), 
+                                   y=c(-.1, 0, 0, -.1)), aes_string(x="x", y="y"), 
+                                   color="grey",
+                                   fill="LightGrey") +
+    scale_y_continuous(breaks=seq(0, 1, by=.25)) +
+    xlab("Gene list") +
+    ylab("Fraction of gene set")
+
+  if(!is.null(gene.colors)) {
+    ret <- ret +
+    geom_segment(data=coords_segm, aes_string(x="x", y="y", xend="xend", yend="yend", color="gene")) +
+    geom_text_repel(data=coords_segm, aes_string(x="x", y="yend", label="label", color="gene"), 
+      max.overlaps=999, direction="x", angle=90,
+      hjust="left", min.segment.length=.01, xlim=c(1, length(l_orig)), ylim=c(.05, .5))
+  } else {
+    ret <- ret +
+    geom_segment(data=coords_segm, aes_string(x="x", y="y", xend="xend", yend="yend", color="mod")) +
+    geom_text_repel(data=coords_segm, aes_string(x="x", y="yend", label="label", color="mod"), 
+      max.overlaps=999, direction="x", angle=90,
+      hjust="left", min.segment.length=.01, xlim=c(1, length(l_orig)), ylim=c(.05, .5))
+  }
+
+  ret <- ret + scale_color_manual(values=pal, breaks=names(pal[1:length(mm)])) +
+    guides(color=guide_legend(title="Gene set"))
+
+  if(length(mm) < 2) {
+    ret <- ret + theme(legend.position = "none")
+  }
+
+  ret
+
+}
+
 
 #' Create an evidence plot for a module
 #'
@@ -219,7 +581,7 @@ hgEnrichmentPlot <- function(fg, bg, m, mset="all", ...) {
 #' @param rug.size fraction of the plot that should show the rug. If rug.size is 0, rug is not drawn. If rug.size is 1, ROC curve is not drawn.
 #' @param legend position of the legend. If NULL, no legend will be drawn
 #' @param ... Further parameters passed to the plotting function
-#' @seealso \code{\link{tmod-package}}, \code{\link{hgEnrichmentPlot}}
+#' @seealso [tmod-package()], [hgEnrichmentPlot()]
 #' @examples 
 #' # artificially enriched list of genes
 #' set.seed(123)
@@ -724,7 +1086,7 @@ modCorPlot <- function(modules, mset=NULL, heatmap_func=pheatmap, labels=NULL, s
 #'        (can be "number", "overlap", "soerensen" or "jaccard"; see function modOverlaps)
 #' @param lab.cex Initial cex (font size) for labels
 #' @param pal Color palette to show the groups. 
-#' @seealso modGroups, modOverlaps
+#' @seealso [modGroups()], [modOverlaps()]
 #' @inheritParams tmodUtest
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom utils combn
@@ -878,8 +1240,4 @@ upsetPlot <- function(items, labels, overlaps, add=FALSE, coords=NULL) {
   n <- length(items)
 
   sel <- rep(c(TRUE, FALSE), floor(n/2))
-
-
-
-
 }

@@ -97,5 +97,5 @@ evidencePlot(l, "LI.M127")
 evidencePlot(l, filter=TRUE, "LI.M127")
 }
 \seealso{
-\code{\link{tmod-package}}, \code{\link{hgEnrichmentPlot}}
+[tmod-package()], [hgEnrichmentPlot()]
 }
