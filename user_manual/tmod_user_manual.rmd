@@ -29,7 +29,7 @@ vignette: >
 abstract: |
   The package `tmod` provides blood transcriptional modules described
   by Chaussabel et al. [-@chaussabel2008modular] and by Li et al.
-  [-@li2014molecular] as well as metabolic profiling clusters from Weiner
+  [-@li2014molecular], cell type signatures as well as metabolic profiling clusters from Weiner
   et al. [-@weiner2012biomarkers]. Furthermore, the package includes several tools for testing
   the significance of enrichment of modules or other gene sets as well as
   visualisation of the features (genes, metabolites etc.) and modules. This
@@ -564,7 +564,7 @@ Another approach to permutation testing is through the `tmodGeneSetTest()`
 function. This is an implementation of `geneSetTest` from the limma 
 package^[Only the actual geneSetTest part, the wilcoxGST part is
 implemented in `tmodUtest`]. Here, a statistic is used – for example the
-fold changes or `-log10(pvalue)`. For each module, the average value of
+fold changes or `-log10(pvalue)`. For each gene set, the average value of
 this statistic in the module is calculated and compared to a number of
 random samples of the same size as the module.  Below, we are using again
 the `tt` object containing the results of the analysis in the Gambia data
@@ -616,7 +616,9 @@ res$GST <- tmodGeneSetTest(l, -log10(tt$P.Value), qval=Inf, Nsim=9999)
 res$PLAGE <- tmodPLAGEtest(Egambia$GENE_SYMBOL, Egambia[,-c(1:3)], group=group, qval=Inf)
 
 res <- res[ c("CERNO", "GST", "PLAGE", "U", "HG") ]
-pvals <- sapply(res, function(x) x$P.Value)
+common_ids <- Reduce(intersect, lapply(res, rownames))
+
+pvals <- sapply(res, function(x) x[ common_ids, ]$P.Value)
 
 lower.panel <- function(x, y) {
         usr <- par("usr")
@@ -740,10 +742,10 @@ sample.
 ```{r eigengene,fig.width=8,fig.height=5}
 par(mfrow=c(1,2))
 eig <- eigengene(Egambia[,-c(1:3)], Egambia$GENE_SYMBOL)
-showgene(eig["LI.M75", ], group, 
+showGene(eig["LI.M75", ], group, 
   ylab="Eigengene",
   main="antiviral Interferon signature")
-showgene(eig["LI.M16", ], group, 
+showGene(eig["LI.M16", ], group, 
   ylab="Eigengene",
   main="TLR and inflammatory signaling")
 ```
@@ -802,15 +804,15 @@ this, we will create a list containing results from all comparisons.
 
 ```{r fourC,size="tiny"}
 resAll <- list(CERNO=resC, U=resU, HG=resHG)
-head(tmodSummary(resAll))
+#head(tmodSummary(resAll))
 ```
 
 The table below shows the results.
 
 ```{r fourC2,results="asis",echo=FALSE,size="tiny"}
-#tmp <- tmodSummary(resAll)
-#rownames(tmp) <- NULL
-#pandoc.table(head(tmp), split.tables=Inf, justify="llrrrrrr")
+tmp <- tmodSummary(resAll)
+rownames(tmp) <- NULL
+pandoc.table(head(tmp), split.tables=Inf, justify="llrrrrrr")
 ```
 
 
@@ -826,15 +828,16 @@ In the example below, we will use the `resAll`  object created above,
 containing the results from three different tests for enrichment, to
 compare the results of the individual tests. However, since the `E` column
 of HG test is not easily comparable to the AUC values (which are between 0
-and 1), we need to scale it down.
+and 1), we need to scale it down. Also, we need to call it "AUC", because
+otherwise we can't show the values on the same plot.
 
 ```{r panelplots, fig.width=8, fig.height=8}
-resAll$HG$E <- log10(resAll$HG$E) - 0.5
-tmodPanelPlot(resAll)
+resAll$HG$AUC <- log10(resAll$HG$E) - 0.5
+gg_panelplot(resAll)
 ```
 
-Each enrichment result corresponds to a reddish blob. The size of the blob
-corresponds to the effect size (AUC or log10(Enrichment), as it may be),
+Each enrichment result corresponds to a reddish bar. The size of the bar
+corresponds to the effect size (AUC or log10(Enrichment) - 0.5, as it may be),
 and color intensity corresponds to the p-value -- pale colors show p-values
 closer to 0.01. It is easily seen how `tmodCERNOtest` is the more
 sensitive option.
@@ -842,7 +845,11 @@ sensitive option.
 We can see that also the intercept term is enriched for genes
 found in monocytes and neutrophils. Note that by default, tmodPanelPlot only
 shows enrichments with p < 0.01, hence a slight difference from the tmodSummary
-output. This behavior can be modified by the `pval.thr` option.
+output. This behavior can be modified by the `q_thr` option:
+
+```{r panelplots, fig.width=8, fig.height=8}
+gg_panelplot(resAll, q_thr=1e-3)
+```
 
 However, one is usually interested in the direction of regulation. If a
 gene list is sorted by p-value, the enriched modules may contain both up-
@@ -855,49 +862,36 @@ the function `tmodDecideTests` is used to obtain the number of
 significantly up- or down-regulated genes in a module.
 
 This information must be obtained separately from the differential gene
-expression analysis and provided as a list to `tmodPanelPlot`. The names of
-this list must be identical to the names in the results list.
-
-There are three default representations (rug-like, pie and a square pie).
+expression analysis and provided as a list to `gg_panelplot`. The names of
+this list must be identical to the names in the results list. Below, we
+reuse the same object for all three tests, since the DEGs (differentially
+expressed genes) were the same in all three comparisons.
 
 ```{r pie, fig.width=20,fig.height=8}
-par(mfrow=c(1,3))
-pie <- tmodDecideTests(g=tt$GENE_SYMBOL, lfc=tt$logFC, pval=tt$adj.P.Val)
-names(pie) <- "CERNO"
-tmodPanelPlot(resAll["CERNO"], pie=pie, grid="b")
-tmodPanelPlot(resAll["CERNO"], pie=pie, grid="b", pie.style="pie")
-tmodPanelPlot(resAll["CERNO"], pie=pie, grid="b", pie.style="boxpie")
+pie <- tmodDecideTests(g=tt$GENE_SYMBOL, lfc=tt$logFC,
+                       pval=tt$adj.P.Val)[[1]]
+pie <- list(CERNO=pie, HG=pie, U=pie)
+gg_panelplot(resAll, sgenes = pie)
 ```
 
 Each mini-plot shows the effect size of the enrichment and the
 corresponding p-value, as before. Additionally, the fraction of
 up-regulated and down-regulated genes is visualized by coloring a fraction
 of the area of the mini-plot red or blue, respectively^[The colors can be
-modified by the parameter `pie.colors`].
+modified by the parameter `colors`].
 
-The `tmodPanelPlot` function has several parameters, notably for filtering
+The `gg_panelplot` function has several parameters, notably for filtering
 and labelling:
 
  * Filtering:
-     * `filter.empty.rows` and `filter.empty.cols`  remove, respectively, modules and result tables 
-       with no enrichment above `pval.thr` 
-     * `filter.rows.pval` and `filter.rows.auc` removes rows that do not
-       contain at least one p value or AUC above the specified threshold
-     * `filter.by.id` shows only a selected subset of modules
-  * Labelling:
-     * `row.labels.auto`: by default, the row labels of the panel plot are
-       generated automatically from the module descriptions. This option
-       specifies how.
-     * `row.labels`: alternatively, labels for the modules shown can be
-       provided manually as a named vector
-     * `col.labels`: alternative labels for the columns (in order of
-       appearance in the results list)
-     * `col.labels.style`: where the column labels should be put (top,
-       bottom, both, none)
+     * `filter_row_q` and `filter_row_auc` remove gene sets for which,
+       respectively, the FDR p-value or the effect size are not achieved in
+       any of the comparisons;
+     * `q_cutoff`: enrichments with q-values above this cutoff are
+       considered to be absent
 
-Internally, `tmodPanelPlot` is a convenient wrapper for the much more
-customizable function `pvalEffectPlot`, operating directly on matrices of
-effect sizes and p values.
+The `gg_panelplot` function returns a ggplot2 graph, and therefore allows
+much customization.
 
 
 Working with limma
@@ -1109,10 +1103,10 @@ A pie-like plot can be also generated:
 
 
 ```{r pplot4,fig=TRUE,fig.width=8,fig.height=6}
+
 tmodPanelPlot(res.l, 
   pie=pie, pie.style="pie")
 ```
-
 
 There is also a more general function, tmodDecideTests that also produces a
 tmodPanelPlot-compatible object, a list of data frames with gene counts.
@@ -1172,21 +1166,25 @@ In another example, consider correlation between genes and the first
 principal component ("eigengene") of a group of genes of unknown
 function^[More on eigengenes in the Chapter on modules]. To demonstrate the
 method, we will select the genes from the module "LI.M75". For this, we use
-the function `getGenes` with the optional argument `genelist` used to
+the function `getGenes` with the optional argument `genes` used to
 filter the genes in the module by the genes present in the data set.
 
 ```{r m75}
-g <- getGenes("LI.M75", genelist=Egambia$GENE_SYMBOL, as.list=T)
-sel <- Egambia$GENE_SYMBOL %in% g[[1]]
-x <- E[sel, ]
+g <- getGenes("LI.M75", genes=Egambia$GENE_SYMBOL, 
+              as.list=TRUE)
+x <- E[ match(g[[1]], Egambia$GENE_SYMBOL), ]
 
-## calculating the "eigengene"
+## calculating the "eigengene" (PC1)
 pca <- prcomp(t(x), scale.=T)
 eigen <- pca$x[,1]
 cors <- t(cor(eigen, t(E)))
+
+## order all genes by the correlation between the gene and the PC1
 ord <- order(abs(cors), decreasing=TRUE)
 head(tmodCERNOtest(Egambia$GENE_SYMBOL[ ord ]))
 ```
+
+
 
 
 Functional multivariate analysis

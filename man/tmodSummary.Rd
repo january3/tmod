@@ -10,7 +10,7 @@ tmodSummary(
   filter.empty = FALSE,
   filter.unknown = TRUE,
   select = NULL,
-  effect.col = "AUC",
+  effect.col = NULL,
   pval.col = "adj.P.Val"
 )
 }
@@ -29,7 +29,9 @@ If "keep", then the order of the modules is kept.}
 \item{select}{a character vector of module IDs to show. If clust == "keep", then in that particular
 order.}
 
-\item{effect.col}{The name of the column with the effect size}
+\item{effect.col}{The name of the column with the effect size (if NULL,
+the default, the effect size will be taken from the tmod results object
+attributes)}
 
 \item{pval.col}{The name of the p-value column}
 }

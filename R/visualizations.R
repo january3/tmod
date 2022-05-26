@@ -94,6 +94,59 @@ tmodPal <- function(n=NULL, set="friendly", alpha=0.7, func=FALSE) {
   ids[ hc$order ]    
 }
 
+## decide what to show on the gg_panelplot as gene set names
+.get_modnames <- function(resS, add_ids) {
+
+  if(any(resS$Title != resS$ID)) {
+    modnames <- resS$Title
+    if(add_ids) {
+      modnames <- paste(resS$ID, modnames)
+    }
+  } else {
+    modnames <- resS$ID
+  }
+
+  modnames
+}
+
+## sort the gene sets; cluster if necessary
+.get_id_ord <- function(resS, id_order, cluster, mset) {
+
+  if(!is.null(id_order)) {
+    id_ord <- id_order[ id_order %in% resS$ID ]
+    id_ord <- c(id_ord, setdiff(resS$ID, id_ord))
+    id_ord <- rev(id_ord)
+  } else {
+    if(cluster) {
+      id_ord <- .cluster_mods(resS$ID, mset)
+    } else {
+      id_ord <- sort(resS$ID)
+    }
+  }
+
+  id_ord
+}
+
+## determine which of the columns of the results is the effect size
+.get_effect_size <- function(res, effect_size) {
+
+  if(!is.null(effect_size) && length(effect_size) == 1L && effect_size != "auto") {
+    es <- effect_size[ which(effect_size %in% colnames(res[[1]]))[1] ]
+    if(is.na(es)) {
+      stop(paste0("Effect size `", effect_size, "` not found in columns of results"))
+    }
+  } else {
+    es <- attr(res, "effect_size")
+    if(is.null(es)) {
+      effect_size <- c("AUC", "D", "E")
+      es <- effect_size[ which(effect_size %in% colnames(res))[1] ]
+      #warning(paste0("Automatically selecting column `", es, "` as effect size"))
+    }
+  }
+
+  es
+}
+
 
 #' Create a tmod panel plot using ggplot
 #'
@@ -132,7 +185,9 @@ tmodPal <- function(n=NULL, set="friendly", alpha=0.7, func=FALSE) {
 #' @seealso [tmodDecideTests()], [tmodPanelPlot()]
 #' @param colors character vector with at least 1 (when sgenes is NULL) or 3
 #'        (when sgenes is not NULL) elements
-#' @param effect_size name of the column which contains the effect sizes
+#' @param effect_size name of the column which contains the effect sizes;
+#'        by default, the name of this column is taken from the "effect_size"
+#'        attribute of the first result table.
 #' @param auc_thr gene sets enrichments with AUC (or other effect size) below `auc_thr` will not be shown
 #' @param q_thr gene sets enrichments with q (adjusted P value) above `q_thr` will not be shown
 #' @param filter_row_q Gene sets will only be shown if at least in one
@@ -177,6 +232,7 @@ tmodPal <- function(n=NULL, set="friendly", alpha=0.7, func=FALSE) {
 #' sgenes <- tmodDecideTests(tt$GENE_SYMBOL, lfc=tt$logFC, pval=tt$adj.P.Val)
 #' names(sgenes) <- "limma"
 #' gg_panelplot(list(limma=res), sgenes=sgenes)
+#' \dontrun{
 #' ## we will now compare the results of enrichments for different types of
 #' ## differential expression tests on the data
 #' res_utest <- apply(exprs, 1, function(x) wilcox.test(x ~ group)$p.value)
@@ -193,48 +249,38 @@ tmodPal <- function(n=NULL, set="friendly", alpha=0.7, func=FALSE) {
 #' data(cell_signatures)
 #' res_cs <- tmodCERNOtest(tt$GENE_SYMBOL, mset=cell_signatures)
 #' ## the following will triger a warning that no clustering is possible
+#' ## because gg_panelplot doesn't have the information about the gene set
+#' ## contents
 #' gg_panelplot(list(res=res_cs))
-#' ## better use the mset parameter
+#' ## if we use the mset parameter, clustering is available
 #' gg_panelplot(list(res=res_cs), mset=cell_signatures)
+#' }
 #' @export
-gg_panelplot <- function(res, sgenes=NULL, auc_thr=.5, q_thr=.05,
+ggPanelplot <- function(res, sgenes=NULL, auc_thr=.5, q_thr=.05,
                          filter_row_q=.01,
                          filter_row_auc=.65,
                          q_cutoff=1e-12,
                          cluster=TRUE,
                          id_order=NULL,
-                         effect_size=c("AUC", "E", "D"),
+                         effect_size="auto",
                          colors=c("red", "grey", "blue"),
                          label_angle=45, add_ids=TRUE,
                          mset=NULL) {
 
+  if(is(res, "tmodReport")) {
+    res <- list(default=res)
+  }
+
   label_angle=as.numeric(label_angle)
   resS <- tmodSummary(res) 
 
-  if(any(resS$Title != resS$ID)) {
-    modnames <- resS$Title
-    if(add_ids) {
-      modnames <- paste(resS$ID, modnames)
-    }
-  } else {
-    modnames <- resS$ID
-  }
+  modnames <- .get_modnames(resS, add_ids)
   names(modnames) <- resS$ID
 
-  if(!is.null(id_order)) {
-    id_ord <- id_order[ id_order %in% resS$ID ]
-    id_ord <- c(id_ord, setdiff(resS$ID, id_ord))
-    id_ord <- rev(id_ord)
-  } else {
-    if(cluster) {
-      id_ord <- .cluster_mods(resS$ID, mset)
-    } else {
-      id_ord <- sort(resS$ID)
-    }
-  }
+  id_ord <- .get_id_ord(resS, id_order, cluster, mset)
 
   ## choose the column for effect size
-  effect_size <- effect_size[ which(effect_size %in% colnames(res[[1]]))[1] ]
+  effect_size <- .get_effect_size(res[[1]], effect_size)
 
   if(is.na(effect_size)) {
     stop(sprintf("the effect size column(s) '%s' is not found in the results",
@@ -457,7 +503,7 @@ hgEnrichmentPlot <- function(fg, bg, m, mset="all", ...) {
 #' @importFrom ggplot2 scale_color_manual
 #' @importFrom purrr imap_dfr map_dfr 
 #' @export
-gg_evidencePlot <- function(l, m, mset=NULL, filter=FALSE, unique=TRUE,
+ggEvidencePlot <- function(l, m, mset=NULL, filter=FALSE, unique=TRUE,
   gene.labels=NULL,
   gene.colors=NULL
   ) {

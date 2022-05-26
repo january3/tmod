@@ -24,7 +24,9 @@
 #' @return a data frame with a line for each module encountered anywhere in
 #' the list x, two columns describing the module (ID and module title), and
 #' two columns(effect size and q value) for each element of list x.
-#' @param effect.col The name of the column with the effect size
+#' @param effect.col The name of the column with the effect size (if NULL,
+#'        the default, the effect size will be taken from the tmod results object
+#'        attributes)
 #' @param pval.col The name of the p-value column
 #' @seealso tmodPanelPlot
 #' @examples
@@ -46,7 +48,8 @@
 #' @export
 tmodSummary <- function(x, clust=NULL, filter.empty=FALSE, filter.unknown=TRUE,
   select=NULL, 
-  effect.col="AUC", pval.col="adj.P.Val") {
+  effect.col=NULL, pval.col="adj.P.Val") {
+
 
   if(!is.null(clust)) 
     clust <- match.arg(clust, c("qval", "effect", "keep", "sort"))
@@ -72,7 +75,9 @@ tmodSummary <- function(x, clust=NULL, filter.empty=FALSE, filter.unknown=TRUE,
   for(n in rid) {
     .x <- x[[n]]
 
-    if(!all(c(effect.col, pval.col) %in% colnames(.x)))
+    .effect.col=.get_effect_size(.x, effect.col)
+
+    if(!all(c(.effect.col, pval.col) %in% colnames(.x)))
       stop(sprintf("colnames for %s lack either column %s or column %s", n, effect.col, pval.col))
 
     if(filter.unknown) {
@@ -89,10 +94,10 @@ tmodSummary <- function(x, clust=NULL, filter.empty=FALSE, filter.unknown=TRUE,
     #effect.col <- colnames(.x)[effect.col]
 
     ret[sel, "Title"] <- .x[mm, "Title", drop=TRUE]
-    an <- paste0(effect.col, ".", n)
-    ret[sel,an] <- .x[mm, effect.col, drop=TRUE]
+    an <- paste0(.effect.col, ".", n)
+    ret[sel, an] <- .x[mm, .effect.col, drop=TRUE]
     qn <- paste0("q.", n)
-    ret[sel,qn]   <- .x[mm, pval.col, drop=TRUE]
+    ret[sel, qn]   <- .x[mm, pval.col, drop=TRUE]
   }
 
   # Remove these which are still empty

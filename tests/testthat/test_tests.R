@@ -59,6 +59,25 @@ test_that("tmodZtest", {
   testRes(res, res_e, test_auc=FALSE)
 })
 
+test_that("tmodGeneSetTest", {
+  res_e <- read.csv("res_GeneSetTest.csv", stringsAsFactors=FALSE, row.names=1)
+  x <- Egambia[ , -1:-3 ]
+  l <- Egambia$GENE_SYMBOL
+  group <- gsub("\\..*", "", colnames(x))
+
+  dd <- rowMeans(x[ , group == "NID" ]) - rowMeans(x[ , group == "TB" ])
+  dd <- dd / apply(x, 1, sd)
+
+  res <- tmodGeneSetTest(l, dd, Nsim=100)
+
+  expect_equal(ncol(res), ncol(res_e))
+
+  #rr <- merge(res, res_e, by=c("ID", "Title"))
+  #expect_gte(cor(rr$D.x, rr$D.y), .8)
+  #expect_gte(cor(rr$P.Value.x, rr$P.Value.y, method="s"), .8)
+
+})
+
 
 test_that("tmodAUC", {
 

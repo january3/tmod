@@ -195,6 +195,8 @@ mod.test <- function(m) {
   }
 
   ret <- .tmodTest(mod.test, post.test, qval=qval, order.by=order.by, mset=mset, cols=cols)
+  attr(ret, "effect_size") <- "AUC"
+  attr(ret, "pvalue")      <- "adj.P.Val"
   ret
 }
 
@@ -226,12 +228,12 @@ tmodGeneSetTest <- function(l, x, modules=NULL, qval= 0.05, order.by= "pval", fi
     xi <- l %in% mset$gs2gv[[m]]
     N1 <- sum(xi)
     mm <- mean(x[xi])
-    mm.rand <- apply(x.rand[xi, ], 2, mean)
+    mm.rand <- apply(x.rand[xi, , drop=FALSE], 2, mean)
     p <- sum(mm.rand > mm)/Nsim
     d <- (mm - mean(mm.rand))/sd(mm.rand)
     ranks <- c(1:N)[xi]
     
-    ret <- c(n_id=m, d=d, M=mm, R1=sum(ranks), N1=N1, P.Value=p)
+    ret <- c(n_id=m, D=d, M=mm, R1=sum(ranks), N1=N1, P.Value=p)
     ret
   }
 
@@ -243,12 +245,14 @@ tmodGeneSetTest <- function(l, x, modules=NULL, qval= 0.05, order.by= "pval", fi
     U  <- N1*N2+N1*(N1+1)/2-R1
 
     ret$AUC <- U/(N1*N2)
-    ret <- ret[ , c("n_id", "d", "M", "N1", "AUC", "P.Value" ) ]
+    ret <- ret[ , c("n_id", "D", "M", "N1", "AUC", "P.Value" ) ]
     ret$P.Value[ is.na(ret$P.Value) ] <- 1
     ret
   }
 
   ret <- .tmodTest( mod.test, post.test, qval=qval, order.by=order.by, mset=mset, cols=cols )
+  attr(ret, "effect_size") <- "D"
+  attr(ret, "pvalue")      <- "adj.P.Val"
   ret
 }
 
@@ -337,6 +341,8 @@ tmodCERNOtest <- function(l, modules=NULL, qval= 0.05, order.by= "pval", filter=
   }
 
   ret <- .tmodTest(mod.test, post.test, qval=qval, order.by=order.by, mset=mset, cols=cols)
+  attr(ret, "effect_size") <- "AUC"
+  attr(ret, "pvalue")      <- "adj.P.Val"
   ret
 }
 
@@ -403,6 +409,8 @@ tmodPLAGEtest <- function(l, x, group, modules=NULL, qval=0.05, order.by="pval",
   }
 
   ret <- .tmodTest(mod.test, qval=qval, order.by=order.by, mset=mset, cols=cols)
+  attr(ret, "effect_size") <- "D"
+  attr(ret, "pvalue")      <- "adj.P.Val"
   ret
 }
 
@@ -454,6 +462,8 @@ tmodZtest <- function(l, modules=NULL, qval= 0.05, order.by= "pval",
 
 
   ret <- .tmodTest( mod.test, post.test, qval=qval, order.by=order.by, mset=mset, cols=cols )
+  attr(ret, "effect_size") <- "AUC"
+  attr(ret, "pvalue")      <- "adj.P.Val"
   ret
 }
 
@@ -675,6 +685,8 @@ tmodHGtest <- function(fg, bg, modules=NULL, qval= 0.05, order.by= "pval", filte
 
 
   ret <- .tmodTest( mod.test, NULL, qval=qval, order.by=order.by, mset=mset, cols=cols )
+  attr(ret, "effect_size") <- "E"
+  attr(ret, "pvalue")      <- "adj.P.Val"
   ret
 }
 
