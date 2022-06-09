@@ -16,12 +16,14 @@ test_that("MsigDB import", {
 
 test_that("working makeTmodFromDataFrame", {
 
-  df <- data.frame(gene_id=LETTERS[1:10], geneset_id=rep(letters[1:2], each=5))
+  df <- data.frame(gene_id=LETTERS[1:10], geneset_id=rep(letters[2:1], each=5))
   mset <- makeTmodFromDataFrame(df)
   expect_is(mset, "tmodGS")
   expect_output(print(mset), '2 gene sets, 10 genes')
   expect_equal(nrow(mset$gs), length(mset$gs2gv))
   expect_setequal(names(mset), c( "gs", "gs2gv", "gv"))
+  mod_a <- getModuleMembers("a", mset)[[1]]
+  expect_setequal(mod_a, LETTERS[6:10])
 })
 
 test_that("tmod2DataFrame works", {

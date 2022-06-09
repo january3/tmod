@@ -201,7 +201,18 @@ makeTmodFromDataFrame <- function(df, feature_col=1, module_col=2, title_col=NUL
   df <- as.data.frame(df) ## in case it is a tibble
 
   df_unique <- df[ !duplicated(df[, module_col ]), ]
+
   mods <- tibble(ID=df_unique[ , module_col ])
+
+  if(is.null(title_col)) {
+    title_col <- module_col
+  }
+
+  mods[ , "Title"] <- df_unique[ , title_col ]
+  if(!is.null(extra_module_cols)) {
+    extr <- df_unique[ , extra_module_cols, drop=FALSE ]
+    mods <- cbind(mods, extr)
+  }
 
   #m2g <- lapply(mods[ , "ID" ], function(m) df[ df[ , module_col ] == m, feature_col])
   gv <- unique(df[ , feature_col ])
@@ -210,17 +221,8 @@ makeTmodFromDataFrame <- function(df, feature_col=1, module_col=2, title_col=NUL
 
   ## convert from array list to list
   gs2gv <- lapply(gs2gv, function(.) .)
+  mods <- mods[ match(names(gs2gv), mods$ID), ]
 
-  if(is.null(title_col)) {
-    title_col <- module_col
-  }
-
-  mods[ , "Title"] <- df_unique[ , title_col ]
-
-  if(!is.null(extra_module_cols)) {
-    extr <- df_unique[ , extra_module_cols, drop=FALSE ]
-    mods <- cbind(mods, extr)
-  }
 
   message("making Tmod")
   as_tmodGS(list(gs=mods, gs2gv=gs2gv, gv=gv))
