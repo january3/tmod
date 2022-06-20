@@ -131,7 +131,7 @@ tmodPal <- function(n=NULL, set="friendly", alpha=0.7, func=FALSE) {
 .get_effect_size <- function(res, effect_size) {
 
   if(!is.null(effect_size) && length(effect_size) == 1L && effect_size != "auto") {
-    es <- effect_size[ which(effect_size %in% colnames(res[[1]]))[1] ]
+    es <- effect_size[ which(effect_size %in% colnames(res))[1] ]
     if(is.na(es)) {
       stop(paste0("Effect size `", effect_size, "` not found in columns of results"))
     }
