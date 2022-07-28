@@ -94,7 +94,7 @@ tmodPal <- function(n=NULL, set="friendly", alpha=0.7, func=FALSE) {
   ids[ hc$order ]    
 }
 
-## decide what to show on the gg_panelplot as gene set names
+## decide what to show on the ggPanelplot as gene set names
 .get_modnames <- function(resS, add_ids) {
 
   if(any(resS$Title != resS$ID)) {
@@ -172,7 +172,7 @@ tmodPal <- function(n=NULL, set="friendly", alpha=0.7, func=FALSE) {
 #'
 #' The order of the gene sets displayed is, by default, determined by
 #' clustering the gene sets based on their overlaps. For this to work,
-#' gg_panelplot must know about what genes are contained in which gene sets.
+#' ggPanelplot must know about what genes are contained in which gene sets.
 #' This is provided by the parameter `mset`. By default (when mset is NULL)
 #' this is the built-in list of gene sets. If, however, the results of gene
 #' set enrichment come from a different set of gene sets, you need to specify
@@ -227,11 +227,11 @@ tmodPal <- function(n=NULL, set="friendly", alpha=0.7, func=FALSE) {
 #' tt <- topTable(fit, coef=2, number=Inf, genelist=Egambia[,1:3] )
 #' res <- tmodCERNOtest(tt$GENE_SYMBOL)
 #' ## show the results using a panel plot
-#' gg_panelplot(list(limma=res))
+#' ggPanelplot(list(limma=res))
 #' ## add information about the significant genes
 #' sgenes <- tmodDecideTests(tt$GENE_SYMBOL, lfc=tt$logFC, pval=tt$adj.P.Val)
 #' names(sgenes) <- "limma"
-#' gg_panelplot(list(limma=res), sgenes=sgenes)
+#' ggPanelplot(list(limma=res), sgenes=sgenes)
 #' \dontrun{
 #' ## we will now compare the results of enrichments for different types of
 #' ## differential expression tests on the data
@@ -243,17 +243,17 @@ tmodPal <- function(n=NULL, set="friendly", alpha=0.7, func=FALSE) {
 #' res_tmod$limma <- res
 #' res_tmod$utest <- tmodCERNOtest(genes[order(res_utest)])
 #' res_tmod$ttest <- tmodCERNOtest(genes[order(res_ttest)])
-#' gg_panelplot(res_tmod)
+#' ggPanelplot(res_tmod)
 #' ## Using the `mset` parameter
 #' ## First, we generate results using a different set of gene sets
 #' data(cell_signatures)
 #' res_cs <- tmodCERNOtest(tt$GENE_SYMBOL, mset=cell_signatures)
 #' ## the following will triger a warning that no clustering is possible
-#' ## because gg_panelplot doesn't have the information about the gene set
+#' ## because ggPanelplot doesn't have the information about the gene set
 #' ## contents
-#' gg_panelplot(list(res=res_cs))
+#' ggPanelplot(list(res=res_cs))
 #' ## if we use the mset parameter, clustering is available
-#' gg_panelplot(list(res=res_cs), mset=cell_signatures)
+#' ggPanelplot(list(res=res_cs), mset=cell_signatures)
 #' }
 #' @export
 ggPanelplot <- function(res, sgenes=NULL, auc_thr=.5, q_thr=.05,
@@ -512,7 +512,7 @@ ggEvidencePlot <- function(l, m, mset=NULL, filter=FALSE, unique=TRUE,
 
   l_orig <- l
   tmp    <- .prep_list(l, x=l_orig, mset=mset, filter=filter, nodups=unique)
-  keep <- l_orig %in% tmp$x
+  keep <- match(tmp$x, l_orig) #l_orig %in% tmp$x
   l_orig <- tmp$x
   l      <- tmp$l
 
@@ -674,7 +674,7 @@ evidencePlot <- function(l, m, mset="all", rug=TRUE, roc=TRUE,
   # l <- l[ keep ]
   l_orig <- l
   tmp    <- .prep_list(l, x=l_orig, mset=mset, filter=filter, nodups=unique)
-  keep <- l_orig %in% tmp$x
+  keep <- match(tmp$x, l_orig) #l_orig %in% tmp$x
   l_orig <- tmp$x
   l      <- tmp$l
 

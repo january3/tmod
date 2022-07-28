@@ -9,7 +9,6 @@ output:
 link-citations: true
 colorlinks: true
 mainfont: Palatino Linotype
-monofont: Liberation Mono
 monofontoptions: Scale=0.8
 documentclass: report
 fontsize: 12pt

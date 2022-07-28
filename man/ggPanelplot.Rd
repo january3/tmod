@@ -91,7 +91,7 @@ genes in a particular gene set are regulated in which direction.
 
 The order of the gene sets displayed is, by default, determined by
 clustering the gene sets based on their overlaps. For this to work,
-gg_panelplot must know about what genes are contained in which gene sets.
+ggPanelplot must know about what genes are contained in which gene sets.
 This is provided by the parameter `mset`. By default (when mset is NULL)
 this is the built-in list of gene sets. If, however, the results of gene
 set enrichment come from a different set of gene sets, you need to specify
@@ -110,11 +110,11 @@ fit <- eBayes( lmFit(Egambia[,-c(1:3)], design))
 tt <- topTable(fit, coef=2, number=Inf, genelist=Egambia[,1:3] )
 res <- tmodCERNOtest(tt$GENE_SYMBOL)
 ## show the results using a panel plot
-gg_panelplot(list(limma=res))
+ggPanelplot(list(limma=res))
 ## add information about the significant genes
 sgenes <- tmodDecideTests(tt$GENE_SYMBOL, lfc=tt$logFC, pval=tt$adj.P.Val)
 names(sgenes) <- "limma"
-gg_panelplot(list(limma=res), sgenes=sgenes)
+ggPanelplot(list(limma=res), sgenes=sgenes)
 \dontrun{
 ## we will now compare the results of enrichments for different types of
 ## differential expression tests on the data
@@ -126,17 +126,17 @@ res_tmod <- list()
 res_tmod$limma <- res
 res_tmod$utest <- tmodCERNOtest(genes[order(res_utest)])
 res_tmod$ttest <- tmodCERNOtest(genes[order(res_ttest)])
-gg_panelplot(res_tmod)
+ggPanelplot(res_tmod)
 ## Using the `mset` parameter
 ## First, we generate results using a different set of gene sets
 data(cell_signatures)
 res_cs <- tmodCERNOtest(tt$GENE_SYMBOL, mset=cell_signatures)
 ## the following will triger a warning that no clustering is possible
-## because gg_panelplot doesn't have the information about the gene set
+## because ggPanelplot doesn't have the information about the gene set
 ## contents
-gg_panelplot(list(res=res_cs))
+ggPanelplot(list(res=res_cs))
 ## if we use the mset parameter, clustering is available
-gg_panelplot(list(res=res_cs), mset=cell_signatures)
+ggPanelplot(list(res=res_cs), mset=cell_signatures)
 }
 }
 \seealso{

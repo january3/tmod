@@ -261,8 +261,13 @@ tmodGeneSetTest <- function(l, x, modules=NULL, qval= 0.05, order.by= "pval", fi
 ## returns NULL if no genes match the genes in mset
 ## @param l list of genes (character vector)
 ## @param mset tmodGS object
+## @param x is another vector which also should be filtered along l
 ## @param nodups whether duplicate genes should be removed
 ## @param filter whether only genes present in mset should be kept
+## @return returns either a vector of indices of l in mset$gv
+##         or, if x is not NULL, a list containing two elements:
+##         l, which is the vector of indices of l in mset$gv,
+##         and x, which is the filtered original l vector
 .prep_list <- function(l, mset, x=NULL, nodups=TRUE, filter=FALSE) {
 
   # prepare the variables specific to that test
@@ -280,6 +285,9 @@ tmodGeneSetTest <- function(l, x, modules=NULL, qval= 0.05, order.by= "pval", fi
     return(NULL)
   }
 
+  ## replace the NAs by not existing indices 
+  ## the reason: we want to see that the genes are different
+  ## even though they do not correspond to a gene in mset$gv
   .max_n <- length(mset$gv) + 1
   nas <- is.na(l_ret)
   l_ret[ nas ] <- seq(.max_n, length.out=sum(nas))
