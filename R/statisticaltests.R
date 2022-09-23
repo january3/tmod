@@ -111,7 +111,7 @@
 #' rows from ranks
 #' @param order.by Order by P value ("pval") or none ("none")
 #' @param filter Remove gene names which have no module assignments
-#' @param mset Which module set to use. Either a character vector ("LI", "DC" or "all", default: LI) or an object of class tmod (see "Custom module definitions" below)
+#' @param mset Which module set to use. Either a character vector ("LI", "DC" or "all", default: all) or an object of class tmod (see "Custom module definitions" below)
 #' @param cols Which columns from the MODULES data frame should be included in resulsts
 #' @param useR use the R \code{wilcox.test} function; slow, but with exact p-values for small samples
 #' @param Nsim for tmodGeneSetTest, number of replicates for the randomization test
@@ -138,7 +138,7 @@
 #' @import stats
 #' @export
 tmodUtest <- function( l, modules=NULL, qval= 0.05, 
-  order.by= "pval", filter= FALSE, mset="LI", 
+  order.by= "pval", filter= FALSE, mset="all", 
   cols="Title",
   useR=FALSE, nodups=TRUE) {
 
@@ -202,7 +202,7 @@ mod.test <- function(m) {
 
 #' @name tmodUtest
 #' @export
-tmodGeneSetTest <- function(l, x, modules=NULL, qval= 0.05, order.by= "pval", filter= FALSE, mset="LI", 
+tmodGeneSetTest <- function(l, x, modules=NULL, qval= 0.05, order.by= "pval", filter= FALSE, mset="all", 
   cols="Title", Nsim=1000, nodups=TRUE) {
 
   # process mset parameter
@@ -310,7 +310,7 @@ tmodGeneSetTest <- function(l, x, modules=NULL, qval= 0.05, order.by= "pval", fi
 
 #' @name tmodUtest
 #' @export
-tmodCERNOtest <- function(l, modules=NULL, qval= 0.05, order.by= "pval", filter= FALSE, mset="LI", 
+tmodCERNOtest <- function(l, modules=NULL, qval= 0.05, order.by= "pval", filter= FALSE, mset="all", 
   cols="Title", nodups=TRUE) {
 
   # process mset parameter
@@ -370,7 +370,7 @@ tmodCERNOtest <- function(l, modules=NULL, qval= 0.05, order.by= "pval", filter=
 #' @name tmodUtest
 #' @export
 tmodPLAGEtest <- function(l, x, group, modules=NULL, qval=0.05, order.by="pval", 
-                          mset="LI", cols="Title", filter=FALSE, nodups=TRUE) {
+                          mset="all", cols="Title", filter=FALSE, nodups=TRUE) {
 
   # process mset parameter
   mset <- .getmodules_gs(modules, mset)
@@ -429,7 +429,7 @@ tmodPLAGEtest <- function(l, x, group, modules=NULL, qval=0.05, order.by="pval",
 #' @name tmodUtest
 #' @export
 tmodZtest <- function(l, modules=NULL, qval= 0.05, order.by= "pval", 
-                      filter= FALSE, mset="LI", cols="Title", nodups=TRUE) {
+                      filter= FALSE, mset="all", cols="Title", nodups=TRUE) {
 
   # process mset parameter
   mset <- .getmodules_gs(modules, mset)
@@ -485,7 +485,7 @@ tmodZtest <- function(l, modules=NULL, qval= 0.05, order.by= "pval",
 ## of class tmod) in the "WEIGHTS" member of the object (if present).
 ##
 ## @name tmodUtest
-### tmodWZtest <- function( l, modules=NULL, weights=NULL, qval= 0.05, order.by= "pval", filter= FALSE, mset="LI", 
+### tmodWZtest <- function( l, modules=NULL, weights=NULL, qval= 0.05, order.by= "pval", filter= FALSE, mset="all", 
 ###   cols="Title") {
 ### 
 ###   # process mset parameter
@@ -584,7 +584,7 @@ tmodZtest <- function(l, modules=NULL, qval= 0.05, order.by= "pval",
 #' @param recalculate.ranks Filtering and removing duplicates will also
 #' remove ranks, so that they should be recalculated. Use FALSE if you don't
 #' want this behavior. If unsure, stay with TRUE
-#' @param mset Which module set to use. "LI", "DC" or "all" (default: LI)
+#' @param mset Which module set to use. "LI", "DC" or "all" (default: "all")
 #' @seealso tmod-package
 #' @examples 
 #' data(tmod)
@@ -596,7 +596,7 @@ tmodZtest <- function(l, modules=NULL, qval= 0.05, order.by= "pval",
 tmodAUC <- function(l, ranks, modules=NULL, 
   stat="AUC",
   recalculate.ranks=TRUE, 
-  filter=FALSE, mset="LI") {
+  filter=FALSE, mset="all") {
 
   stat <- match.arg(stat, c( "AUC", "U"))
 
@@ -653,7 +653,7 @@ tmodAUC <- function(l, ranks, modules=NULL,
 
 #' @name tmodUtest
 #' @export
-tmodHGtest <- function(fg, bg, modules=NULL, qval= 0.05, order.by= "pval", filter= FALSE, mset="LI",
+tmodHGtest <- function(fg, bg, modules=NULL, qval= 0.05, order.by= "pval", filter= FALSE, mset="all",
   cols="Title", nodups=TRUE) {
 
   mset <- .getmodules_gs(modules, mset)

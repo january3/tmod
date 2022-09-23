@@ -277,11 +277,11 @@ modGroups <- function(modules, mset=NULL, min.overlap=2, stat="number") {
 #' @param gs gene set IDs; if NULL, returns all genes from all gene sets
 #' @param genes character vector with gene IDs. If not NULL, only genes
 #'        from this parameter will be considered.
-#' @param mset module set to use
+#' @param mset gene set to use (default: all tmod gene sets)
 #' @param fg genes which are in the foreground set
 #' @param as.list should a list of genes rather than a data frame be returned
 #' @export
-getGenes <- function(gs=NULL, genes=NULL, fg=NULL, mset="LI", as.list=FALSE) {
+getGenes <- function(gs=NULL, genes=NULL, fg=NULL, mset="all", as.list=FALSE) {
   mset <- .getmodules_gs(gs, mset)
 
   g <- .prep_list(gs, mset, FALSE, FALSE)
