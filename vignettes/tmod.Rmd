@@ -8,7 +8,6 @@ output:
     md_extensions: +implicit_figures
 link-citations: true
 colorlinks: true
-mainfont: Palatino Linotype
 monofontoptions: Scale=0.8
 documentclass: report
 fontsize: 12pt

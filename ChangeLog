@@ -1,9 +1,11 @@
+Version 0.50.08, 28.7.2022
+ * Corrected a small bug in evidencePlot
+
 Version 0.50.06, 9.6.2022
  * Corrected a severe bug
 
 Version 0.50
  * Optimized memory usage
-
 
 Version 0.44, 22.5.2020
  * added leading edge analysis
