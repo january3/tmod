@@ -14,7 +14,7 @@ tmodLEASummary(lea, genes = FALSE, labels = NULL, mset = NULL)
 \item{labels}{labels to add to the result; if NULL, the labels will be
 taken from `mset`}
 
-\item{mset}{Which module set to use. Either a character vector ("LI", "DC" or "all", default: LI) or an object of class tmod (see "Custom module definitions" below)}
+\item{mset}{Which module set to use. Either a character vector ("LI", "DC" or "all", default: all) or an object of class tmod (see "Custom module definitions" below)}
 }
 \value{
 data frame with summary stats

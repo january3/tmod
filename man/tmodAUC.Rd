@@ -11,7 +11,7 @@ tmodAUC(
   stat = "AUC",
   recalculate.ranks = TRUE,
   filter = FALSE,
-  mset = "LI"
+  mset = "all"
 )
 }
 \arguments{
@@ -30,7 +30,7 @@ want this behavior. If unsure, stay with TRUE}
 
 \item{filter}{Remove gene names which have no module assignments}
 
-\item{mset}{Which module set to use. "LI", "DC" or "all" (default: LI)}
+\item{mset}{Which module set to use. "LI", "DC" or "all" (default: "all")}
 }
 \value{
 A matrix with the same number of columns as "ranks" and as many

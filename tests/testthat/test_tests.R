@@ -17,27 +17,27 @@ testRes <- function(res, res_e, test_auc=TRUE) {
 }
 
 test_that("tmodCERNO", {
-  res   <- tmodCERNOtest(tt)
+  res   <- tmodCERNOtest(tt, mset="LI")
   res_e <- read.csv("res_CERNO.csv", stringsAsFactors=FALSE, row.names=1)
   testRes(res, res_e)
 })
 
 test_that("tmodUtest", {
-  res   <- tmodUtest(tt)
+  res   <- tmodUtest(tt, mset="LI")
   res_e <- read.csv("res_U.csv", stringsAsFactors=FALSE, row.names=1)
   testRes(res, res_e)
 })
 
 test_that("tmodHGtest", {
   fg    <- head(tt, 100)
-  res   <- tmodHGtest(fg, tt)
+  res   <- tmodHGtest(fg, tt, mset="LI")
   res_e <- read.csv("res_HG.csv", stringsAsFactors=FALSE, row.names=1)
   testRes(res, res_e)
 })
 
 test_that("tmodLEA", {
   res_e <- read.csv("res_LEA.csv", stringsAsFactors=FALSE, row.names=1)
-  res  <- tmodLEASummary(tmodLEA(tt, c("LI.M37.0", "LI.M75", "LI.M3")))
+  res  <- tmodLEASummary(tmodLEA(tt, c("LI.M37.0", "LI.M75", "LI.M3"), mset="LI"))
   testRes(res, res_e, test_auc=FALSE)
   expect_equal(res$N, res_e$N)
   expect_equal(res$fraction, res_e$fraction)
@@ -49,13 +49,13 @@ test_that("tmodPLAGEtest", {
   x <- Egambia[ , -1:-3 ]
   l <- Egambia$GENE_SYMBOL
   group <- gsub("\\..*", "", colnames(x))
-  res <- tmodPLAGEtest(l, x, group)
+  res <- tmodPLAGEtest(l, x, group, mset="LI")
   testRes(res, res_e, test_auc=FALSE)
 })
 
 test_that("tmodZtest", {
   res_e <- read.csv("res_Z.csv", stringsAsFactors=FALSE, row.names=1)
-  res <- tmodZtest(tt)
+  res <- tmodZtest(tt, mset="LI")
   testRes(res, res_e, test_auc=FALSE)
 })
 
@@ -68,7 +68,7 @@ test_that("tmodGeneSetTest", {
   dd <- rowMeans(x[ , group == "NID" ]) - rowMeans(x[ , group == "TB" ])
   dd <- dd / apply(x, 1, sd)
 
-  res <- tmodGeneSetTest(l, dd, Nsim=100)
+  res <- tmodGeneSetTest(l, dd, Nsim=100, mset="LI")
 
   expect_equal(ncol(res), ncol(res_e))
 
@@ -82,7 +82,7 @@ test_that("tmodGeneSetTest", {
 test_that("tmodAUC", {
 
   res_e <- read.csv("res_AUC.csv", stringsAsFactors=FALSE, row.names=1)
-  res <- data.frame(tmodAUC(tt, 1:length(tt)))
+  res <- data.frame(tmodAUC(tt, 1:length(tt), mset="LI"))
 
   expect_equal(nrow(res), sum(tmod$gs$SourceID == "LI"))
   expect_equal(ncol(res), 1)

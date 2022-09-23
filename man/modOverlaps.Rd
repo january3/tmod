@@ -10,7 +10,7 @@ modOverlaps(modules = NULL, mset = NULL, stat = "jaccard")
 \item{modules}{either a character vector with module IDs from mset, or a list which
 contains the module members}
 
-\item{mset}{Which module set to use. Either a character vector ("LI", "DC" or "all", default: LI) or an object of class tmod (see "Custom module definitions" below)}
+\item{mset}{Which module set to use. Either a character vector ("LI", "DC" or "all", default: all) or an object of class tmod (see "Custom module definitions" below)}
 
 \item{stat}{Type of statistics to return. 
 "jaccard": Jaccard index (default);

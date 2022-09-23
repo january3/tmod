@@ -1,15 +1,14 @@
 ---
-title: "tmod: Analysis of Transcriptional Modules"
+title: "tmod: Analysis of Gene Set Enrichments"
 author: "January Weiner"
 date: "`r Sys.Date()`"
 output: 
-  pdf_document:
-    latex_engine: xelatex
-    md_extensions: +implicit_figures
+  html_document:
+    toc: true
+    toc_float: true
+    css: "style.css"
 link-citations: true
 colorlinks: true
-mainfont: Palatino Linotype
-monofont: Liberation Mono
 monofontoptions: Scale=0.8
 documentclass: report
 fontsize: 12pt
@@ -27,14 +26,16 @@ vignette: >
   %\SweaveUTF8
   \usepackage[utf8](inputenc)
 abstract: |
-  The package `tmod` provides blood transcriptional modules described
-  by Chaussabel et al. [-@chaussabel2008modular] and by Li et al.
-  [-@li2014molecular], cell type signatures as well as metabolic profiling clusters from Weiner
-  et al. [-@weiner2012biomarkers]. Furthermore, the package includes several tools for testing
+  The package includes several tools for testing
   the significance of enrichment of modules or other gene sets as well as
-  visualisation of the features (genes, metabolites etc.) and modules. This
+  visualisation of the features (genes, metabolites etc.) and gene sets,
+  feature sets or
+  transcriptional modules.
+  Furthermore, the package provides blood transcriptional modules described
+  by Chaussabel et al. [-@chaussabel2008modular] and by Li et al.
+  [-@li2014molecular] as well as metabolic profiling clusters from Weiner
+  et al. [-@weiner2012biomarkers].  This
   user guide is a tutorial and main documentation for the package.
-toc: yes
 bibliography: bibliography.bib
 ---
 
@@ -46,10 +47,12 @@ is.internet <- FALSE
 ```
 
 
-```{r tescik,eval=is.internet,echo=FALSE}
-#stop("in the name of the king")
+```{r eval=TRUE,echo=FALSE}
+library(ggplot2)
+theme_set(theme_minimal())
 ```
 
+<img src="logo.png" style="position:absolute;top:25px;right:5px;" />
 
 Introduction
 ============
@@ -129,7 +132,6 @@ with a differential gene expression analysis. Note that only a bit over
 
 
 ```{r twoA}
-
 library(limma)
 library(tmod)
 data(Egambia)
@@ -171,7 +173,7 @@ There are two main functions in tmod to understand which modules or gene
 sets are significantly enriched^[If you work with limma, there are other,
 more efficient and simpler to use functions. See 
 ["Working with limma"](#working-with-limma)
-below. ]. There are several statistical tests which can be used from within tmod (see
+below.]. There are several statistical tests which can be used from within tmod (see
 chapter ["Statistical tests in tmod"](#statistical-tests-in-tmod) below),
 but here we will use the CERNO test, which is the main reason this package
 exist. CERNO is particularly fast and robust second generation approach,
@@ -214,7 +216,7 @@ Visualizing results
 ---------------------
 
 The main working horse for visualizing the results in tmod is the function
-`tmodPanelPlot`. This is really a glorified heatmap which shows both the
+`ggPanelplot`. This is really a glorified heatmap which shows both the
 effect size (size of the blob on the figure below) and the p-value
 (intensity of the color). Each column corresponds to a different
 comparison. Here, there will be only one column for the only comparison we
@@ -226,18 +228,22 @@ the word "regulated" throughout this manual with the understanding that it
 only means "there is a difference between two conditions" because it is shorter.] 
 genes are found in the enriched modules (right panel on the figure below).
 
+Note: below I use the `plot_grid` function from the cowplot package to put
+the figures side by side.
 
 ```{r panelplot00,fig.width=14,fig.height=7}
-par(mfrow=c(1,2))
-tmodPanelPlot(list(Gambia=resC))
+library(cowplot)
+
+g1 <- ggPanelplot(list(Gambia=resC))
 
 ## calculate the number of significant genes
 ## per module
-pie <- tmodDecideTests(g=tt$GENE_SYMBOL,
+sgenes <- tmodDecideTests(g=tt$GENE_SYMBOL,
   lfc=tt$logFC,
   pval=tt$adj.P.Val)
-names(pie) <- "Gambia"
-tmodPanelPlot(list(Gambia=resC), pie=pie, grid="b")
+names(sgenes) <- "Gambia"
+g2 <- ggPanelplot(list(Gambia=resC), sgenes = sgenes)
+plot_grid(g1, g2, labels=c("A", "B"))
 ```
 
 On the right hand side, the red color on the bars indicates that all
@@ -421,6 +427,13 @@ The CERNO test is actually much more practical than other tests for most
 purposes and is the recommended approach. A variant called `tmodZtest`
 exists in which the p-values are combined using Stouffer's method rather
 than the Fisher's method.
+
+```{r mod2cerno}
+l    <- tt$GENE_SYMBOL
+resCERNO <- tmodCERNOtest(l)
+head(resCERNO)
+nrow(resCERNO)
+```
 
 
 ### PLAGE
@@ -759,12 +772,13 @@ Showing enrichment with evidence plots
 --------------------------------------
 
 Let us first investigate in more detail the module LI.M75, the antiviral
-interferon signature. We can use the `evidencePlot` function to see
+interferon signature. We can use the `ggEvidencePlot` function to see
 how the module is enriched in the list `l`.
 
 ```{r five,fig=TRUE,fig.width=7,fig.height=4}
 l    <- tt$GENE_SYMBOL
-evidencePlot(l, "LI.M75")
+theme_set(theme_minimal())
+ggEvidencePlot(l, "LI.M75") 
 ```
 
 In essence, this is a receiver-operator characteristic (ROC) curve, and the
@@ -781,19 +795,57 @@ In the above diagram, we see that nine out of the 10 genes that belong to
 the LI.M75 module and which are present in the Egambia data set are ranked
 among the top 1000 genes (as sorted by p-value).
 
-There are three options of interest for generating evidence plots, shown
-below. Firstly, by using the option `labels=...` it is possible to indicate
-gene of interest on the plot. Secondly, option `style="g"` shows a plot
-similar to the K-S plots of GSEA. Thirdly, it is possible to show more than
-one module on a single plot.
+Evidence plots are an important tool to understand whether the obtained
+results are not only significant in the statistical sense, but whether they
+are also of biological interest. As mentioned above, the area under the
+evidence plot, the AUC (area under curve) is an important measure of the
+effect size. Effect size should always be taken into consideration when
+interpreting p-values.
 
-```{r five.2,fig=TRUE,fig.width=12,fig.height=5}
-par(mfrow=c(1,2))
-evidencePlot(l, m="LI.M75", style="g")
-evidencePlot(l, m=c("LI.M37.0", "LI.M75"), 
-  gene.labels=l[1:4], col=c(2,4), legend="right")
+The figure below shows three very different enrichments.
 
+
+```{r fig.width=12}
+sel <- c("LI.M67", "LI.M37.0")
+plots <- map(sel, ~ ggEvidencePlot(l, .x, gene.labels=FALSE))
+plot_grid(plotlist = plots, labels=sel)
 ```
+
+The corresponding results are shown in the following table:
+
+
+```{r}
+foo <- tmodCERNOtest(l) %>% dplyr::filter(ID %in% sel) 
+foo %>% knitr::kable()
+```
+
+`r sel[1]`
+(`r foo[sel[1], "Title"]`)
+ contains only 
+`r foo[sel[1], "N1"]`
+genes, but as most 
+of them have really low p-values and are on the top of the p-value
+sorted list, the resulting effect size is close to 1.
+
+The next panel shows a gene set containing a large number of genes. The
+effect size for 
+`r sel[2]`
+is much smaller
+(`r format(foo[sel[2], "AUC"], digits=2)`), 
+but thanks to
+the large number of genes the enrichment is significant,
+with p-value lower than for `r sel[1]`.
+
+Very often, a gene set with a larger number of genes will have a low
+p-value. However, these gene sets are frequently not very specific, and the
+corresponding effect sizes are not large. In the above example, the
+`r sel[1]` is a much more interesting result: it is more specific and shows
+a much larger effect, despite having a much higher p-value.
+
+
+
+
+
 
 Summary tables
 --------------
@@ -816,7 +868,7 @@ pandoc.table(head(tmp), split.tables=Inf, justify="llrrrrrr")
 ```
 
 
-Panel plots with `tmodPanelPlot`
+Panel plots
 --------------------------------
 
 A list of result tables (or even of a single result table) can be
@@ -831,9 +883,9 @@ of HG test is not easily comparable to the AUC values (which are between 0
 and 1), we need to scale it down. Also, we need to call it "AUC", because
 otherwise we can't show the values on the same plot.
 
-```{r panelplots, fig.width=8, fig.height=8}
+```{r panelplots, fig.width=8, fig.height=6}
 resAll$HG$AUC <- log10(resAll$HG$E) - 0.5
-gg_panelplot(resAll)
+ggPanelplot(resAll)
 ```
 
 Each enrichment result corresponds to a reddish bar. The size of the bar
@@ -843,12 +895,12 @@ closer to 0.01. It is easily seen how `tmodCERNOtest` is the more
 sensitive option.
 
 We can see that also the intercept term is enriched for genes
-found in monocytes and neutrophils. Note that by default, tmodPanelPlot only
+found in monocytes and neutrophils. Note that by default, ggPanelplot only
 shows enrichments with p < 0.01, hence a slight difference from the tmodSummary
 output. This behavior can be modified by the `q_thr` option:
 
-```{r panelplots, fig.width=8, fig.height=8}
-gg_panelplot(resAll, q_thr=1e-3)
+```{r panelplots2, fig.width=8, fig.height=5}
+ggPanelplot(resAll, q_thr=1e-3)
 ```
 
 However, one is usually interested in the direction of regulation. If a
@@ -862,16 +914,16 @@ the function `tmodDecideTests` is used to obtain the number of
 significantly up- or down-regulated genes in a module.
 
 This information must be obtained separately from the differential gene
-expression analysis and provided as a list to `gg_panelplot`. The names of
+expression analysis and provided as a list to `ggPanelplot`. The names of
 this list must be identical to the names in the results list. Below, we
 reuse the same object for all three tests, since the DEGs (differentially
 expressed genes) were the same in all three comparisons.
 
-```{r pie, fig.width=20,fig.height=8}
-pie <- tmodDecideTests(g=tt$GENE_SYMBOL, lfc=tt$logFC,
+```{r pie, fig.width=10,fig.height=6}
+degs <- tmodDecideTests(g=tt$GENE_SYMBOL, lfc=tt$logFC,
                        pval=tt$adj.P.Val)[[1]]
-pie <- list(CERNO=pie, HG=pie, U=pie)
-gg_panelplot(resAll, sgenes = pie)
+degs <- list(CERNO=degs, HG=degs, U=degs)
+ggPanelplot(resAll, sgenes = degs)
 ```
 
 Each mini-plot shows the effect size of the enrichment and the
@@ -880,7 +932,7 @@ up-regulated and down-regulated genes is visualized by coloring a fraction
 of the area of the mini-plot red or blue, respectively^[The colors can be
 modified by the parameter `colors`].
 
-The `gg_panelplot` function has several parameters, notably for filtering
+The `ggPanelplot` function has several parameters, notably for filtering
 and labelling:
 
  * Filtering:
@@ -890,7 +942,7 @@ and labelling:
      * `q_cutoff`: enrichments with q-values above this cutoff are
        considered to be absent
 
-The `gg_panelplot` function returns a ggplot2 graph, and therefore allows
+The `ggPanelplot` function returns a ggplot2 graph, and therefore allows
 much customization.
 
 
@@ -1016,7 +1068,7 @@ comparison <- list(
 lfc=tmodCERNOtest(x.lfc$GENE_SYMBOL),
 qval=tmodCERNOtest(x.qval$GENE_SYMBOL),
 msd=tmodCERNOtest(x.msd$GENE_SYMBOL))
-tmodPanelPlot(comparison)
+ggPanelplot(comparison)
 ```
 
 In this case, the results of p-value and msd-ordering are very similar. 
@@ -1038,7 +1090,7 @@ several functions which make it easy to visualize such sets of enrichments.
 
 The object res.l created above using the tmod function tmodLimmaTest is a list
 of tmod results. Any such list can be directly passed on to functions
-tmodSummary and tmodPanelPlot, as
+tmodSummary and ggPanelplot, as
 long as each element of the list has been created with tmodCERNOtest or a
 similar function. tmodSummary creates a table summarizing module information in
 each of the comparisons made. The values for modules which are not found in a
@@ -1054,28 +1106,24 @@ head(tmodSummary(res.l), 5)
 We can neatly visualize the above information on a heatmap-like representation:
 
 
-```{r pplot1,fig=TRUE,fig.width=6,fig.height=8}
-tmodPanelPlot(res.l, text.cex=0.8)
+```{r pplot1,fig=TRUE,fig.width=6,fig.height=5}
+ggPanelplot(res.l)
 ```
 
 
-The function tmodPanelPlot has many optional arguments for customization,
-including options for label sizes, p value thresholds and custom functions for
-plotting the test results instead of just red blobs.
-
 It is often of interest to see which enriched modules go up, and which go
 down? Specifically, we would like to see, for each module, how many genes
-are up-, and how many genes are down-regulated. tmodPanelPlot takes an
-optional argument, pie, which contains information on significantly
+are up-, and how many genes are down-regulated. ggPanelplot takes an
+optional argument, `sgenes`, which contains information on significantly
 regulated genes in modules. We can conveniently generate it from a limma
 linear fit object with the tmodLimmaDecideTests function:
 
 
 ```{r pplot2}
-pie <- tmodLimmaDecideTests(fit, genes=Egambia$GENE_SYMBOL)
-head(pie$TB[ order( pie$TB[,"Up"], decreasing=T), ])
+degs <- tmodLimmaDecideTests(fit, genes=Egambia$GENE_SYMBOL)
+head(degs$TB[ order( degs$TB[,"up"], decreasing=T), ])
 data(tmod)
-tmod$MODULES["DC.M3.4",]
+getModuleMembers("DC.M3.4")
 ```
 
 
@@ -1085,31 +1133,17 @@ that order). Importantly, all names of the "res.l" list must correspond to
 an item in the pie list.
 
 ```{r pplot2.5}
-all(names(pie) %in% names(res.l))
+all(names(degs) %in% names(res.l))
 ```
 
-We can now use this information in tmodPanelPlot:
+We can now use this information in ggPanelplot:
 
-
-
-```{r pplot3,fig=TRUE,fig.width=8,fig.height=6}
-tmodPanelPlot(res.l, pie=pie, text.cex=0.8, grid="b")
-```
-
-
-
-A pie-like plot can be also generated:
-
-
-
-```{r pplot4,fig=TRUE,fig.width=8,fig.height=6}
-
-tmodPanelPlot(res.l, 
-  pie=pie, pie.style="pie")
+```{r pplot3,fig=TRUE,fig.width=6,fig.height=5}
+ggPanelplot(res.l, sgenes = degs)
 ```
 
 There is also a more general function, tmodDecideTests that also produces a
-tmodPanelPlot-compatible object, a list of data frames with gene counts.
+ggPanelplot-compatible object, a list of data frames with gene counts.
 However, instead of taking a limma object, it requires (i) a gene name, (ii) a
 vector or a matrix of log fold changes, and (iii) a vector or a matrix of
 p-values. We can replicate the result of tmodLimmaDecideTests above with the
@@ -1120,10 +1154,10 @@ following commands:
 tt.I <- 
   topTable(fit, coef="Intercept", number=Inf, sort.by="n")
 tt.TB <- topTable(fit, coef="TB", number=Inf, sort.by="n")
-pie2 <- tmodDecideTests(Egambia$GENE_SYMBOL,
+degs2 <- tmodDecideTests(Egambia$GENE_SYMBOL,
   lfc=cbind(tt.I$logFC, tt.TB$logFC),
   pval=cbind(tt.I$adj.P.Val, tt.TB$adj.P.Val))
-identical(pie[[1]], pie2[[1]])
+identical(degs[[1]], degs2[[1]])
 ```
 
 
@@ -1253,7 +1287,7 @@ head(res)
 Perfect, this is what we expected: we see that the neutrophil / interferon
 signature which is the hallmark of the TB biosignature. What about other
 components? We can run the enrichment for each component and visualise the
-results using tmod's functions tmodSummary and tmodPanelPlot. Below, we use
+results using tmod's functions tmodSummary and ggPanelplot. Below, we use
 the filter.empty option to omit the principal components which show no
 enrichment at all.
 
@@ -1276,8 +1310,8 @@ the blobs corresponds to the effect size (AUC value), and their color -- to
 the q-value.
 
 
-```{r pcsum2,fig=TRUE,fig.width=10,fig.height=8,results="hide"}
-tmodPanelPlot(x)
+```{r pcsum2,fig=TRUE,fig.width=8,fig.height=5,results="hide"}
+ggPanelplot(x)
 ```
 
 
@@ -1292,12 +1326,11 @@ components:
 
 
 
-```{r pcsum3,fig=TRUE,fig.width=10,fig.height=8}
+```{r pcsum3,fig=TRUE,fig.width=8,fig.height=5}
 qfnc <- function(r) quantile(r, 0.75)
 qqs <- apply(pca$rotation[,1:10], 2, qfnc)
-pie <- tmodDecideTests(gs, lfc=pca$rotation[,1:10], lfc.thr=qqs)
-tmodPanelPlot(x[1:10], pie=pie, 
-  pie.style="rug", grid="between")
+gloadings <- tmodDecideTests(gs, lfc=pca$rotation[,1:10], lfc.thr=qqs)
+ggPanelplot(x[1:10], sgenes = gloadings) 
 ```
 
 
@@ -1418,9 +1451,9 @@ functions) by specifying it with the option `mset=`, for example
 Using built-in gene sets (transcriptional modules)
 --------------------------------------------------------
 
-By default, tmod uses the modules published by Li et al.
-[@li2014molecular] (LI). A second set of modules was published by Chaussabel
-et al. [@chaussabel2008modular] (DC); new module definitions were described
+By default, tmod uses both the modules published by Li et al.
+[@li2014molecular] (LI) and second set of modules published by Chaussabel
+et al. [@chaussabel2008modular] (DC). The module definitions for the DC set were described
 by Banchereau et al. [@banchereau2012host] and  can be found on a public
 website^[http://www.biir.net/public_wikis/module_annotation/G2_Trial_8_Modules].
 
@@ -1430,7 +1463,7 @@ or DC sets are used, or both, if the  `mset=all` has been specified.
 
 ```{r fiveB}
 l    <- tt$GENE_SYMBOL
-res2 <- tmodUtest(l, mset="all")
+res2 <- tmodUtest(l, mset="LI")
 head( res2 )
 ```
 
@@ -1448,19 +1481,11 @@ with `data("tmod")`. The names mimick the various environments from
 Annotation.dbi packages, but currently the objects are just two lists and
 two data frames.
 
- * **`tmod$MODULES`** is a data frame which contains general module
+ * **`tmod$gs`** is a data frame which contains general module
 information as defined in the supplementary materials for Li et al.
 [@li2014molecular] and Chaussabel et al. [@chaussabel2008modular]
- * **`tmod$GENES`** is a data frame which contains general gene information,
-including columns with HGNC ("primary"), as well as ENTREZ and REFSEQ
-identifiers.
- * **`tmod$MODULES2GENES`** is a list with module IDs (same as in the "ID"
-column of `tmod$MODULES`) as names. Every element of the list is a character
-vector with IDs ("primary" column of `tmod$GENES`) of the genes which are
-included in this module.
- * **`tmod$GENES2MODULES`** is a list with gene IDs (same as in the "primary"
-column of `tmod$GENES`) as names. Every element of the list is a character
-vector with IDs of the modules in which the gene is found.
+ * **`tmod$gv`** is vector with gene identifiers;
+ * **`tmod$gs2gv`** contains the mapping between gene sets and genes.
 
 ### Module operations
 
@@ -1494,7 +1519,8 @@ function from limma is implemented in the tmod function `tmodGeneSetTest`, and l
 `wilcoxon.GST` is essentially the same as `tmodUtest`]. We will first 
 run `tmodCERNOtest` setting the `qval` to `Inf` to get p-values for
 all modules. Then, we apply the `geneSetTest` function to each module. Note
-that we are using the actual `geneSetTest` function[^1].
+that we are using the actual `geneSetTest` function[^1] from the limma package rather than the
+tmod function `tmodGeneSetTest`.
 
 [^1]: Note that somewhat confusingly, limma's both functions, `geneSetTest`
 and `wilcoxGST`, are identical. The latter function is a synonym for `geneSetTest` with
@@ -1507,7 +1533,7 @@ return the same results.
 data(tmod)
 res <- tmodCERNOtest(tt$GENE_SYMBOL, qval=Inf)
 gstest <- function(x) {
-  sel <- tt$GENE_SYMBOL %in% tmod$MODULES2GENES[[x]]
+  sel <- tt$GENE_SYMBOL %in% getModuleMembers(x)[[1]]
   geneSetTest(sel, tt$logFC, ranks.only=FALSE)
 }
 gst <- sapply(res$ID, gstest)
@@ -1530,7 +1556,10 @@ abline(v=0.01, col="grey")
 
 
 On the plot above, the p-values from `tmod` are plotted against the p-values from `geneSetTest`.
-As you can see, in this particular example, both methods give very similar results.
+As you can see, in this particular example, both methods give very similar
+results. However, the `tmodCERNOtest` function is faster by orders of
+magnitude, as it does not require randomization testing and the p-value can
+be directly read out from the $\chi^2$ distribution.
 
 
 ### Custom module definitions
@@ -1542,10 +1571,11 @@ provided as the `mset` parameter to the test functions. The list in
 question must have the following members:
 
  * **gs** (gene sets) A data frame which contains at least the columns "ID" and
-"Title". The IDs must correspond to the names of MODULES2GENES.
+"Title".
  * **gs2gv** A list. Mapping between gene sets and the gene vector. Each
    element is an *integer* vector which contains the positions of the given
-   gene in the *gv* vector.
+   gene in the *gv* vector. The names of the list correspond to the
+   **gs$ID** vector.
  * **gv** Gene vector. Character vector of genes.
    
 The tests in the tmod package will accept a simple list that contains the
@@ -1599,7 +1629,9 @@ library(msigdbr)
 msig <- msigdbr()
 msig <- makeTmodFromDataFrame(df=msig, 
   feature_col="gene_symbol",
-  module_col="gs_id", title_col="gs_name", extra_module_cols=c("gs_cat", "gs_subcat"))
+  module_col="gs_id", title_col="gs_name", 
+  extra_module_cols=c("gs_cat", "gs_subcat", "gs_url", 
+                      "gs_exact_source", "gs_description"))
 ```
 
 
@@ -1609,9 +1641,13 @@ Alternatively, you can the MSigDB in XML
 format^[Note that even if you register with MSig, it is not possible to
 download the database directly from R in the XML format.].
 This
-file can be accessed at the URL
+file can be accessed at the from
+the pages of MSigDB [at the Broad
+Institute](http://www.gsea-msigdb.org/gsea/msigdb/download_file.jsp?filePath=/msigdb/release/2022.1.Hs/msigdb_v2022.1.Hs_chip_files_to_download_locally.zip)
 http://software.broadinstitute.org/gsea/msigdb/download_file.jsp?filePath=/resources/msigdb/6.1/msigdb_v6.1.xml
--- follow the link, register and log in, and save the file on your disk (roughly 113 MB).
+-- follow the link, register and log in, and save the zip archive on your disk (roughly 113 MB). 
+The ZIP file contains an XML file (called 'msigdb_v2022.1.Hs.xml' at the
+time of writing) which you can import into tmod.
 
 
 Importing MSigDB from XML is easy -- tmod has a function specifically for that
@@ -1623,7 +1659,7 @@ page:
 
 
 ```{r msigdbparse1, eval=FALSE}
-msig <- tmodImportMSigDB("msigdb_v6.1.xml")
+msig <- tmodImportMSigDB("msigdb_v2022.1.Hs.xml")
 ```
 
 
@@ -1644,7 +1680,7 @@ categories:
 
 
 ```{r msigdb7}
-sel <- msig$MODULES$Category == "H"
+sel <- msig$gs$gs_cat == "H"
 tmodCERNOtest(tt$GENE_SYMBOL, mset=msig[sel] )
 ```
 
@@ -1777,10 +1813,10 @@ the function `renameMods` is used to replace the MSigDB identifiers with GO
 identifiers.
 
 ```{r orghs4}
-msig.bp <- msig[ msig$MODULES$Subcategory == "BP" ]
-go_ids <- gsub(".*/", "", msig.bp$MODULES$EXTERNAL_DETAILS_URL)
-names(go_ids) <- msig.bp$MODULES$ID
-msig.bp <- renameMods(msig.bp, go_ids)
+msig.bp <- msig[ msig$gs$gs_subcat == "GO:BP" ]
+go_ids <- gsub(".*/", "", msig.bp$gs$gs_url)
+names(msig.bp$gs2gv) <- go_ids
+msig.bp$gs$ID <- go_ids
 ```
 
 Now we can run the enrichment on `tt` with both data sets and compare the
@@ -1791,7 +1827,7 @@ for the common genes, and we will request a result for all modules, even if
 they are not significant.
 
 ```{r orghs5}
-both <- intersect(msig.bp$MODULES$ID, goset$MODULES$ID)
+both <- intersect(msig.bp$gs$ID, goset$gs$ID)
 msig.bp <- msig.bp[both]
 goset.both <- goset[both]
 
@@ -1852,15 +1888,21 @@ For the purposes of an example, the code below shows how to parse the XML
 MSigDB file using the R package XML. Essentially, this is the same code that
 tmodImportMsigDB is using:
 
-
-```{r msigdb1}
+```{r msigdb1_tajne,eval=TRUE,include=FALSE}
 library(XML)
-foo  <- xmlParse( "msigdb_v6.1.xml" )
+foo  <- xmlParse( "~/tmptmp/msigdb_v2022.1.Hs_files_to_download_locally/msigdb_v2022.1.Hs.xml" )
 foo2 <- xmlToList(foo)
 ```
 
 
-There are over 10,000 "gene sets" (equivalent to modules in tmod) defined.
+```{r msigdb1,eval=FALSE}
+library(XML)
+foo  <- xmlParse( "msigdb_v2022.1.Hs.xml" )
+foo2 <- xmlToList(foo)
+```
+
+
+There are over 30,000 "gene sets" (equivalent to modules in tmod) defined.
 Each member of foo2 is a named character vector:
 
 
@@ -1887,7 +1929,7 @@ foo3 <- foo3[ ! sapply(foo3, is.null) ]
 ```
 
 
-Next, construct the MODULES data frame. We will use four named fields for each
+Next, construct the modules data frame. We will use four named fields for each
 vector, which contain the ID (systematic name), description, category and
 subcategory:
 
@@ -1898,10 +1940,11 @@ modules <- t(sapply(foo3,
     x[ c("SYSTEMATIC_NAME", "STANDARD_NAME", "CATEGORY_CODE", "SUBCATEGORY_CODE") ])) 
 colnames(modules) <- c( "ID", "Title", "Category", "Subcategory" )
 modules <- data.frame(modules, stringsAsFactors=FALSE)
+nrow(modules)
 ```
 
 
-Then, we create the modules to genes mapping and the GENES data frame. For
+Then, we create the mapping from gene sets to genes. For
 this, we use the `MEMBERS_SYMBOLIZED` field, which is a comma separated
 list of gene symbols belonging to a particular module:
 
@@ -1917,156 +1960,12 @@ mymsig
 
 From now on, you can use the object mymsig with tmod enrichment tests.
 
-Note that it is not necessary to create the members GENES and GENES2MODULES
-manually. The reverse mapping from genes to modules, GENES2MODULES, will be
-automatically inferred from MODULES2GENES. If no meta-information on genes
-is provided in GENES, then a minimal data frame will be created with one
-column only (ID).
-
-
 
 
 
 
 Case studies
 =================================================================
-
-
-Metabolic profiling of TB patients
-----------------------------------------------
-
-### Introduction
-
-One of the main objectives in writing tmod was the ability to analyse
-metabolic profiling data and other uncommon data sets. In 2012, we have
-analysed metabolic profiles of serum collected from patients suffering from
-tuberculosis (TB) and healthy controls [@weiner2012biomarkers].  It turned
-out that there are huge differences between these two groups of
-individuals, involving amino acid metabolism, lipid metabolism and many
-others. In the course of the analysis, we found correlations between the
-metabolites which are not explained fully by the metabolic pathways. For
-example, cortisol is correlated with kynurenine due to the immunoactive
-function of these molecules indicating an activation of the immune system,
-and not because these two molecules are linked by a synthesis process.
-Vice versa, kynurenine and tryptophan were not directly correlated, even
-though these molecules are clearly linked by a metabolic process, because
-tryptophan is not an immune signalling molecule, while kynurenine is.
-
-The tmod package includes both, the data set used in the Weiner et al.
-paper and the cluster definitions (modules) published therein. In the following, we
-will use these modules to analyse the metabolic profiles^[Formally, this is not correct, as the modules were derived from the data
-set that we are going to analyse, however it serves for demonstration
-purposes].
-
-First, we load the data modules and the data set to analyse.
-
-```{r metabodata}
-data(modmetabo) ## modules
-data(tbmprof)
-ids <- rownames(tbmprof)
-tb <- factor(gsub("\\..*", "", ids))
-sex <- factor( gsub( ".*\\.([MF])\\..*", "\\1", ids))
-table(tb, sex)
-```
-
-### Differential analysis
-
-The metabolic profiling data has not exactly a normal distribution, but
-that varies from one compound to another. It is possible to normalize it by
-ranking, but we can simply use the wilcoxon test to see differences between
-males and females as well as TB patients and healthy individuals.
-
-```{r metabowilcoxon}
-wcx.tb <- apply(tbmprof, 2, function(x) wilcox.test(x ~ tb, conf.int=T))
-wcx.tb <- t(sapply(wcx.tb, function(x) c(x$estimate, x$p.value)))
-
-wcx.sex <- apply(tbmprof, 2, function(x) wilcox.test(x ~ sex, conf.int=T))
-wcx.sex <- t(sapply(wcx.sex, function(x) c(x$estimate, x$p.value)))
-
-wcx <- data.frame(ID=colnames(tbmprof),
-                  E.tb=wcx.tb[,1], pval.tb=wcx.tb[,2],
-                  E.sex=wcx.sex[,1], pval.sex=wcx.sex[,2],
-                  row.names=colnames(tbmprof))
-```
-
-The data frame contains the results of all tests. We can now test both the
-healthy/tb comparison and the male/female comparison for enrichment in
-metabolic profiling modules. Instead ordering the feature identifiers, we
-use the option "input.order" to determine the sorting.
-
-```{r metabowilcoxontmod}
-ids <- wcx$ID
-res <- list()
-res$tb <- tmodCERNOtest(ids[order(wcx$pval.tb)], mset=modmetabo)
-res$tb
-
-res$sex <- tmodCERNOtest(ids[order(wcx$pval.sex)], mset=modmetabo)
-res$sex
-
-```
-
-Both these result tables are concordant with previous findings. The
-enriched modules in male vs female comparison are what one would
-expect.  In TB, a cluster consisting of kynurenine, bile acids and cortisol
-is up-regulated, while amino acids go down. We can take a closer look at it
-using the evidencePlot function.
-
-Why is there a module called "Amino acid cluster" and another one called
-"Amino acid"?  The "cluster" in the name of the module indicates that it
-has been build by clustering of the profiles, while the other module has
-been based on the biochemical classification of the molecules. This
-information is contained in the `Category` column of the `MODULES` data frame:
-
-```{r metabo01}
-modmetabo$MODULES[ c("ME.107", "MP.2"), ]
-```
-
-To get an overview for both of these comparisons at the same time, we can
-use the tmodPanelPlot function. The size of the blobs below corresponds to
-the AUC values from the tables above.
-
-```{r metabopanelplot,fig.width=10,fig.height=7}
-tmodPanelPlot(res)
-```
-
-This, unfortunately, does not tell us in which group the metabolites from a given
-modules are higher. For this, we can use the "estimate" from the
-wilcox.test above and a parameter for tmodPanelPlot called "pie". To create
-the value for this parameter -- a list that describes, for each condition
-and for each module, how many metabolites change in one direction, and how
-many change in the other.
-
-```{r metabopie,fig.width=7, fig.height=4}
-pie.data <- wcx[,c("E.sex", "E.tb")]
-colnames(pie.data) <- c("sex", "tb")
-pie <- tmodDecideTests(wcx$ID, lfc=pie.data, lfc.thr=0.2, mset=modmetabo)
-tmodPanelPlot(res, pie=pie, pie.style="rug", grid="between")
-
-```
-
-We see now that the cortisol cluster is higher in TB, while amino acids are
-found at lower concentration in the patients. Also, we see that most of the
-steroids found (cluster ME.26 and module MS.1) are lower in females. The
-latter is not surprising if we inspect it closely.
-
-```{r metabosex,fig.width=12,fig.height=6}
-
-wcx <- wcx[order(wcx$pval.sex),]
-showModule(wcx[,c("E.sex", "pval.sex")], wcx$ID, "MS.1", mset=modmetabo)
-i <- "HMDB00493" # what is it?
-modmetabo$GENES[i,]
-par(mfrow=c(1,2))
-showGene(tbmprof[,i], sex, main=modmetabo$GENES[i, "Name"],
-  ylab="Relative abundance")
-
-## now for cortisol cluster
-i <- "HMDB00063"
-wcx <- wcx[order(wcx$pval.tb),]
-showModule(wcx[,c("E.tb", "pval.tb")], wcx$ID, "ME.37", 
-  mset=modmetabo)[1:10,] # only first 10!
-showGene(tbmprof[,i], tb, main=modmetabo$GENES[i, "Name"],
-  ylab="Relative abundance")
-```
 
 ### Functional multivariate analysis
 
@@ -2089,10 +1988,16 @@ ret <- tmodPCA(pca, genes=colnames(tbmprof), mset=modmetabo,
 ```
 
 The `ret` object now contains the results of enrichments (in the
-ret$enrichments member) and we can directly throw it on a panel plot:
+ret$enrichments member) and we can directly throw it on a panel plot. Note,
+however, that for each components we have three enrichments: "up", for
+genes sorted in decreasing order, "down", for genes sorted in increasing
+order, and "abs", for genes sorted by decreasing absolute value of the
+associated weight. Therefore, we need to unlist the results a bit.
 
 ```{r tmodpca3,fig.width=10,fig.height=6}
-tmodPanelPlot(ret$enrichments)
+enr <- unlist(ret$enrichments, recursive=FALSE)
+names(enr) <- gsub("\\.", " ", names(enr))
+ggPanelplot(enr, mset=modmetabo)
 ```
 
 OK, but which of the terms are characteristic for TB patients? Which for
@@ -2209,13 +2114,23 @@ threshold using the TREAT method [@mccarthy2009testing], implemented in
 ```{r, edgeR4,fig.width=8,fig.height=8}
 lrt.treat <- glmTreat(fit, coef="TissueT", lfc=log2(2))
 ord <- order(lrt.treat$table$PValue)
-res.rnaseq$treat.tmod <- tmodCERNOtest(lrt$genes$Symbol[ord])
-res.rnaseq$treat.goset <- tmodCERNOtest(lrt$genes$EG[ord], mset=goset)
+res.rnaseq$treat_tmod <- tmodCERNOtest(lrt$genes$Symbol[ord])
+res.rnaseq$treat_goset <- tmodCERNOtest(lrt$genes$EG[ord], mset=goset)
 res.rnaseq <- res.rnaseq[c(1,3,2,4)]
-tmodPanelPlot(res.rnaseq, filter.rows.pval=1e-3)
+ggPanelplot(res.rnaseq, filter_row_q =1e-3)
 ```
 
 The results are very similar, but the p-values are lower.
+
+Citing
+====================
+
+To cite tmod, please use the following reference:
+
+Zyla J, Marczyk M, Domaszewska T, Kaufmann SH, Polanska J, Weiner 3rd J.
+Gene set enrichment for reproducible science: comparison of CERNO and eight
+other algorithms. Bioinformatics. 2019 Dec 15;35(24):5146-54.
+
 
 
 References

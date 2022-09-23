@@ -500,7 +500,7 @@ hgEnrichmentPlot <- function(fg, bg, m, mset="all", ...) {
 #' @inheritParams evidencePlot
 #' @importFrom ggrepel geom_text_repel
 #' @importFrom ggplot2 geom_line geom_polygon geom_segment
-#' @importFrom ggplot2 scale_color_manual
+#' @importFrom ggplot2 scale_color_manual geom_abline
 #' @importFrom purrr imap_dfr map_dfr 
 #' @export
 ggEvidencePlot <- function(l, m, mset=NULL, filter=FALSE, unique=TRUE,
@@ -524,7 +524,7 @@ ggEvidencePlot <- function(l, m, mset=NULL, filter=FALSE, unique=TRUE,
 
   coords <- imap_dfr(mm, ~ {
 
-    pos <- sort(match(.x, l_orig) - cumsum(1:length(.x)))
+    pos <- sort(match(.x, l_orig)) - 1:length(.x)
     pos <- rep(pos, each=2)
     pos <- c(1, pos, length(l_orig))
     y <- rep(c(0:length(.x)), each=2) / length(.x)
@@ -532,11 +532,15 @@ ggEvidencePlot <- function(l, m, mset=NULL, filter=FALSE, unique=TRUE,
   })
 
   coords_segm <- imap_dfr(mm, ~ {
-
-    x <- sort(match(.x, l_orig) - cumsum(1:length(.x)))
-    y <- rep(c(0:length(.x)), each=2) / length(.x)
-    data.frame(x=x, y=-.1, xend=x, yend=0, "mod"=.y, label=.x, gene=.x)
+    x <- sort(match(.x, l_orig)) - 1:length(.x)
+    ret <- data.frame(x=x, y=-.1, xend=x, yend=0, "mod"=.y, label=.x, gene=.x)
+    if(!is.null(gene.labels) && !gene.labels) {
+      ret$label <- ""
+    }
+    ret
   })
+
+
 
 
   if(length(mm) > 1) {
@@ -554,8 +558,10 @@ ggEvidencePlot <- function(l, m, mset=NULL, filter=FALSE, unique=TRUE,
 
   ret <- ggplot(coords, aes_string(x="x", y="y", color="mod")) 
 
-  ret <- ret + geom_line() + 
-      geom_polygon(data=data.frame(x=c(1, 1, length(l_orig), length(l_orig)), 
+  ret <- ret + 
+    geom_segment(aes(x=0, y=0, xend=length(l_orig), yend=1), col="darkgrey") +
+    geom_line() + 
+    geom_polygon(data=data.frame(x=c(1, 1, length(l_orig), length(l_orig)), 
                                    y=c(-.1, 0, 0, -.1)), aes_string(x="x", y="y"), 
                                    color="grey",
                                    fill="LightGrey") +
@@ -578,7 +584,7 @@ ggEvidencePlot <- function(l, m, mset=NULL, filter=FALSE, unique=TRUE,
   }
 
   ret <- ret + scale_color_manual(values=pal, breaks=names(pal[1:length(mm)])) +
-    guides(color=guide_legend(title="Gene set"))
+    guides(color=guide_legend(title="Gene set")) 
 
   if(length(mm) < 2) {
     ret <- ret + theme(legend.position = "none")

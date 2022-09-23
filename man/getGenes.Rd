@@ -4,7 +4,7 @@
 \alias{getGenes}
 \title{Get genes belonging to a gene set}
 \usage{
-getGenes(gs = NULL, genes = NULL, fg = NULL, mset = "LI", as.list = FALSE)
+getGenes(gs = NULL, genes = NULL, fg = NULL, mset = "all", as.list = FALSE)
 }
 \arguments{
 \item{gs}{gene set IDs; if NULL, returns all genes from all gene sets}
@@ -14,7 +14,7 @@ from this parameter will be considered.}
 
 \item{fg}{genes which are in the foreground set}
 
-\item{mset}{module set to use}
+\item{mset}{gene set to use (default: all tmod gene sets)}
 
 \item{as.list}{should a list of genes rather than a data frame be returned}
 }

@@ -15,7 +15,7 @@ tmodUtest(
   qval = 0.05,
   order.by = "pval",
   filter = FALSE,
-  mset = "LI",
+  mset = "all",
   cols = "Title",
   useR = FALSE,
   nodups = TRUE
@@ -28,7 +28,7 @@ tmodGeneSetTest(
   qval = 0.05,
   order.by = "pval",
   filter = FALSE,
-  mset = "LI",
+  mset = "all",
   cols = "Title",
   Nsim = 1000,
   nodups = TRUE
@@ -40,7 +40,7 @@ tmodCERNOtest(
   qval = 0.05,
   order.by = "pval",
   filter = FALSE,
-  mset = "LI",
+  mset = "all",
   cols = "Title",
   nodups = TRUE
 )
@@ -52,7 +52,7 @@ tmodPLAGEtest(
   modules = NULL,
   qval = 0.05,
   order.by = "pval",
-  mset = "LI",
+  mset = "all",
   cols = "Title",
   filter = FALSE,
   nodups = TRUE
@@ -64,7 +64,7 @@ tmodZtest(
   qval = 0.05,
   order.by = "pval",
   filter = FALSE,
-  mset = "LI",
+  mset = "all",
   cols = "Title",
   nodups = TRUE
 )
@@ -76,7 +76,7 @@ tmodHGtest(
   qval = 0.05,
   order.by = "pval",
   filter = FALSE,
-  mset = "LI",
+  mset = "all",
   cols = "Title",
   nodups = TRUE
 )
@@ -92,7 +92,7 @@ tmodHGtest(
 
 \item{filter}{Remove gene names which have no module assignments}
 
-\item{mset}{Which module set to use. Either a character vector ("LI", "DC" or "all", default: LI) or an object of class tmod (see "Custom module definitions" below)}
+\item{mset}{Which module set to use. Either a character vector ("LI", "DC" or "all", default: all) or an object of class tmod (see "Custom module definitions" below)}
 
 \item{cols}{Which columns from the MODULES data frame should be included in resulsts}
 

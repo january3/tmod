@@ -768,9 +768,9 @@ tmodDecideTests <- function(g, lfc=NULL, pval=NULL, lfc.thr=0.5, pval.thr=0.05,
     if(is.null(lfc)) {
       lfc <- matrix(Inf, ncol=nc, nrow=nr)
     }
+    pval[ is.na(pval) ] <- 1
   }
 
-  pval[ is.na(pval) ] <- 1
 
   if(!is.null(lfc)) {
     lfc  <- as.matrix(lfc)
@@ -792,7 +792,10 @@ tmodDecideTests <- function(g, lfc=NULL, pval=NULL, lfc.thr=0.5, pval.thr=0.05,
 
   if(is.null(labels)) labels <- paste0( "X.", 1:nc)
 
-  if(!identical(dim(lfc), dim(pval)) || nrow(lfc) != length(g)) {
+  if(
+     (!is.null(lfc) && !is.null(pval)) && 
+     (!identical(dim(lfc), dim(pval)) || nrow(lfc) != length(g))
+   ) {
     stop("Dimensions of lfc and pval must be identical")
   }
 
