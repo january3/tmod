@@ -1,7 +1,7 @@
 ---
 title: "tmod: Analysis of Gene Set Enrichments"
 author: "January Weiner"
-date: "`r Sys.Date()`"
+date: "2022-09-23"
 output: 
   html_document:
     toc: true
@@ -39,18 +39,10 @@ abstract: |
 bibliography: bibliography.bib
 ---
 
-```{r setup, echo=FALSE, results="hide", include=FALSE}
-library(knitr)
-opts_chunk$set(fig.path="tmod-", cache=TRUE, autodep=TRUE, tidy=FALSE, fig.width=5, warning=FALSE, fig.height=5, width=60)
-opts_knit$set(width=60)
-is.internet <- FALSE
-```
 
 
-```{r eval=TRUE,echo=FALSE}
-library(ggplot2)
-theme_set(theme_minimal())
-```
+
+
 
 <img src="logo.png" style="position:absolute;top:25px;right:5px;" />
 
@@ -131,9 +123,17 @@ with a differential gene expression analysis. Note that only a bit over
 5000 genes from the original set of over 45000 probes is included.
 
 
-```{r twoA}
+
+```r
 library(limma)
 library(tmod)
+```
+
+```
+## For tmod user guide, type `vignette("tmod")`
+```
+
+```r
 data(Egambia)
 design <- cbind(Intercept=rep(1, 30), TB=rep(c(0,1), each= 15))
 E <- as.matrix(Egambia[,-c(1:3)])
@@ -144,24 +144,40 @@ tt <- topTable(fit, coef=2, number=Inf,
 
 The table below shows first couple of results from the table `tt`.
 
-```{r twoA2,echo=FALSE, results="asis"}
-library(pander)
-options(digits=3)
-tmp <- tt[,c("GENE_SYMBOL", "GENE_NAME", "logFC", "adj.P.Val")]
-rownames(tmp) <- NULL
-pandoc.table(head(tmp), split.tables=Inf, justify="llrr")
-```
+
+------------------------------------------------------------------
+GENE_SYMBOL   GENE_NAME                          logFC   adj.P.Val
+------------- -------------------------------- ------- -----------
+FAM20A        family with sequence               2.956    0.001899
+              similarity 20, member A"                            
+
+FCGR1B        Fc fragment of IgG, high           2.391    0.002095
+              affinity Ib, receptor (CD64)"                       
+
+BATF2         basic leucine zipper               2.681    0.002216
+              transcription factor, ATF-like                      
+              2                                                   
+
+ANKRD22       ankyrin repeat domain 22           2.764    0.002692
+
+SEPT4         septin 4                           3.287    0.002692
+
+CD274         CD274 molecule                     2.377    0.002692
+------------------------------------------------------------------
 
 OK, we see some of the genes known to be prominent in the human host
 response to TB. We can display one of these using tmod's `showGene` 
 function (it's just a `boxplot` combined with a `beeswarm`, nothing
 special):
 
-```{r basic2, fig.width=4, fig.height=4}
+
+```r
 group <- rep( c("CTRL", "TB"), each=15)
 showGene(E["20799",], group,
   main=Egambia["20799", "GENE_SYMBOL"])
 ```
+
+<img src="tmod-basic2-1.png" width="384" />
 
 Fine, but what about the modules?
 
@@ -185,10 +201,31 @@ the genes in this gene set are more likely than others to be at the
 beginning of that list.  The CERNO statistic has a $\chi^2$ distribution
 and therefore no randomization is necessary, making the test really fast.
 
-```{r fourB}
+
+```r
 l    <- tt$GENE_SYMBOL
 resC <- tmodCERNOtest(l)
 head(resC, 15)
+```
+
+```
+## # tmod report (class tmodReport) 8 x 15:
+##          │ID       │Title                                           │cerno│N1   │AUC  │cES  │P.Value│adj.P.Val
+##  LI.M37.0│ LI.M37.0│immune activation - generic cluster             │  426│  100│ 0.75│  2.1│< 2e-16│6.3e-16  
+##  LI.M11.0│ LI.M11.0│enriched in monocytes (II)                      │  114│   20│ 0.78│  2.8│5.3e-09│9.1e-07  
+##     LI.S4│    LI.S4│Monocyte surface signature                      │   76│   10│ 0.90│  3.8│1.6e-08│1.9e-06  
+## LI.M112.0│LI.M112.0│complement activation (I)                       │   74│   11│ 0.85│  3.3│1.7e-07│1.5e-05  
+##    LI.M75│   LI.M75│antiviral IFN signature                         │   65│   10│ 0.89│  3.3│1.0e-06│7.2e-05  
+##    LI.M16│   LI.M16│TLR and inflammatory signaling                  │   46│    5│ 0.98│  4.6│1.2e-06│7.2e-05  
+##    LI.M67│   LI.M67│activated dendritic cells                       │   50│    6│ 0.97│  4.1│1.7e-06│8.4e-05  
+##   LI.M165│  LI.M165│enriched in activated dendritic cells (II)      │   92│   19│ 0.72│  2.4│2.4e-06│0.00011  
+##  LI.M37.1│ LI.M37.1│enriched in neutrophils (I)                     │   68│   12│ 0.87│  2.8│4.3e-06│0.00017  
+## LI.M118.0│LI.M118.0│enriched in monocytes (IV)                      │   55│    9│ 0.88│  3.0│1.5e-05│0.00052  
+##     LI.S5│    LI.S5│DC surface signature                            │  123│   34│ 0.68│  1.8│4.8e-05│0.00150  
+##   LI.M4.3│  LI.M4.3│myeloid cell enriched receptors and transporters│   34│    5│ 0.89│  3.4│0.00016│0.00458  
+##    LI.M20│   LI.M20│AP-1 transcription factor network               │   32│    5│ 0.88│  3.2│0.00041│0.00996  
+##    LI.M81│   LI.M81│enriched in myeloid cells and monocytes         │   57│   13│ 0.76│  2.2│0.00042│0.00996  
+##   LI.M150│  LI.M150│innate antiviral response                       │   32│    5│ 0.95│  3.2│0.00043│0.00996
 ```
 
 Only first 15 results are shown above.
@@ -231,7 +268,8 @@ genes are found in the enriched modules (right panel on the figure below).
 Note: below I use the `plot_grid` function from the cowplot package to put
 the figures side by side.
 
-```{r panelplot00,fig.width=14,fig.height=7}
+
+```r
 library(cowplot)
 
 g1 <- ggPanelplot(list(Gambia=resC))
@@ -245,6 +283,8 @@ names(sgenes) <- "Gambia"
 g2 <- ggPanelplot(list(Gambia=resC), sgenes = sgenes)
 plot_grid(g1, g2, labels=c("A", "B"))
 ```
+
+<img src="tmod-panelplot00-1.png" width="1344" />
 
 On the right hand side, the red color on the bars indicates that all
 signficantly regulated in the enriched modules. The size of the bar
@@ -324,11 +364,43 @@ testing: the power of the test with 10 individuals in each group is too low.
 For the sake of the example, we will therefore relax our selection.
 Normally, I'd use a q-value threshold of at least 0.001.
 
-```{r mod1}
+
+```r
 fg <- tt$GENE_SYMBOL[tt$adj.P.Val < 0.05 & abs( tt$logFC ) > 1]
 resHG <- tmodHGtest(fg=fg, bg=tt$GENE_SYMBOL)
 options(width=60)
 resHG
+```
+
+```
+## # tmod report (class tmodReport) 9 x 8:
+##          │ID       
+## LI.M112.0│LI.M112.0
+##  LI.M11.0│ LI.M11.0
+##    LI.M75│   LI.M75
+##     LI.S4│    LI.S4
+##     LI.S5│    LI.S5
+##   LI.M165│  LI.M165
+##   LI.M4.3│  LI.M4.3
+##    LI.M16│   LI.M16
+##          │Title                                           
+## LI.M112.0│complement activation (I)                       
+##  LI.M11.0│enriched in monocytes (II)                      
+##    LI.M75│antiviral IFN signature                         
+##     LI.S4│Monocyte surface signature                      
+##     LI.S5│DC surface signature                            
+##   LI.M165│enriched in activated dendritic cells (II)      
+##   LI.M4.3│myeloid cell enriched receptors and transporters
+##    LI.M16│TLR and inflammatory signaling                  
+##          │b    │B    │n    │N    │E    │P.Value│adj.P.Val
+## LI.M112.0│    4│   11│   47│ 4826│   37│2.5e-06│0.00086  
+##  LI.M11.0│    4│   20│   47│ 4826│   21│3.4e-05│0.00591  
+##    LI.M75│    3│   10│   47│ 4826│   31│9.9e-05│0.00857  
+##     LI.S4│    3│   10│   47│ 4826│   31│9.9e-05│0.00857  
+##     LI.S5│    4│   34│   47│ 4826│   12│0.00030│0.02046  
+##   LI.M165│    3│   19│   47│ 4826│   16│0.00075│0.03941  
+##   LI.M4.3│    2│    5│   47│ 4826│   41│0.00091│0.03941  
+##    LI.M16│    2│    5│   47│ 4826│   41│0.00091│0.03941
 ```
 
 The columns in the above table contain the following:
@@ -388,11 +460,37 @@ genes in a module. Unfortunately, also the reverse is true: modules with a
 small number of genes, even if they consist of highly up- or down-regulated
 genes from the top of the list will not be detected.
 
-```{r mod2}
+
+```r
 l    <- tt$GENE_SYMBOL
 resU <- tmodUtest(l)
 head(resU)
+```
+
+```
+## # tmod report (class tmodReport) 7 x 6:
+##         │ID      │Title                              
+## LI.M37.0│LI.M37.0│immune activation - generic cluster
+## LI.M37.1│LI.M37.1│enriched in neutrophils (I)        
+##    LI.S4│   LI.S4│Monocyte surface signature         
+##   LI.M75│  LI.M75│antiviral IFN signature            
+## LI.M11.0│LI.M11.0│enriched in monocytes (II)         
+##   LI.M67│  LI.M67│activated dendritic cells          
+##         │U     │N1   │AUC  │P.Value│adj.P.Val
+## LI.M37.0│352659│  100│ 0.75│< 2e-16│5.5e-15  
+## LI.M37.1│ 50280│   12│ 0.87│4.5e-06│0.00066  
+##    LI.S4│ 43220│   10│ 0.90│6.9e-06│0.00066  
+##   LI.M75│ 42996│   10│ 0.89│8.6e-06│0.00066  
+## LI.M11.0│ 74652│   20│ 0.78│9.5e-06│0.00066  
+##   LI.M67│ 28095│    6│ 0.97│3.2e-05│0.00181
+```
+
+```r
 nrow(resU)
+```
+
+```
+## [1] 25
 ```
 
 This list makes a lot of sense, and also is more stable than the other one:
@@ -428,11 +526,30 @@ purposes and is the recommended approach. A variant called `tmodZtest`
 exists in which the p-values are combined using Stouffer's method rather
 than the Fisher's method.
 
-```{r mod2cerno}
+
+```r
 l    <- tt$GENE_SYMBOL
 resCERNO <- tmodCERNOtest(l)
 head(resCERNO)
+```
+
+```
+## # tmod report (class tmodReport) 8 x 6:
+## # (Showing rows 1 - 5 out of 6)
+##         │ID      │Title                              │cerno│N1   │AUC  │cES  │P.Value│adj.P.Val
+## LI.M37.0│LI.M37.0│immune activation - generic cluster│  426│  100│ 0.75│  2.1│< 2e-16│1.1e-15  
+##  DC.M4.2│ DC.M4.2│Inflammation                       │  151│   20│ 0.95│  3.8│8.0e-15│2.4e-12  
+##  DC.M3.4│ DC.M3.4│Interferon                         │  129│   17│ 0.83│  3.8│4.6e-13│9.3e-11  
+##  DC.M1.2│ DC.M1.2│Interferon                         │  113│   17│ 0.90│  3.3│2.3e-10│3.5e-08  
+## DC.M7.29│DC.M7.29│Undetermined                       │  119│   20│ 0.81│  3.0│1.0e-09│1.2e-07
+```
+
+```r
 nrow(resCERNO)
+```
+
+```
+## [1] 38
 ```
 
 
@@ -451,8 +568,85 @@ first component is returned and a t-test comparing two groups is then
 performed. This limits the implementation to only two groups, but extending
 it for more than one group is trivial.
 
-```{r plage}
+
+```r
 tmodPLAGEtest(Egambia$GENE_SYMBOL, Egambia[,-c(1:3)], group=group)
+```
+
+```
+## Converting group to factor
+```
+
+```
+## Calculating eigengenes...
+```
+
+```
+## # tmod report (class tmodReport) 7 x 23:
+## # (Showing rows 1 - 20 out of 23)
+##          │ID       
+##     LI.S4│    LI.S4
+##  LI.M11.0│ LI.M11.0
+##    LI.M16│   LI.M16
+##    LI.M20│   LI.M20
+##    LI.M67│   LI.M67
+##  LI.M37.0│ LI.M37.0
+##    LI.M59│   LI.M59
+##   LI.M4.3│  LI.M4.3
+## LI.M118.0│LI.M118.0
+##  LI.M37.1│ LI.M37.1
+## LI.M112.0│LI.M112.0
+## LI.M114.1│LI.M114.1
+##   LI.M105│  LI.M105
+##    LI.M75│   LI.M75
+##  LI.M35.0│ LI.M35.0
+##   LI.M121│  LI.M121
+##   LI.M165│  LI.M165
+##    LI.M81│   LI.M81
+## LI.M112.1│LI.M112.1
+##  LI.M86.0│ LI.M86.0
+##          │Title                                            
+##     LI.S4│Monocyte surface signature                       
+##  LI.M11.0│enriched in monocytes (II)                       
+##    LI.M16│TLR and inflammatory signaling                   
+##    LI.M20│AP-1 transcription factor network                
+##    LI.M67│activated dendritic cells                        
+##  LI.M37.0│immune activation - generic cluster              
+##    LI.M59│CCR1, 7 and cell signaling                       
+##   LI.M4.3│myeloid cell enriched receptors and transporters 
+## LI.M118.0│enriched in monocytes (IV)                       
+##  LI.M37.1│enriched in neutrophils (I)                      
+## LI.M112.0│complement activation (I)                        
+## LI.M114.1│glycerophospholipid metabolism                   
+##   LI.M105│TBA                                              
+##    LI.M75│antiviral IFN signature                          
+##  LI.M35.0│signaling in T cells (I)                         
+##   LI.M121│TBA                                              
+##   LI.M165│enriched in activated dendritic cells (II)       
+##    LI.M81│enriched in myeloid cells and monocytes          
+## LI.M112.1│complement activation (II)                       
+##  LI.M86.0│chemokines and inflammatory molecules in myeloid…
+##          │t    │D    │AbsD │P.Value│adj.P.Val
+##     LI.S4│ -7.2│ -2.6│  2.6│1.0e-07│3.0e-05  
+##  LI.M11.0│ -6.4│ -2.4│  2.4│5.5e-07│8.4e-05  
+##    LI.M16│ -5.3│ -2.0│  2.0│1.1e-05│0.0011   
+##    LI.M20│ -5.0│ -1.8│  1.8│3.2e-05│0.0024   
+##    LI.M67│ -4.7│ -1.7│  1.7│6.6e-05│0.0031   
+##  LI.M37.0│ -4.7│ -1.7│  1.7│6.9e-05│0.0031   
+##    LI.M59│ -4.6│ -1.7│  1.7│8.6e-05│0.0031   
+##   LI.M4.3│ -4.6│ -1.7│  1.7│9.7e-05│0.0031   
+## LI.M118.0│ -4.6│ -1.7│  1.7│9.8e-05│0.0031   
+##  LI.M37.1│ -4.5│ -1.7│  1.7│0.00010│0.0031   
+## LI.M112.0│ -4.4│ -1.6│  1.6│0.00018│0.0048   
+## LI.M114.1│ -4.2│ -1.5│  1.5│0.00033│0.0077   
+##   LI.M105│ -4.1│ -1.5│  1.5│0.00033│0.0077   
+##    LI.M75│ -3.9│ -1.4│  1.4│0.00056│0.0122   
+##  LI.M35.0│ -3.8│ -1.4│  1.4│0.00073│0.0140   
+##   LI.M121│ -3.8│ -1.4│  1.4│0.00075│0.0140   
+##   LI.M165│ -3.8│ -1.4│  1.4│0.00078│0.0140   
+##    LI.M81│ -3.8│ -1.4│  1.4│0.00093│0.0157   
+## LI.M112.1│ -3.5│ -1.3│  1.3│0.00164│0.0256   
+##  LI.M86.0│ -3.5│ -1.3│  1.3│0.00168│0.0256
 ```
 
 
@@ -485,7 +679,8 @@ set and repeats the limma procedure for this permutation, returning the
 ordering of the genes.
 
 
-```{r perm1,fig=FALSE}
+
+```r
 permset <- function(data, design) {
   require(limma)
   data <- data[, sample(1:ncol(data)) ]
@@ -503,7 +698,8 @@ genes in each permutation. We then use the tmod function `tmodAUC` to
 calculate the enrichment of each module for each permutation.
 
 
-```{r perm2,fig=FALSE}
+
+```r
 # same design as before
 design <- cbind(Intercept=rep(1, 30), 
   TB=rep(c(0,1), each= 15))
@@ -515,6 +711,10 @@ pauc   <- tmodAUC(Egambia$GENE_SYMBOL, perms)
 dim(perms)
 ```
 
+```
+## [1] 5547  250
+```
+
 
 
 We can now calculate the true values of the AUC for each module and compare
@@ -524,12 +724,20 @@ those without any genes in our gene list!) and in the same order as in the
 perms variable.
 
 
-```{r perm3,fig=FALSE}
+
+```r
 fit <- eBayes(lmFit(E, design))
 tt  <- topTable(fit, coef=2, number=Inf, 
   genelist=Egambia[,1:3])
 res <- tmodCERNOtest(tt$GENE_SYMBOL, qval=Inf, order.by="n")
 all(res$ID == rownames(perms))
+```
+
+```
+## [1] TRUE
+```
+
+```r
 fnsum <- function(m) sum(pauc[m,] >= res[m,"AUC"])
 sums <- sapply(res$ID, fnsum)
 res$perm.P.Val <- sums / N
@@ -537,6 +745,31 @@ res$perm.P.Val.adj <- p.adjust(res$perm.P.Val)
 res <- res[order(res$AUC, decreasing=T),]
 head(res[order(res$perm.P.Val),
   c("ID", "Title", "AUC", "adj.P.Val", "perm.P.Val.adj") ])
+```
+
+```
+## # tmod report (class tmodReport) 5 x 6:
+##          │ID       
+##    LI.M16│   LI.M16
+## LI.M114.1│LI.M114.1
+##    LI.M67│   LI.M67
+##    LI.M78│   LI.M78
+##   LI.M150│  LI.M150
+##   LI.M127│  LI.M127
+##          │Title                                            
+##    LI.M16│TLR and inflammatory signaling                   
+## LI.M114.1│glycerophospholipid metabolism                   
+##    LI.M67│activated dendritic cells                        
+##    LI.M78│myeloid cell cytokines, metallopeptidases and la…
+##   LI.M150│innate antiviral response                        
+##   LI.M127│type I interferon response                       
+##          │AUC  │adj.P.Val│perm.P.Val.adj
+##    LI.M16│ 0.98│  7.2e-05│             0
+## LI.M114.1│ 0.98│  6.4e-02│             0
+##    LI.M67│ 0.97│  8.4e-05│             0
+##    LI.M78│ 0.96│  1.1e-01│             0
+##   LI.M150│ 0.95│  1.0e-02│             0
+##   LI.M127│ 0.95│  1.2e-02│             0
 ```
 
 Although the results are based on a small number of permutations, the results
@@ -583,8 +816,61 @@ random samples of the same size as the module.  Below, we are using again
 the `tt` object containing the results of the analysis in the Gambia data
 set.
 
-```{r GST}
+
+```r
 tmodGeneSetTest(tt$GENE_SYMBOL, abs(tt$logFC))
+```
+
+```
+## # tmod report (class tmodReport) 8 x 15:
+##          │ID       
+##  LI.M11.0│ LI.M11.0
+##    LI.M16│   LI.M16
+##    LI.M20│   LI.M20
+##  LI.M37.0│ LI.M37.0
+##    LI.M67│   LI.M67
+##    LI.M75│   LI.M75
+## LI.M112.0│LI.M112.0
+##   LI.M165│  LI.M165
+##   LI.M240│  LI.M240
+##     LI.S4│    LI.S4
+##     LI.S5│    LI.S5
+##   LI.M4.3│  LI.M4.3
+##  LI.M37.1│ LI.M37.1
+##  LI.M35.0│ LI.M35.0
+##   LI.M188│  LI.M188
+##          │Title                                           
+##  LI.M11.0│enriched in monocytes (II)                      
+##    LI.M16│TLR and inflammatory signaling                  
+##    LI.M20│AP-1 transcription factor network               
+##  LI.M37.0│immune activation - generic cluster             
+##    LI.M67│activated dendritic cells                       
+##    LI.M75│antiviral IFN signature                         
+## LI.M112.0│complement activation (I)                       
+##   LI.M165│enriched in activated dendritic cells (II)      
+##   LI.M240│chromosome Y linked                             
+##     LI.S4│Monocyte surface signature                      
+##     LI.S5│DC surface signature                            
+##   LI.M4.3│myeloid cell enriched receptors and transporters
+##  LI.M37.1│enriched in neutrophils (I)                     
+##  LI.M35.0│signaling in T cells (I)                        
+##   LI.M188│TBA                                             
+##          │D    │M    │N1   │AUC  │P.Value│adj.P.Val
+##  LI.M11.0│  4.9│ 0.90│   20│ 0.78│<2e-16 │<2e-16   
+##    LI.M16│  5.3│ 1.38│    5│ 0.98│<2e-16 │<2e-16   
+##    LI.M20│  5.3│ 1.41│    5│ 0.88│<2e-16 │<2e-16   
+##  LI.M37.0│  9.2│ 0.82│  100│ 0.75│<2e-16 │<2e-16   
+##    LI.M67│  6.2│ 1.48│    6│ 0.97│<2e-16 │<2e-16   
+##    LI.M75│  5.8│ 1.22│   10│ 0.89│<2e-16 │<2e-16   
+## LI.M112.0│  6.6│ 1.27│   11│ 0.85│<2e-16 │<2e-16   
+##   LI.M165│  4.9│ 0.93│   19│ 0.72│<2e-16 │<2e-16   
+##   LI.M240│  5.4│ 1.22│    8│ 0.82│<2e-16 │<2e-16   
+##     LI.S4│  6.1│ 1.22│   10│ 0.90│<2e-16 │<2e-16   
+##     LI.S5│  4.7│ 0.77│   34│ 0.68│<2e-16 │<2e-16   
+##   LI.M4.3│  4.3│ 1.22│    5│ 0.89│0.001  │0.027    
+##  LI.M37.1│  3.5│ 0.86│   12│ 0.87│0.001  │0.027    
+##  LI.M35.0│  4.2│ 1.68│    2│ 0.86│0.002  │0.046    
+##   LI.M188│  3.8│ 1.07│    6│ 0.87│0.002  │0.046
 ```
 
 In the above table, `d` is the difference between the mean value of the
@@ -613,45 +899,16 @@ module. The values are negative log~10~ of p-values^[Plus $10^9$ to show the
 0.05.
 
 
-```{r comp1,echo=FALSE}
-design <- cbind(Intercept=rep(1, 30), TB=rep(c(0,1), each= 15))
-E <- as.matrix(Egambia[,-c(1:3)])
-fit <- eBayes(lmFit(E, design))
-tt <- topTable(fit, coef=2, number=Inf, 
-  genelist=Egambia[,1:3])
-l <- tt$GENE_SYMBOL 
-res <- list()
-res$CERNO <- tmodCERNOtest(l, qval=Inf)
-res$U <- tmodUtest(l, qval=Inf)
-fg <- tt$GENE_SYMBOL[tt$adj.P.Val < 0.1 & abs( tt$logFC ) > 0.5]
-res$HG <- tmodHGtest(fg=fg, bg=tt$GENE_SYMBOL, qval=Inf)
-res$GST <- tmodGeneSetTest(l, -log10(tt$P.Value), qval=Inf, Nsim=9999)
-res$PLAGE <- tmodPLAGEtest(Egambia$GENE_SYMBOL, Egambia[,-c(1:3)], group=group, qval=Inf)
 
-res <- res[ c("CERNO", "GST", "PLAGE", "U", "HG") ]
-common_ids <- Reduce(intersect, lapply(res, rownames))
-
-pvals <- sapply(res, function(x) x[ common_ids, ]$P.Value)
-
-lower.panel <- function(x, y) {
-        usr <- par("usr")
-        on.exit(par(usr))
-        par(usr = c(0, 1, 0, 1))
-        cc <- cor(x, y, method = "s")
-        text(0.5, 0.5, sprintf("%.2f", cc), cex = 1 + abs(cc))
-}
-
-upper.panel <- function(x, y) {
-        par(new = T)
-        sel <- !is.na(x) & !is.na(y)
-        x <- x[sel]
-        y <- y[sel]
-        plot(x, y, bty="n", xaxt="n", yaxt="n")
-        abline(0, 1, col = "#cccccc")
-}
-
-pairs(-log10(pvals + 1e-9), lower.panel=lower.panel, upper.panel=upper.panel)
 ```
+## Converting group to factor
+```
+
+```
+## Calculating eigengenes...
+```
+
+<img src="tmod-comp1-1.png" width="480" />
 
 The results from all algorithms are remarkably similar, but a few things
 can be pointed out. 
@@ -685,7 +942,8 @@ The code below shows how to select genes from a module with the
 `getModuleMembers()` function. For this, we will use the Gambia data set
 and the LI.M75 interferon module.
 
-```{r heatmap0}
+
+```r
 m <- "LI.M75"
 ## getModuleMembers returns a list – you can choose to 
 ## select multiple modules
@@ -704,43 +962,21 @@ order to make the effects more prominent than they really are. Thirdly,
 they use up a lot of space and ink to convey very little useful and
 interpretable information, which is a sin[@tufte2014visual].
 
-```{r heatmap1,fig.width=12,fig.height=7,echo=FALSE}
-x0 <- t(scale(t(x)))
 
-cols <- colorRampPalette(c("blue", "white", "red"))(17) 
-library(gplots)
-heatmap.2(x0, trace="n", 
-  labRow=Egambia$GENE_SYMBOL[sel], 
-  scale="n", 
-  dendrogram="r", Colv=F, 
-  col=cols,
-  breaks=seq(-2.5, 2.5, length.out=18))
+```
+## 
+## Attaching package: 'gplots'
 ```
 
-```{r heatmap2,fig.width=10,fig.height=7,echo=FALSE}
-## per group means and standard deviations
-ms <- apply(x, 1, function(xx) tapply(xx, group, mean))
-sd <- apply(x, 1, function(xx) tapply(xx, group, sd))
-
-library(plotwidgets)
-plot(NULL, bty="n", ylim=range(x), xlim=c(0.5, 2.5), 
-  xaxt="n", xlab="group", ylab="Expression")
-axis(1, at=c(1,2), labels=unique(group))
-errbar <- function(x, y0, y1, w=0.1, ...) {
-  w <- w/2
-  segments(x, y0, x, y1, ...)
-  segments(x-w, y0, x+w, y0, ...)
-  segments(x-w, y1, x+w, y1, ...)
-}
-
-cols <- plotPals("default")
-n <- ncol(ms)
-segments(1, ms[1,], 2, ms[2,], col=cols, lwd=2)
-points(rep(1, n), ms[1,], pch=19, col=cols)
-points(rep(2, n), ms[2,], pch=19, col=cols)
-errbar(1, ms[1,]-sd[1,], ms[1,]+sd[1,], col=cols)
-errbar(2, ms[2,]-sd[2,], ms[2,]+sd[2,], col=cols)
 ```
+## The following object is masked from 'package:stats':
+## 
+##     lowess
+```
+
+<img src="tmod-heatmap1-1.png" width="1152" />
+
+<img src="tmod-heatmap2-1.png" width="960" />
 
 A better (but not perfect) approach is to use *eigengenes*. An eigengene is
 a vector of numbers which are thought to represent all genes in a gene set.
@@ -752,7 +988,8 @@ Below, we calculate all eigengenes from modules in tmod and display two of
 them. The object `eig` will contain one row per module and one column per
 sample.
 
-```{r eigengene,fig.width=8,fig.height=5}
+
+```r
 par(mfrow=c(1,2))
 eig <- eigengene(Egambia[,-c(1:3)], Egambia$GENE_SYMBOL)
 showGene(eig["LI.M75", ], group, 
@@ -762,6 +999,8 @@ showGene(eig["LI.M16", ], group,
   ylab="Eigengene",
   main="TLR and inflammatory signaling")
 ```
+
+<img src="tmod-eigengene-1.png" width="768" />
 
 In fact, one can compare the eigengenes using a t.test or another
 statistical procedure – this is the essence of the PLAGE algorithm,
@@ -775,11 +1014,14 @@ Let us first investigate in more detail the module LI.M75, the antiviral
 interferon signature. We can use the `ggEvidencePlot` function to see
 how the module is enriched in the list `l`.
 
-```{r five,fig=TRUE,fig.width=7,fig.height=4}
+
+```r
 l    <- tt$GENE_SYMBOL
 theme_set(theme_minimal())
 ggEvidencePlot(l, "LI.M75") 
 ```
+
+<img src="tmod-five-1.png" width="672" />
 
 In essence, this is a receiver-operator characteristic (ROC) curve, and the
 area under the curve (AUC) is related to the U-statistic, from which the P-value
@@ -805,41 +1047,52 @@ interpreting p-values.
 The figure below shows three very different enrichments.
 
 
-```{r fig.width=12}
+
+```r
 sel <- c("LI.M67", "LI.M37.0")
 plots <- map(sel, ~ ggEvidencePlot(l, .x, gene.labels=FALSE))
 plot_grid(plotlist = plots, labels=sel)
 ```
 
+<img src="tmod-unnamed-chunk-2-1.png" width="1152" />
+
 The corresponding results are shown in the following table:
 
 
-```{r}
+
+```r
 foo <- tmodCERNOtest(l) %>% dplyr::filter(ID %in% sel) 
 foo %>% knitr::kable()
 ```
 
-`r sel[1]`
-(`r foo[sel[1], "Title"]`)
+
+
+|         |ID       |Title                               |     cerno|  N1|       AUC|      cES| P.Value| adj.P.Val|
+|:--------|:--------|:-----------------------------------|---------:|---:|---------:|--------:|-------:|---------:|
+|LI.M37.0 |LI.M37.0 |immune activation - generic cluster | 426.35781| 100| 0.7462103| 2.131789| 0.0e+00|  0.00e+00|
+|LI.M67   |LI.M67   |activated dendritic cells           |  49.52592|   6| 0.9714730| 4.127160| 1.7e-06|  7.32e-05|
+
+LI.M67
+(activated dendritic cells)
  contains only 
-`r foo[sel[1], "N1"]`
+6
 genes, but as most 
 of them have really low p-values and are on the top of the p-value
 sorted list, the resulting effect size is close to 1.
 
 The next panel shows a gene set containing a large number of genes. The
 effect size for 
-`r sel[2]`
+LI.M37.0
 is much smaller
-(`r format(foo[sel[2], "AUC"], digits=2)`), 
+(0.75), 
 but thanks to
 the large number of genes the enrichment is significant,
-with p-value lower than for `r sel[1]`.
+with p-value lower than for LI.M67.
 
 Very often, a gene set with a larger number of genes will have a low
 p-value. However, these gene sets are frequently not very specific, and the
 corresponding effect sizes are not large. In the above example, the
-`r sel[1]` is a much more interesting result: it is more specific and shows
+LI.M67 is a much more interesting result: it is more specific and shows
 a much larger effect, despite having a much higher p-value.
 
 
@@ -854,18 +1107,31 @@ We can summarize the output from the previously run tests (`tmodUtest`,
 `tmodCERNOtest` and `tmodHGtest`) in one table using `tmodSummary`. For
 this, we will create a list containing results from all comparisons.
 
-```{r fourC,size="tiny"}
+
+```r
 resAll <- list(CERNO=resC, U=resU, HG=resHG)
 #head(tmodSummary(resAll))
 ```
 
 The table below shows the results.
 
-```{r fourC2,results="asis",echo=FALSE,size="tiny"}
-tmp <- tmodSummary(resAll)
-rownames(tmp) <- NULL
-pandoc.table(head(tmp), split.tables=Inf, justify="llrrrrrr")
-```
+
+-------------------------------------------------------------------------------------------------------------
+ID          Title                              AUC.CERNO     q.CERNO    AUC.U         q.U    E.HG        q.HG
+----------- -------------------------------- ----------- ----------- -------- ----------- ------- -----------
+LI.M11.0    enriched in monocytes (II)            0.7767   9.091e-07   0.7767   0.0006569   20.54    0.005907
+
+LI.M112.0   complement activation (I)             0.8456    1.49e-05   0.8456    0.001811   37.34   0.0008581
+
+LI.M118.0   enriched in monocytes (IV)            0.8775   0.0005167   0.8775    0.001926      NA          NA
+
+LI.M127     type I interferon response            0.9456     0.01163   0.9456    0.007486      NA          NA
+
+LI.M13      innate activation by cytosolic        0.9133     0.03655       NA          NA      NA          NA
+            DNA sensing                                                                                      
+
+LI.M150     innate antiviral response             0.9499    0.009957   0.9499    0.007162      NA          NA
+-------------------------------------------------------------------------------------------------------------
 
 
 Panel plots
@@ -883,10 +1149,13 @@ of HG test is not easily comparable to the AUC values (which are between 0
 and 1), we need to scale it down. Also, we need to call it "AUC", because
 otherwise we can't show the values on the same plot.
 
-```{r panelplots, fig.width=8, fig.height=6}
+
+```r
 resAll$HG$AUC <- log10(resAll$HG$E) - 0.5
 ggPanelplot(resAll)
 ```
+
+<img src="tmod-panelplots-1.png" width="768" />
 
 Each enrichment result corresponds to a reddish bar. The size of the bar
 corresponds to the effect size (AUC or log10(Enrichment) - 0.5, as it may be),
@@ -899,9 +1168,12 @@ found in monocytes and neutrophils. Note that by default, ggPanelplot only
 shows enrichments with p < 0.01, hence a slight difference from the tmodSummary
 output. This behavior can be modified by the `q_thr` option:
 
-```{r panelplots2, fig.width=8, fig.height=5}
+
+```r
 ggPanelplot(resAll, q_thr=1e-3)
 ```
+
+<img src="tmod-panelplots2-1.png" width="768" />
 
 However, one is usually interested in the direction of regulation. If a
 gene list is sorted by p-value, the enriched modules may contain both up-
@@ -919,12 +1191,15 @@ this list must be identical to the names in the results list. Below, we
 reuse the same object for all three tests, since the DEGs (differentially
 expressed genes) were the same in all three comparisons.
 
-```{r pie, fig.width=10,fig.height=6}
+
+```r
 degs <- tmodDecideTests(g=tt$GENE_SYMBOL, lfc=tt$logFC,
                        pval=tt$adj.P.Val)[[1]]
 degs <- list(CERNO=degs, HG=degs, U=degs)
 ggPanelplot(resAll, sgenes = degs)
 ```
+
+<img src="tmod-pie-1.png" width="960" />
 
 Each mini-plot shows the effect size of the enrichment and the
 corresponding p-value, as before. Additionally, the fraction of
@@ -959,11 +1234,44 @@ directly use the resulting object in tmodLimmaTest and
 tmodLimmaDecideTests^[The function tmodLimmaDecideTests is described in the
 next section]. 
 
-```{r limma1}
+
+```r
 res.l <- tmodLimmaTest(fit, Egambia$GENE_SYMBOL)
 length(res.l)
+```
+
+```
+## [1] 2
+```
+
+```r
 names(res.l)
+```
+
+```
+## [1] "Intercept" "TB"
+```
+
+```r
 head(res.l$TB)
+```
+
+```
+## # tmod report (class tmodReport) 8 x 6:
+##          │ID       │Title                              
+##  LI.M37.0│ LI.M37.0│immune activation - generic cluster
+##  LI.M11.0│ LI.M11.0│enriched in monocytes (II)         
+## LI.M112.0│LI.M112.0│complement activation (I)          
+##     LI.S4│    LI.S4│Monocyte surface signature         
+##    LI.M75│   LI.M75│antiviral IFN signature            
+##    LI.M67│   LI.M67│activated dendritic cells          
+##          │cerno│N1   │AUC  │cES  │P.Value│adj.P.Val
+##  LI.M37.0│  414│  100│ 0.73│  2.1│< 2e-16│1.6e-14  
+##  LI.M11.0│  106│   20│ 0.79│  2.6│7.9e-08│9.7e-06  
+## LI.M112.0│   76│   11│ 0.87│  3.4│8.4e-08│9.7e-06  
+##     LI.S4│   70│   10│ 0.88│  3.5│1.8e-07│1.6e-05  
+##    LI.M75│   66│   10│ 0.86│  3.3│7.8e-07│5.4e-05  
+##    LI.M67│   50│    6│ 0.97│  4.2│1.2e-06│7.0e-05
 ```
 
 Minimum significant difference (MSD)
@@ -1017,7 +1325,8 @@ as confidence intervals. We will consider only genes with positive log fold
 changes and we will show top 50 genes as ordered by the three different
 measures:
 
-```{r limma2,fig=TRUE,fig.width=8,fig.height=4}
+
+```r
 plotCI <- function(x, ci.l, ci.r, title="") {
   n <- length(x)
   plot(x, 
@@ -1031,6 +1340,26 @@ par(mfrow=c(1,3))
 
 x <- tmodLimmaTopTable(fit, coef="TB")
 print(head(x))
+```
+
+```
+##    logFC.TB    t.TB msd.TB SE.TB    d.TB ciL.TB ciR.TB
+## 34   0.0282  0.0756 -0.728 0.373  0.0288 -0.728  0.784
+## 36   1.5242  3.8798  0.728 0.393  1.6398  0.728  2.320
+## 41   0.0789  0.1783 -0.817 0.442  0.0955 -0.817  0.975
+## 44   0.1532  0.3239 -0.806 0.473  0.1985 -0.806  1.112
+## 52  -0.2350 -0.6170 -0.537 0.381 -0.2451 -1.007  0.537
+## 62  -0.3195 -0.5585 -0.840 0.572 -0.5007 -1.479  0.840
+##    qval.TB
+## 34  0.9954
+## 36  0.0439
+## 41  0.9950
+## 44  0.9950
+## 52  0.9950
+## 62  0.9950
+```
+
+```r
 x <- x[ x$logFC.TB > 0, ] # only to simplify the output!
 x2 <- x[ order(abs(x$logFC.TB), decreasing=T),][1:50,]
 plotCI(x2$logFC.TB, x2$ciL.TB, x2$ciR.TB, "logFC")
@@ -1041,6 +1370,8 @@ plotCI(x2$logFC.TB, x2$ciL.TB, x2$ciR.TB, "q-value")
 x2 <- x[ order(x$msd.TB, decreasing=T),][1:50,]
 plotCI(x2$logFC.TB, x2$ciL.TB, x2$ciR.TB, "MSD")
 ```
+
+<img src="tmod-limma2-1.png" width="768" />
 
 Black dots are logFCs, and grey bars denote 95% confidence intervals.
 On the left panel, the top 50 genes ordered by the fold change include
@@ -1058,7 +1389,8 @@ considering the effect size and the statistical significance.
 
 What about enrichments?
 
-```{r limma3,fig.width=8,fig.height=8}
+
+```r
 x <- tmodLimmaTopTable(fit, coef="TB", genelist=Egambia[,1:3])
 x.lfc  <- x[ order(abs(x$logFC.TB), decreasing=T),]
 x.qval <- x[ order(x$qval.TB),]
@@ -1070,6 +1402,8 @@ qval=tmodCERNOtest(x.qval$GENE_SYMBOL),
 msd=tmodCERNOtest(x.msd$GENE_SYMBOL))
 ggPanelplot(comparison)
 ```
+
+<img src="tmod-limma3-1.png" width="768" />
 
 In this case, the results of p-value and msd-ordering are very similar. 
 
@@ -1098,17 +1432,36 @@ result object (i.e., which were not found to be significantly enriched in a
 given comparison) are shown as NA's:
 
 
-```{r pplot0}
+
+```r
 head(tmodSummary(res.l), 5)
+```
+
+```
+##                  ID                         Title
+## LI.M11.0   LI.M11.0    enriched in monocytes (II)
+## LI.M112.0 LI.M112.0     complement activation (I)
+## LI.M118.0 LI.M118.0    enriched in monocytes (IV)
+## LI.M124     LI.M124 enriched in membrane proteins
+## LI.M127     LI.M127    type I interferon response
+##           AUC.Intercept q.Intercept AUC.TB     q.TB
+## LI.M11.0          0.815    0.000114  0.786 9.67e-06
+## LI.M112.0            NA          NA  0.867 9.67e-06
+## LI.M118.0            NA          NA  0.838 2.85e-03
+## LI.M124           0.881    0.011487     NA       NA
+## LI.M127              NA          NA  0.945 1.04e-02
 ```
 
 
 We can neatly visualize the above information on a heatmap-like representation:
 
 
-```{r pplot1,fig=TRUE,fig.width=6,fig.height=5}
+
+```r
 ggPanelplot(res.l)
 ```
+
+<img src="tmod-pplot1-1.png" width="576" />
 
 
 It is often of interest to see which enriched modules go up, and which go
@@ -1119,11 +1472,40 @@ regulated genes in modules. We can conveniently generate it from a limma
 linear fit object with the tmodLimmaDecideTests function:
 
 
-```{r pplot2}
+
+```r
 degs <- tmodLimmaDecideTests(fit, genes=Egambia$GENE_SYMBOL)
 head(degs$TB[ order( degs$TB[,"up"], decreasing=T), ])
+```
+
+```
+##           down   N up
+## DC.M3.4      0  11  9
+## DC.M4.2      0  16  7
+## LI.M11.0     0  16  4
+## LI.M37.0     0 110  4
+## LI.M112.0    0   9  4
+## LI.M165      0  24  4
+```
+
+```r
 data(tmod)
 getModuleMembers("DC.M3.4")
+```
+
+```
+## $DC.M3.4
+##  [1] "IFIH1"     "IRF7"      "PARP14"    "IFIT2"     "IFI35"    
+##  [6] "SAMD9L"    "STAT1"     "OAS2"      "IFIT5"     "ATF3"     
+## [11] "SEPT4"     "HERC6"     "IFITM1"    "TRIM78P"   "EIF2AK2"  
+## [16] "AIM2"      "MT1A"      "MOV10"     "CCL8"      "HELZ2"    
+## [21] "ZBP1"      "WARS"      "LAP3"      "GBP5"      "TNFSF10"  
+## [26] "GBP1"      "FBXO6"     "PARP10"    "TRIM22"    "GBP3"     
+## [31] "ZNF684"    "CARD17"    "GALM"      "DHX58"     "CEACAM1"  
+## [36] "UBE2L6"    "PML"       "APOL6"     "SOCS1"     "LGALS3BP" 
+## [41] "SCO2"      "DDX58"     "TNFAIP6"   "IDO1"      "MT2A"     
+## [46] "GBP6"      "STAT2"     "TIMM10"    "PARP12"    "PLSCR1"   
+## [51] "PARP9"     "LOC400759" "GBP4"
 ```
 
 
@@ -1132,15 +1514,23 @@ coefficient and is a data frame with the columns "Down", "Zero" and "Up" (in
 that order). Importantly, all names of the "res.l" list must correspond to
 an item in the pie list.
 
-```{r pplot2.5}
+
+```r
 all(names(degs) %in% names(res.l))
+```
+
+```
+## [1] TRUE
 ```
 
 We can now use this information in ggPanelplot:
 
-```{r pplot3,fig=TRUE,fig.width=6,fig.height=5}
+
+```r
 ggPanelplot(res.l, sgenes = degs)
 ```
+
+<img src="tmod-pplot3-1.png" width="576" />
 
 There is also a more general function, tmodDecideTests that also produces a
 ggPanelplot-compatible object, a list of data frames with gene counts.
@@ -1150,7 +1540,8 @@ p-values. We can replicate the result of tmodLimmaDecideTests above with the
 following commands:
 
 
-```{r pplot5,fig.width=8,fig.height=8}
+
+```r
 tt.I <- 
   topTable(fit, coef="Intercept", number=Inf, sort.by="n")
 tt.TB <- topTable(fit, coef="TB", number=Inf, sort.by="n")
@@ -1158,6 +1549,10 @@ degs2 <- tmodDecideTests(Egambia$GENE_SYMBOL,
   lfc=cbind(tt.I$logFC, tt.TB$logFC),
   pval=cbind(tt.I$adj.P.Val, tt.TB$adj.P.Val))
 identical(degs[[1]], degs2[[1]])
+```
+
+```
+## [1] TRUE
 ```
 
 
@@ -1186,11 +1581,37 @@ a data set or a module. For example, one can ask the question about a
 function of a particular unknown gene -- such as ANKRD22, annotated as
 "ankyrin repeat domain 22". 
 
-```{r ankrd22}
+
+```r
 x <- E[ match("ANKRD22", Egambia$GENE_SYMBOL), ]
 cors <- t(cor(x, t(E)))
 ord <- order(abs(cors), decreasing=TRUE)
 head(tmodCERNOtest(Egambia$GENE_SYMBOL[ ord ]))
+```
+
+```
+## # tmod report (class tmodReport) 8 x 6:
+##          │ID       
+##  LI.M37.0│ LI.M37.0
+##   LI.M165│  LI.M165
+##  LI.M11.0│ LI.M11.0
+## LI.M112.0│LI.M112.0
+##    LI.M75│   LI.M75
+##    LI.M16│   LI.M16
+##          │Title                                     │cerno
+##  LI.M37.0│immune activation - generic cluster       │  431
+##   LI.M165│enriched in activated dendritic cells (II)│  113
+##  LI.M11.0│enriched in monocytes (II)                │  114
+## LI.M112.0│complement activation (I)                 │   81
+##    LI.M75│antiviral IFN signature                   │   74
+##    LI.M16│TLR and inflammatory signaling            │   52
+##          │N1   │AUC  │cES  │P.Value│adj.P.Val
+##  LI.M37.0│  100│ 0.72│  2.2│< 2e-16│< 2e-16  
+##   LI.M165│   19│ 0.78│  3.0│2.2e-09│3.8e-07  
+##  LI.M11.0│   20│ 0.81│  2.8│5.1e-09│5.9e-07  
+## LI.M112.0│   11│ 0.85│  3.7│1.3e-08│1.1e-06  
+##    LI.M75│   10│ 0.90│  3.7│3.3e-08│2.3e-06  
+##    LI.M16│    5│ 0.99│  5.2│1.1e-07│6.4e-06
 ```
 
 Clearly, ANKRD22 correlates to other immune related genes, most of all
@@ -1203,7 +1624,8 @@ method, we will select the genes from the module "LI.M75". For this, we use
 the function `getGenes` with the optional argument `genes` used to
 filter the genes in the module by the genes present in the data set.
 
-```{r m75}
+
+```r
 g <- getGenes("LI.M75", genes=Egambia$GENE_SYMBOL, 
               as.list=TRUE)
 x <- E[ match(g[[1]], Egambia$GENE_SYMBOL), ]
@@ -1218,6 +1640,31 @@ ord <- order(abs(cors), decreasing=TRUE)
 head(tmodCERNOtest(Egambia$GENE_SYMBOL[ ord ]))
 ```
 
+```
+## # tmod report (class tmodReport) 8 x 6:
+##         │ID      
+##  LI.M165│ LI.M165
+##   LI.M75│  LI.M75
+## LI.M37.0│LI.M37.0
+##  LI.M127│ LI.M127
+##  LI.M150│ LI.M150
+##   LI.M67│  LI.M67
+##         │Title                                     │cerno
+##  LI.M165│enriched in activated dendritic cells (II)│  155
+##   LI.M75│antiviral IFN signature                   │  104
+## LI.M37.0│immune activation - generic cluster       │  364
+##  LI.M127│type I interferon response                │   64
+##  LI.M150│innate antiviral response                 │   64
+##   LI.M67│activated dendritic cells                 │   68
+##         │N1   │AUC  │cES  │P.Value│adj.P.Val
+##  LI.M165│   19│ 0.82│  4.1│5.5e-16│1.9e-13  
+##   LI.M75│   10│ 0.94│  5.2│2.3e-13│3.9e-11  
+## LI.M37.0│  100│ 0.67│  1.8│1.1e-11│1.3e-09  
+##  LI.M127│    5│ 1.00│  6.4│5.5e-10│4.5e-08  
+##  LI.M150│    5│ 1.00│  6.4│6.4e-10│4.5e-08  
+##   LI.M67│    6│ 0.99│  5.6│8.9e-10│5.2e-08
+```
+
 
 
 
@@ -1230,7 +1677,8 @@ principal component analysis (PCA), visualised using the pca3d package
 [@pca3d]:
 
 
-```{r six,fig=TRUE,fig.width=8,fig.height=5}
+
+```r
 mypal <- c("#E69F00", "#56B4E9")
 pca <- prcomp(t(E), scale.=TRUE)
 
@@ -1246,6 +1694,8 @@ legend("topleft", as.character(l$groups),
        pch=l$pch,
        col=l$colors, bty="n")
 ```
+
+<img src="tmod-six-1.png" width="768" />
 
 
 The fourth component looks really interesting. Does it correspond to the
@@ -1276,11 +1726,30 @@ the given component, since the weights are stored in the pca object in the "rota
 slot, and use the tmodUtest function to test for enrichment of the modules.
 
 
-```{r seven}
+
+```r
 o <- order(abs(pca$rotation[,4]), decreasing=TRUE)
 l <- Egambia$GENE_SYMBOL[o]
 res <- tmodUtest(l)
 head(res)
+```
+
+```
+## # tmod report (class tmodReport) 7 x 6:
+##         │ID      │Title                              
+## LI.M37.0│LI.M37.0│immune activation - generic cluster
+## LI.M37.1│LI.M37.1│enriched in neutrophils (I)        
+##   LI.M75│  LI.M75│antiviral IFN signature            
+## LI.M11.0│LI.M11.0│enriched in monocytes (II)         
+##    LI.S5│   LI.S5│DC surface signature               
+##   LI.M67│  LI.M67│activated dendritic cells          
+##         │U     │N1   │AUC  │P.Value│adj.P.Val
+## LI.M37.0│339742│  100│ 0.72│3.1e-14│1.1e-11  
+## LI.M37.1│ 50096│   12│ 0.87│5.4e-06│0.00067  
+##   LI.M75│ 43379│   10│ 0.90│5.8e-06│0.00067  
+## LI.M11.0│ 74343│   20│ 0.77│1.2e-05│0.00103  
+##    LI.S5│115007│   34│ 0.71│1.7e-05│0.00118  
+##   LI.M67│ 28291│    6│ 0.98│2.5e-05│0.00145
 ```
 
 
@@ -1292,7 +1761,8 @@ the filter.empty option to omit the principal components which show no
 enrichment at all.
 
 
-```{r pcasum}
+
+```r
 # Calculate enrichment for each component
 gs   <- Egambia$GENE_SYMBOL
 # function calculating the enrichment of a PC
@@ -1304,15 +1774,39 @@ x <- apply(pca$rotation, 2, gn.f)
 tmodSummary(x, filter.empty=TRUE)[1:5,]
 ```
 
+```
+##                  ID                      Title AUC.PC3
+## LI.M11.0   LI.M11.0 enriched in monocytes (II)      NA
+## LI.M112.0 LI.M112.0  complement activation (I)      NA
+## LI.M118.0 LI.M118.0 enriched in monocytes (IV)      NA
+## LI.M127     LI.M127 type I interferon response      NA
+## LI.M144     LI.M144    cell cycle, ATP binding   0.989
+##             q.PC3 AUC.PC4    q.PC4 AUC.PC9 q.PC9 AUC.PC14
+## LI.M11.0       NA   0.773 2.14e-07      NA    NA       NA
+## LI.M112.0      NA   0.751 4.91e-05      NA    NA       NA
+## LI.M118.0      NA   0.853 5.03e-05      NA    NA       NA
+## LI.M127        NA   0.959 3.71e-03      NA    NA       NA
+## LI.M144   0.00605      NA       NA      NA    NA       NA
+##           q.PC14 AUC.PC30 q.PC30
+## LI.M11.0      NA       NA     NA
+## LI.M112.0     NA       NA     NA
+## LI.M118.0     NA       NA     NA
+## LI.M127       NA       NA     NA
+## LI.M144       NA       NA     NA
+```
+
 
 The following plot shows the same information in a visual form. The size of
 the blobs corresponds to the effect size (AUC value), and their color -- to
 the q-value.
 
 
-```{r pcsum2,fig=TRUE,fig.width=8,fig.height=5,results="hide"}
+
+```r
 ggPanelplot(x)
 ```
+
+<img src="tmod-pcsum2-1.png" width="768" />
 
 
 However, we might want to ask, for each module, how many of the genes in that
@@ -1326,12 +1820,15 @@ components:
 
 
 
-```{r pcsum3,fig=TRUE,fig.width=8,fig.height=5}
+
+```r
 qfnc <- function(r) quantile(r, 0.75)
 qqs <- apply(pca$rotation[,1:10], 2, qfnc)
 gloadings <- tmodDecideTests(gs, lfc=pca$rotation[,1:10], lfc.thr=qqs)
 ggPanelplot(x[1:10], sgenes = gloadings) 
 ```
+
+<img src="tmod-pcsum3-1.png" width="768" />
 
 
 
@@ -1346,20 +1843,31 @@ while AUC -- which is a proxy for the effect size -- will be shown by the
 color of the tag, from grey (AUC=0.5, random) to black (1):
 
 
-```{r eight,fig=TRUE,fig.width=6,fig.height=5,results="hide"}
+
+```r
 library(tagcloud)
+```
+
+```
+## Loading required package: Rcpp
+```
+
+```r
 w <- -log10(res$P.Value)
 c <- smoothPalette(res$AUC, min=0.5)
 tags <- strmultline(res$Title)
 tagcloud(tags, weights=w, col=c)
 ```
 
+<img src="tmod-eight-1.png" width="576" />
+
 
 We can now annotate the PCA axes using the tag clouds; however, see below
 for a shortcut in tmod.
 
 
-```{r nine,fig=TRUE,fig.width=7,fig.height=7,results="hide"}
+
+```r
 par(mar=c(1,1,1,1))
 o3 <- order(abs(pca$rotation[,3]), decreasing=TRUE)
 l3 <- Egambia$GENE_SYMBOL[o3]
@@ -1384,18 +1892,13 @@ tagcloud(strmultline(res3$Title),
   fvert=1)
 ```
 
+<img src="tmod-nine-1.png" width="672" />
+
 
 As mentioned previously, there is a way of doing it all with tmod much more
 quickly, in just a few lines of code: 
 
-```{r nineB,fig=FALSE,include=FALSE,results="hide"}
-tmodPCA(pca, 
-  genes=Egambia$GENE_SYMBOL, 
-  components=3:4,
-  plot.params=list(group=group,
-  col=col
-  ))
-```
+
 
 Note that `plot.params` are just parameters which will be passed to
 the pca2d function. However, remember that is must be a list.
@@ -1405,7 +1908,8 @@ it yourself by providing tmodPCA with a suitable function. The only
 requirement is that the function takes named parameters "pca" and
 "components":
 
-```{r nineC}
+
+```r
 plotf <- function(pca, components) {
   id1 <- components[1]
   id2 <- components[2]
@@ -1417,13 +1921,32 @@ ret <- tmodPCA(pca, genes=Egambia$GENE_SYMBOL,
   components=3:4, plotfunc=plotf)
 ```
 
+<img src="tmod-nineC-1.png" width="480" />
+
+```
+## [1] 3
+## [1] 4
+```
+
+<img src="tmod-nineC-2.png" width="480" />
+
 Alternatively, you can use the function "pca2d" from the pca3d package:
 
-```{r nineD}
+
+```r
 if(require(pca3d)) plotf <- pca2d
+```
+
+```
+## Loading required package: pca3d
+```
+
+```r
 ret <- tmodPCA(pca, genes=Egambia$GENE_SYMBOL, 
   components=3:4, plotfunc=plotf, plot.params=list(group=group))
 ```
+
+<img src="tmod-nineD-1.png" width="480" /><img src="tmod-nineD-2.png" width="480" />
 
 
 
@@ -1461,10 +1984,28 @@ Depending on the `mset` parameter to the test functions, either the LI
 or DC sets are used, or both, if the  `mset=all` has been specified.
 
 
-```{r fiveB}
+
+```r
 l    <- tt$GENE_SYMBOL
 res2 <- tmodUtest(l, mset="LI")
 head( res2 )
+```
+
+```
+## # tmod report (class tmodReport) 7 x 6:
+## # (Showing rows 1 - 5 out of 6)
+##         │ID      │Title                              │U     
+## LI.M37.0│LI.M37.0│immune activation - generic cluster│352659
+## LI.M37.1│LI.M37.1│enriched in neutrophils (I)        │ 50280
+##    LI.S4│   LI.S4│Monocyte surface signature         │ 43220
+##   LI.M75│  LI.M75│antiviral IFN signature            │ 42996
+## LI.M11.0│LI.M11.0│enriched in monocytes (II)         │ 74652
+##         │N1   │AUC  │P.Value│adj.P.Val
+## LI.M37.0│  100│ 0.75│< 2e-16│5.5e-15  
+## LI.M37.1│   12│ 0.87│4.5e-06│0.00066  
+##    LI.S4│   10│ 0.90│6.9e-06│0.00066  
+##   LI.M75│   10│ 0.89│8.6e-06│0.00066  
+## LI.M11.0│   20│ 0.78│9.5e-06│0.00066
 ```
 
 As you can see, the information contained in both module sets is partially redundant. 
@@ -1493,20 +2034,46 @@ The gene sets used by tmod are objects of class `tmod`. The default object
 used in the gene set enrichment tests in the tmod package can be loaded
 into the environment with the command `data(tmod)`:
 
-```{r tmodobj}
+
+```r
 data(tmod)
 tmod
+```
+
+```
+## An object of class "tmodGS"
+## 	606 gene sets, 12712 genes
 ```
 
 Objects of the class tmod can be easily generated from a number of data
 sources (see below). Several functions can be used on the objects:
 
-```{r tmodobj2}
+
+```r
 length(tmod)
+```
+
+```
+## [1] 606
+```
+
+```r
 sel <- grep("Interferon", tmod$MODULES$Title, ignore.case=TRUE)
 ifn <- tmod[sel]
 ifn
+```
+
+```
+## An object of class "tmodGS"
+## 	0 gene sets, 0 genes
+```
+
+```r
 length(ifn)
+```
+
+```
+## [1] 0
 ```
 
 
@@ -1529,7 +2096,8 @@ the option `rank.only=TRUE`. However, this is the *default* setting for
 return the same results.
 
 
-```{r ten}
+
+```r
 data(tmod)
 res <- tmodCERNOtest(tt$GENE_SYMBOL, qval=Inf)
 gstest <- function(x) {
@@ -1537,13 +2105,13 @@ gstest <- function(x) {
   geneSetTest(sel, tt$logFC, ranks.only=FALSE)
 }
 gst <- sapply(res$ID, gstest)
-
 ```
 
 Are the results from CERNO and geneSetTest similar? 
 
 
-```{r eleven,fig=TRUE,fig.width=6,fig.height=6}
+
+```r
 plot(res$P.Value, gst, 
   log="xy", pch=19,
   col="#33333366",
@@ -1553,6 +2121,8 @@ abline(0,1)
 abline(h=0.01, col="grey")
 abline(v=0.01, col="grey")
 ```
+
+<img src="tmod-eleven-1.png" width="576" />
 
 
 On the plot above, the p-values from `tmod` are plotted against the p-values from `geneSetTest`.
@@ -1586,7 +2156,8 @@ identifiers*, in the parameter `gs2gene`.
 
 Here is a minimal definition of such a set:
 
-```{r exmset}
+
+```r
 mymset <- makeTmodGS(
   gs=data.frame(ID=c("A", "B"),
              Title=c("A title", 
@@ -1596,6 +2167,11 @@ mymset <- makeTmodGS(
     B=c("G3", "G4"))
 )
 mymset
+```
+
+```
+## An object of class "tmodGS"
+## 	2 gene sets, 4 genes
 ```
 
 Whether the gene IDs are Entrez, or something else entirely does not
@@ -1624,7 +2200,8 @@ BioConductor. We can then use tmod function `makeTmodFromDataFrame` to
 convert the msigdbr data frame into one large tmod object:
 
 
-```{r}
+
+```r
 library(msigdbr)
 msig <- msigdbr()
 msig <- makeTmodFromDataFrame(df=msig, 
@@ -1632,6 +2209,10 @@ msig <- makeTmodFromDataFrame(df=msig,
   module_col="gs_id", title_col="gs_name", 
   extra_module_cols=c("gs_cat", "gs_subcat", "gs_url", 
                       "gs_exact_source", "gs_description"))
+```
+
+```
+## making Tmod
 ```
 
 
@@ -1658,7 +2239,8 @@ function tmodImportMsigDB() can also use this format, look up the manual
 page:
 
 
-```{r msigdbparse1, eval=FALSE}
+
+```r
 msig <- tmodImportMSigDB("msigdb_v2022.1.Hs.xml")
 ```
 
@@ -1666,9 +2248,33 @@ msig <- tmodImportMSigDB("msigdb_v2022.1.Hs.xml")
 That's it -- now you can use the full MSigDB for enrichment tests:
 
 
-```{r msigdb6}
+
+```r
 res <- tmodCERNOtest(tt$GENE_SYMBOL, mset=msig)
 head(res)
+```
+
+```
+## # tmod report (class tmodReport) 8 x 6:
+## # (Showing rows 1 - 5 out of 6)
+##       │ID    
+## M40997│M40997
+## M40868│M40868
+## M40996│M40996
+## M40995│M40995
+## M40998│M40998
+##       │Title                                                    
+## M40997│HOWARD_PBMC_INACT_MONOV_INFLUENZA_A_INDONESIA_05_2005_H5…
+## M40868│ZAK_PBMC_MRKAD5_HIV_1_GAG_POL_NEF_AGE_20_50YO_1DY_UP     
+## M40996│HOWARD_NEUTROPHIL_INACT_MONOV_INFLUENZA_A_INDONESIA_05_2…
+## M40995│HOWARD_MONOCYTE_INACT_MONOV_INFLUENZA_A_INDONESIA_05_200…
+## M40998│HOWARD_DENDRITIC_CELL_INACT_MONOV_INFLUENZA_A_INDONESIA_…
+##       │cerno│N1   │AUC  │cES  │P.Value│adj.P.Val
+## M40997│  685│  111│ 0.82│  3.1│<2e-16 │<2e-16   
+## M40868│  723│  147│ 0.74│  2.5│<2e-16 │<2e-16   
+## M40996│  498│   80│ 0.81│  3.1│<2e-16 │<2e-16   
+## M40995│  430│   73│ 0.78│  2.9│<2e-16 │<2e-16   
+## M40998│  361│   54│ 0.84│  3.3│<2e-16 │<2e-16
 ```
 
 The results are quite typical for MSigDB, which is quite abundant with
@@ -1679,9 +2285,27 @@ might want to limit our analysis only to the 50 "hallmark" module
 categories:
 
 
-```{r msigdb7}
+
+```r
 sel <- msig$gs$gs_cat == "H"
 tmodCERNOtest(tt$GENE_SYMBOL, mset=msig[sel] )
+```
+
+```
+## # tmod report (class tmodReport) 8 x 9:
+## # (Showing rows 1 - 5 out of 9)
+##      │ID   │Title                                     │cerno
+## M5913│M5913│HALLMARK_INTERFERON_GAMMA_RESPONSE        │  222
+## M5921│M5921│HALLMARK_COMPLEMENT                       │  216
+## M5911│M5911│HALLMARK_INTERFERON_ALPHA_RESPONSE        │  108
+## M5946│M5946│HALLMARK_COAGULATION                      │  178
+## M5930│M5930│HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION│  208
+##      │N1   │AUC  │cES  │P.Value│adj.P.Val
+## M5913│   41│ 0.78│  2.7│8.5e-15│4.3e-13  
+## M5921│   55│ 0.70│  2.0│6.2e-09│1.5e-07  
+## M5911│   20│ 0.76│  2.7│3.2e-08│5.3e-07  
+## M5946│   49│ 0.68│  1.8│1.5e-06│1.8e-05  
+## M5930│   71│ 0.64│  1.5│0.00026│0.0022
 ```
 
 
@@ -1714,7 +2338,8 @@ Below, we will use biomaRt to obtain gene ontology (GO) terms and Reactome
 pathway IDs for genes in the `Egambia` data set, using the Entrez gene ID's
 (column `EG` in the `Egambia` data set). 
 
-```{r biomart,eval=is.internet}
+
+```r
 library(biomaRt)
 mart <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
 bm <- getBM(filters="hgnc_symbol", 
@@ -1728,7 +2353,8 @@ set to gene mappings `m2g` (each twice: once for GO, and once for
 Reactome). We only keep the terms that have at least 10 and not more than
 100 associated Entrez gene ID's.
 
-```{r biomart2,eval=is.internet}
+
+```r
 m2g_r <- with(bm[ bm$reactome != "", ], split(hgnc_symbol, reactome))
 m2g_g <- with(bm[ bm$go_id != "", ], split(hgnc_symbol, go_id))
 
@@ -1763,8 +2389,95 @@ However, GO annotations can also be obtained from
 AnnotationDBI Bioconductor packages as shown below. Note that the Entrez
 gene IDs are in the `EG` column of the `Egambia` object.
 
-```{r orghs}
+
+```r
 library(org.Hs.eg.db)
+```
+
+```
+## Loading required package: AnnotationDbi
+```
+
+```
+## Loading required package: stats4
+```
+
+```
+## Loading required package: BiocGenerics
+```
+
+```
+## 
+## Attaching package: 'BiocGenerics'
+```
+
+```
+## The following objects are masked from 'package:tmod':
+## 
+##     IQR, mad, sd, var, xtabs
+```
+
+```
+## The following object is masked from 'package:limma':
+## 
+##     plotMA
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     IQR, mad, sd, var, xtabs
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     anyDuplicated, append, as.data.frame, basename, cbind, colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep, grepl,
+##     intersect, is.unsorted, lapply, Map, mapply, match, mget, order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank, rbind, Reduce, rownames,
+##     sapply, setdiff, sort, table, tapply, union, unique, unsplit, which.max, which.min
+```
+
+```
+## Loading required package: Biobase
+```
+
+```
+## Welcome to Bioconductor
+## 
+##     Vignettes contain introductory material; view with 'browseVignettes()'. To cite Bioconductor, see 'citation("Biobase")', and for packages
+##     'citation("pkgname")'.
+```
+
+```
+## Loading required package: IRanges
+```
+
+```
+## Loading required package: S4Vectors
+```
+
+```
+## 
+## Attaching package: 'S4Vectors'
+```
+
+```
+## The following object is masked from 'package:gplots':
+## 
+##     space
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     expand.grid, I, unname
+```
+
+```
+## 
+```
+
+```r
 mtab <- toTable(org.Hs.egGO)
 ```
 
@@ -1775,7 +2488,8 @@ present in our particular data set, but that would make the resulting tmod
 object less flexible. However, we may be interested only in the "biological
 process" ontology for now.
 
-```{r orghs2}
+
+```r
 mtab <- mtab[ mtab$Ontology == "BP", ]
 m2g <- split(mtab$gene_id, mtab$go_id)
 ## remove the rather large object
@@ -1785,11 +2499,23 @@ m2g <- m2g[ ll >= 10 & ll <= 100 ]
 length(m2g)
 ```
 
+```
+## [1] 2889
+```
+
 Using the mapping and the `GO.db` it is easy to create a module set
 suitable for tmod:
 
-```{r orghs3}
+
+```r
 library(GO.db)
+```
+
+```
+## 
+```
+
+```r
 gt <- toTable(GOTERM)
 m <- data.frame(ID=names(m2g))
 m$Title <- gt$Term[ match(m$ID, gt$go_id) ]
@@ -1812,7 +2538,8 @@ MSigDB, but can only be found in the field `EXTERNAL_DETAILS_URL`. Below,
 the function `renameMods` is used to replace the MSigDB identifiers with GO
 identifiers.
 
-```{r orghs4}
+
+```r
 msig.bp <- msig[ msig$gs$gs_subcat == "GO:BP" ]
 go_ids <- gsub(".*/", "", msig.bp$gs$gs_url)
 names(msig.bp$gs2gv) <- go_ids
@@ -1826,7 +2553,8 @@ identifiers. Also, we will make both sets directly comparable by filtering
 for the common genes, and we will request a result for all modules, even if
 they are not significant.
 
-```{r orghs5}
+
+```r
 both <- intersect(msig.bp$gs$ID, goset$gs$ID)
 msig.bp <- msig.bp[both]
 goset.both <- goset[both]
@@ -1838,10 +2566,19 @@ rescomp$orghs  <-
 rescomp$msigdb  <- 
   tmodCERNOtest(tt$GENE_SYMBOL, mset=msig.bp, qval=Inf, order.by="n")
 all(rownames(rescomp$msigdb) == rownames(rescomp$orghs))
+```
+
+```
+## [1] TRUE
+```
+
+```r
 plot(rescomp$msigdb$P.Value, rescomp$orghs$P.Value, log="xy",
   xlab="MSigDB GO", ylab="org.Hs.eg.db GO", bty="n")
 abline(0, 1, col="grey")
 ```
+
+<img src="tmod-orghs5-1.png" width="480" />
 
 The differences are quite apparent, and most likely due to the differences
 in the versions of the GO database.
@@ -1854,7 +2591,8 @@ above. However, alternatively and for other organisms it is possible to
 directly obtain the pathway definitions from KEGG. The code below might
 take a lot of time on a slow connection.
 
-```{r kegg, eval=F}
+
+```r
 library(KEGGREST)
 pathways <- keggLink("pathway", "hsa")
 
@@ -1873,7 +2611,8 @@ Note that KEGG uses a slightly modified version of Entrez identifiers --
 each numeric identifier is preceded by a three letter species code (e.g.
 "hsa" for humans) followed by a colon:
 
-```{r kegg2, eval=F}
+
+```r
 eg <- paste0("hsa:", tt$EG)
 tmodCERNOtest(eg, mset="kegg")
 ```
@@ -1888,14 +2627,11 @@ For the purposes of an example, the code below shows how to parse the XML
 MSigDB file using the R package XML. Essentially, this is the same code that
 tmodImportMsigDB is using:
 
-```{r msigdb1_tajne,eval=TRUE,include=FALSE}
-library(XML)
-foo  <- xmlParse( "~/tmptmp/msigdb_v2022.1.Hs_files_to_download_locally/msigdb_v2022.1.Hs.xml" )
-foo2 <- xmlToList(foo)
-```
 
 
-```{r msigdb1,eval=FALSE}
+
+
+```r
 library(XML)
 foo  <- xmlParse( "msigdb_v2022.1.Hs.xml" )
 foo2 <- xmlToList(foo)
@@ -1906,24 +2642,45 @@ There are over 30,000 "gene sets" (equivalent to modules in tmod) defined.
 Each member of foo2 is a named character vector:
 
 
-```{r msigdb2}
+
+```r
 path1 <- foo2[[1]]
 class(path1)
 ```
 
+```
+## [1] "character"
+```
 
-```{r msigdb2b}
+
+
+```r
 names(path1)
+```
+
+```
+##  [1] "STANDARD_NAME"          "SYSTEMATIC_NAME"        "HISTORICAL_NAME"        "ORGANISM"               "PMID"                   "AUTHORS"               
+##  [7] "GEOID"                  "EXACT_SOURCE"           "GENESET_LISTING_URL"    "EXTERNAL_DETAILS_URL"   "CHIP"                   "CATEGORY_CODE"         
+## [13] "SUB_CATEGORY_CODE"      "CONTRIBUTOR"            "CONTRIBUTOR_ORG"        "DESCRIPTION_BRIEF"      "DESCRIPTION_FULL"       "TAGS"                  
+## [19] "MEMBERS"                "MEMBERS_SYMBOLIZED"     "MEMBERS_EZID"           "MEMBERS_MAPPING"        "FILTERED_BY_SIMILARITY" "FOUNDER_NAMES"         
+## [25] "REFINEMENT_DATASETS"    "VALIDATION_DATASETS"
 ```
 
 For our example analysis, we will use only human gene sets. We further need
 to make sure there are no NULLs in the list.
 
 
-```{r msigdb3}
+
+```r
 orgs <- sapply(foo2, function(x) x["ORGANISM"])
 unique(orgs)
+```
 
+```
+## [1] "Homo sapiens"      "Mus musculus"      "Rattus norvegicus" "Macaca mulatta"    "Danio rerio"       NA
+```
+
+```r
 foo3 <- foo2[ orgs == "Homo sapiens" ]
 foo3 <- foo3[ ! sapply(foo3, is.null) ]
 ```
@@ -1934,7 +2691,8 @@ vector, which contain the ID (systematic name), description, category and
 subcategory:
 
 
-```{r msigdb4}
+
+```r
 modules <- t(sapply(foo3, 
   function(x) 
     x[ c("SYSTEMATIC_NAME", "STANDARD_NAME", "CATEGORY_CODE", "SUBCATEGORY_CODE") ])) 
@@ -1943,19 +2701,29 @@ modules <- data.frame(modules, stringsAsFactors=FALSE)
 nrow(modules)
 ```
 
+```
+## [1] 29584
+```
+
 
 Then, we create the mapping from gene sets to genes. For
 this, we use the `MEMBERS_SYMBOLIZED` field, which is a comma separated
 list of gene symbols belonging to a particular module:
 
 
-```{r msigdb5}
+
+```r
 m2g <- lapply(foo3, 
   function(x) strsplit( x["MEMBERS_SYMBOLIZED"], "," )[[1]])
 names(m2g) <- modules$ID
 
 mymsig <- makeTmod(modules=modules, modules2genes=m2g)
 mymsig
+```
+
+```
+## An object of class "tmodGS"
+## 	29584 gene sets, 40981 genes
 ```
 
 From now on, you can use the object mymsig with tmod enrichment tests.
@@ -1981,11 +2749,14 @@ terms.
 
 In tmod, it can be done in a few lines of code:
 
-```{r tmodpca}
+
+```r
 pca <- prcomp(tbmprof, scale.=T)
 ret <- tmodPCA(pca, genes=colnames(tbmprof), mset=modmetabo,
   plot.params=list(group=tb))
 ```
+
+<img src="tmod-tmodpca-1.png" width="480" /><img src="tmod-tmodpca-2.png" width="480" />
 
 The `ret` object now contains the results of enrichments (in the
 ret$enrichments member) and we can directly throw it on a panel plot. Note,
@@ -1994,11 +2765,14 @@ genes sorted in decreasing order, "down", for genes sorted in increasing
 order, and "abs", for genes sorted by decreasing absolute value of the
 associated weight. Therefore, we need to unlist the results a bit.
 
-```{r tmodpca3,fig.width=10,fig.height=6}
+
+```r
 enr <- unlist(ret$enrichments, recursive=FALSE)
 names(enr) <- gsub("\\.", " ", names(enr))
 ggPanelplot(enr, mset=modmetabo)
 ```
+
+<img src="tmod-tmodpca3-1.png" width="960" />
 
 OK, but which of the terms are characteristic for TB patients? Which for
 the healthy controls?  In the above, the enrichments were based on a list
@@ -2007,12 +2781,15 @@ ordered by signed weights ordered once from small to large values, and once
 from large to small values.
 
 
-```{r tmodpca4}
+
+```r
 pca <- prcomp(tbmprof, scale.=T)
 ret <- tmodPCA(pca, genes=colnames(tbmprof), mset=modmetabo,
   plot.params=list(group=tb),
   mode="cross")
 ```
+
+<img src="tmod-tmodpca4-1.png" width="480" /><img src="tmod-tmodpca4-2.png" width="480" />
 
 In essence, reading this plot is simple. First, note that this time the tag
 clouds on the top and the bottom correspond to the two ends of the
@@ -2037,22 +2814,36 @@ manually, but we can also search which of the responses (turned to
 orthogonal PCA components) is best predicted by the `sex` factor.
 
 
-```{r tmodpca5}
+
+```r
 foo <- summary(lm(pca$x ~ sex))
 foo <- t(sapply(foo, 
   function(x) c(r=x$r.squared, pval=x$coefficients[2,4])))
 head(foo[ order(foo[,2]), ])
 ```
 
+```
+##                         r         pval
+## Response PC5   0.24569651 8.485092e-10
+## Response PC10  0.21456193 1.359253e-08
+## Response PC7   0.03280924 3.482826e-02
+## Response PC8   0.02213252 8.388780e-02
+## Response PC107 0.01986978 1.016566e-01
+## Response PC6   0.01919507 1.077110e-01
+```
+
 We can use the components 1 (which corresponds to TB/healthy) and
 components 5, which corresponds to male/female differences, as suggested by
 the above calculations.
 
-```{r tmodpca6}
+
+```r
 ret <- tmodPCA(pca, genes=colnames(tbmprof), mset=modmetabo,
   plot.params=list(group=paste(sex, tb)),
   components=c(2,5))
 ```
+
+<img src="tmod-tmodpca6-1.png" width="480" /><img src="tmod-tmodpca6-2.png" width="480" />
 
 Orange circles and blue triangles are females, located mostly in Q1 and Q2
 (top half); this corresponds to differences on the y axis and the tagcloud
@@ -2069,7 +2860,8 @@ The example below has been extended from the `edgeR` package users manual.
 The code below loads the data and, using `org.Hs.eg.db`, adds Entrez IDs
 and HGNC symbols.
 
-```{r edgeR}
+
+```r
 library(edgeR)
 rawdata <- read.csv("rnaseq_example.csv", stringsAsFactors=FALSE)
 y <- DGEList(counts=rawdata[,4:9], genes=rawdata[,1:3])
@@ -2082,7 +2874,8 @@ y$genes$Symbol <- map$symbol[ match(y$genes$EG, map$gene_id) ]
 Next, we perform differential gene expression to test for the difference between
 normal tissue (N) and tumor (T).
 
-```{r, edgeR2}
+
+```r
 Patient <- paste0("P.", rep(c(8, 33, 51), each=2))
 Tissue  <- rep(c("N", "T"), 3)
 design <- model.matrix(~Patient+Tissue)
@@ -2099,7 +2892,8 @@ Since there are no confidence intervals for log fold changes in edgeR, we
 cannot compute MSD, and therefore we will use the p-values to order the genes in the 
 following code:
 
-```{r, edgeR3}
+
+```r
 ord <- order(lrt$table$PValue)
 res.rnaseq <- list()
 res.rnaseq$tmod <- tmodCERNOtest(lrt$genes$Symbol[ord])
@@ -2111,7 +2905,8 @@ change of the selected contrast not against 0, but against a pre-selected
 threshold using the TREAT method [@mccarthy2009testing], implemented in
 `edgeR` in the function `glmTreat`:
 
-```{r, edgeR4,fig.width=8,fig.height=8}
+
+```r
 lrt.treat <- glmTreat(fit, coef="TissueT", lfc=log2(2))
 ord <- order(lrt.treat$table$PValue)
 res.rnaseq$treat_tmod <- tmodCERNOtest(lrt$genes$Symbol[ord])
@@ -2119,6 +2914,8 @@ res.rnaseq$treat_goset <- tmodCERNOtest(lrt$genes$EG[ord], mset=goset)
 res.rnaseq <- res.rnaseq[c(1,3,2,4)]
 ggPanelplot(res.rnaseq, filter_row_q =1e-3)
 ```
+
+<img src="tmod-edgeR4-1.png" width="768" />
 
 The results are very similar, but the p-values are lower.
 

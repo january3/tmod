@@ -30,8 +30,8 @@
   class(ret) <- c("tmodReport", "colorDF", class(ret))
 
   # set colorDF column type
-  col_type(ret, "P.Value")   <- "pval"
-  col_type(ret, "adj.P.Val") <- "pval"
+  #col_type(ret, "P.Value")   <- "pval"
+  #col_type(ret, "adj.P.Val") <- "pval"
 
   ret
 
@@ -116,7 +116,6 @@
 #' @param useR use the R \code{wilcox.test} function; slow, but with exact p-values for small samples
 #' @param Nsim for tmodGeneSetTest, number of replicates for the randomization test
 #' @seealso tmod-package
-#' @import colorDF
 #' @examples 
 #' data(tmod)
 #' fg <- tmod$MODULES2GENES[["LI.M127"]]

@@ -1,8 +1,7 @@
 Package: tmod
 Type: Package
 Title: Feature Set Enrichment Analysis for Metabolomics and Transcriptomics
-Version: 0.50.09
-Date: 2022-09-22
+Version: 0.50.10
 Author: January Weiner
 Maintainer: January Weiner <january.weiner@gmail.com>
 Description: Methods and feature set definitions for feature or gene set
@@ -14,8 +13,8 @@ Depends: R (>= 2.10)
 LazyData: false
 VignetteBuilder: knitr
 Imports:
-    beeswarm,tagcloud,XML,methods,plotwidgets,RColorBrewer,gplots,colorDF,tibble,pheatmap,ggplot2,tidyr,purrr,rlang,tidyselect,ggrepel
+    beeswarm,tagcloud,XML,methods,plotwidgets,RColorBrewer,gplots,tibble,pheatmap,ggplot2,tidyr,purrr,rlang,tidyselect,ggrepel
 Suggests:
-    testthat,knitr,rmarkdown,pca3d,dplyr,limma
+    testthat,knitr,rmarkdown,pca3d,dplyr
 RoxygenNote: 7.2.0
 Encoding: UTF-8
