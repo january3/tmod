@@ -1,7 +1,0 @@
-28.3.2018
-  
-  Since creating a dynamic vignette was becoming more and more problematic
-  with the growing examples, I have moved most of its contents to the "tmod
-  User Guide", which can be displayed using the command tmodUserGuide().
-
-

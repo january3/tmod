@@ -15,6 +15,6 @@ VignetteBuilder: knitr
 Imports:
     beeswarm,tagcloud,XML,methods,plotwidgets,RColorBrewer,gplots,tibble,pheatmap,ggplot2,tidyr,purrr,rlang,tidyselect,ggrepel
 Suggests:
-    testthat,knitr,rmarkdown,pca3d,dplyr
+    testthat,knitr,rmarkdown,pca3d,dplyr,limma
 RoxygenNote: 7.2.0
 Encoding: UTF-8
