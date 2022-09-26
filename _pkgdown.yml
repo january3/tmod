@@ -1,6 +1,11 @@
 url: https://january3.github.io/tmod/
 template:
   bootstrap: 5
+  bootswatch: zephyr
+home:
+  links:
+  - text: User manual
+    href: articles/user_manual/tmod_user_manual.html
 reference:
   - title: "Gene set enrichment tests and analyses"
   - contents:

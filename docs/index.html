@@ -37,7 +37,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
+    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
     
     <a class="navbar-brand me-2" href="index.html">tmod</a>
 
@@ -80,7 +80,8 @@
 <a class="anchor" aria-label="anchor" href="#tmod-"></a>
 </h1>
 </div>
-<!-- badges: start --><!-- badges: end --><p>Tmod is a suite of gene set enrichment algorithms, visualizations and utilities which comes bundled with a few libraries of gene sets (“modules”). Following features distinguish tmod from other packages:</p>
+<!-- badges: start -->
+<p>Tmod is a suite of gene set enrichment algorithms, visualizations and utilities which comes bundled with a few libraries of gene sets (“modules”). Following features distinguish tmod from other packages:</p>
 <ul>
 <li>“panel plot” visualizations which allow to compare results of gene set enrichments;</li>
 <li>several enrichment algorithms are implemented in tmod, in particular the very efficient, versatile and <a href="https://academic.oup.com/bioinformatics/article/35/24/5146/5511403" class="external-link">reproducible</a> algorithm called “CERNO”;</li>
@@ -103,7 +104,7 @@
 <ul>
 <li>Access the documentation using <code><a href="articles/tmod.html">vignette("tmod")</a></code>
 </li>
-<li>Full user manual is found <a href="https://january3.github.io/tmod/">here</a>
+<li>Full user manual is found <a href="https://january3.github.io/tmod/articles/user_manual/tmod_user_manual.html">here</a>
 </li>
 </ul>
 </div>
@@ -119,19 +120,27 @@
 <span><span class="co">## gene set enrichment analysis</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/tmodUtest.html">tmodCERNOtest</a></span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">GENE_SYMBOL</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                ID                               Title    cerno  N1       AUC      cES      P.Value    adj.P.Val</span></span>
-<span><span class="co">#&gt; LI.M37.0 LI.M37.0 immune activation - generic cluster 426.3578 100 0.7462103 2.131789 1.824844e-18 1.105856e-15</span></span>
-<span><span class="co">#&gt; DC.M4.2   DC.M4.2                        Inflammation 151.1520  20 0.9503953 3.778799 8.040039e-15 2.436132e-12</span></span>
-<span><span class="co">#&gt; DC.M3.4   DC.M3.4                          Interferon 129.4727  17 0.8315780 3.808019 4.609405e-13 9.310998e-11</span></span>
-<span><span class="co">#&gt; DC.M1.2   DC.M1.2                          Interferon 112.7056  17 0.9004196 3.314869 2.298170e-10 3.481728e-08</span></span>
-<span><span class="co">#&gt; DC.M7.29 DC.M7.29                        Undetermined 118.6759  20 0.8087599 2.966897 1.002268e-09 1.214749e-07</span></span>
-<span><span class="co">#&gt; LI.M11.0 LI.M11.0          enriched in monocytes (II) 113.8086  20 0.7766542 2.845216 5.255069e-09 5.307620e-07</span></span></code></pre></div>
+<span><span class="co">#&gt;                ID                               Title    cerno  N1       AUC</span></span>
+<span><span class="co">#&gt; LI.M37.0 LI.M37.0 immune activation - generic cluster 426.3578 100 0.7462103</span></span>
+<span><span class="co">#&gt; DC.M4.2   DC.M4.2                        Inflammation 151.1520  20 0.9503953</span></span>
+<span><span class="co">#&gt; DC.M3.4   DC.M3.4                          Interferon 129.4727  17 0.8315780</span></span>
+<span><span class="co">#&gt; DC.M1.2   DC.M1.2                          Interferon 112.7056  17 0.9004196</span></span>
+<span><span class="co">#&gt; DC.M7.29 DC.M7.29                        Undetermined 118.6759  20 0.8087599</span></span>
+<span><span class="co">#&gt; LI.M11.0 LI.M11.0          enriched in monocytes (II) 113.8086  20 0.7766542</span></span>
+<span><span class="co">#&gt;               cES      P.Value    adj.P.Val</span></span>
+<span><span class="co">#&gt; LI.M37.0 2.131789 1.824844e-18 1.105856e-15</span></span>
+<span><span class="co">#&gt; DC.M4.2  3.778799 8.040039e-15 2.436132e-12</span></span>
+<span><span class="co">#&gt; DC.M3.4  3.808019 4.609405e-13 9.310998e-11</span></span>
+<span><span class="co">#&gt; DC.M1.2  3.314869 2.298170e-10 3.481728e-08</span></span>
+<span><span class="co">#&gt; DC.M7.29 2.966897 1.002268e-09 1.214749e-07</span></span>
+<span><span class="co">#&gt; LI.M11.0 2.845216 5.255069e-09 5.307620e-07</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
 <li><a href="https://cloud.r-project.org/package=tmod" class="external-link">View on CRAN</a></li>
+<li><a href="articles/user_manual/tmod_user_manual.html">User manual</a></li>
 </ul>
 </div>
 
@@ -157,7 +166,13 @@
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/january3/tmod/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/january3/tmod/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://github.com/january3/tmod/actions/workflows/test-coverage.yaml" class="external-link"><img src="https://github.com/january3/tmod/actions/workflows/test-coverage.yaml/badge.svg" alt="test-coverage"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>
