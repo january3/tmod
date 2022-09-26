@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/january3/tmod/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/january3/tmod/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 Tmod is a suite of gene set enrichment algorithms, visualizations and
