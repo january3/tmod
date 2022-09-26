@@ -1,0 +1,14 @@
+bibentry(bibtype = "Article",
+         title = "Gene set enrichment for reproducible science: comparison of CERNO and eight other algorithms",
+         author = c(
+         person("Joanna", "Zyla"),
+         person("Michal", "Marczyk"),
+         person(c("Stefan", "H.E."), "Kaufmann"),
+         person("Joanna", "Polanska"),
+         person("January", "Weiner 3rd")),
+         year = 2019,
+         doi="doi:10.1093/bioinformatics/btz447",
+         journal="Bioinformatics",
+         volume=35,
+         number=24,
+         pages="5146 -- 5154")
