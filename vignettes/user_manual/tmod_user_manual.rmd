@@ -32,15 +32,30 @@ bibliography: bibliography.bib
 
 ```{r setup, echo=FALSE, results="hide", include=FALSE}
 library(knitr)
-opts_chunk$set(cache=TRUE, autodep=TRUE, tidy=TRUE, fig.width=5, warning=FALSE, fig.height=5, width=60)
+opts_chunk$set(cache=TRUE, autodep=TRUE, tidy=TRUE, fig.width=5, warning=FALSE, fig.height=5, width=100,
+  R.options=list(width=100))
 opts_knit$set(width=60)
 is.internet <- FALSE
 ```
+
+```{r echo=FALSE,include=FALSE,eval=TRUE}
+options(crayon.enabled = TRUE)
+options(crayon.colors = 256)
+knitr::knit_hooks$set(output = function(x, options){
+  paste0(
+    '<pre class="r-output"><code>',
+    fansi::sgr_to_html(x = htmltools::htmlEscape(x), warn = FALSE),
+    '</code></pre>'
+  )
+})
+```
+
 
 
 ```{r eval=TRUE,echo=FALSE}
 library(ggplot2)
 library(tmod)
+library(colorDF)
 theme_set(theme_minimal())
 ```
 
