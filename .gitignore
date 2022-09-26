@@ -4,3 +4,5 @@ user_manual/cache
 *.swp
 .Rhistory
 .RData
+/doc/
+/Meta/

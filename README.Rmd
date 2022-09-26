@@ -14,7 +14,8 @@ knitr::opts_chunk$set(
 ```
 
 
-# tmod
+# tmod <a href='https://january3.github.com/tmod/'><img src='man/figures/logo.png' align="right" height="138.5" /></a>
+
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -74,34 +75,6 @@ tt <- EgambiaResults
 res <- tmodCERNOtest(tt$GENE_SYMBOL)
 head(res)
 ```
-
-A few visualizations:
-
-
-```{r eval=FALSE}
-## overview
-ggPanelplot(res)
-
-## evidence plots
-ggEvidencePlot(tt$GENE_SYMBOL, "LI.M16")
-ggEvidencePlot(tt$GENE_SYMBOL, "LI.M37.0", gene.labels = FALSE)
-ggEvidencePlot(tt$GENE_SYMBOL, "DC.M3.4")
-```
-
-
-```{r fig.width=10,fig.height=10,echo=FALSE}
-## overview
-g1 <- ggPanelplot(res)
-
-## evidence plots
-g2 <- ggEvidencePlot(tt$GENE_SYMBOL, "LI.M16") + ggtitle("LI.M16")
-g3 <- ggEvidencePlot(tt$GENE_SYMBOL, "LI.M37.0", gene.labels = FALSE) +
-  ggtitle("LI.M37.0")
-
-g4 <- ggEvidencePlot(tt$GENE_SYMBOL, "DC.M3.4") + ggtitle("DC.M3.4")
-plot_grid(g1, g2, g3, g4)
-```
-
 
 
 

@@ -91,7 +91,7 @@ differential expression is either not present (for example, in multivariate
 functional analysis, see Section 
 ["Functional multivariate analysis"](#functional-multivariate-analysis)).
 
-The `tmod` package and the included CERNO^[Coincident Extreme Ranks in
+The `tmod` package [@zyla2019gene] and the included CERNO^[Coincident Extreme Ranks in
 Numerical Observations [@yamaguchi2008ifn]] test belong to the second
 generation of algorithms. However, unlike the program GSEA, the CERNO
 relies exclusively on an ordered list of genes, and the test statistic has

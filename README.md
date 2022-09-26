@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# tmod
+# tmod <a href='https://january3.github.com/tmod/'><img src='man/figures/logo.png' align="right" height="138.5" /></a>
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -60,17 +60,3 @@ head(res)
 #> DC.M7.29 DC.M7.29                        Undetermined 118.6759  20 0.8087599 2.966897 1.002268e-09 1.214749e-07
 #> LI.M11.0 LI.M11.0          enriched in monocytes (II) 113.8086  20 0.7766542 2.845216 5.255069e-09 5.307620e-07
 ```
-
-A few visualizations:
-
-``` r
-## overview
-ggPanelplot(res)
-
-## evidence plots
-ggEvidencePlot(tt$GENE_SYMBOL, "LI.M16")
-ggEvidencePlot(tt$GENE_SYMBOL, "LI.M37.0", gene.labels = FALSE)
-ggEvidencePlot(tt$GENE_SYMBOL, "DC.M3.4")
-```
-
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />

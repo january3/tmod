@@ -88,12 +88,66 @@
     
 <p><img src="logo.png" style="position:absolute;top:25px;right:5px;"></p>
 <div class="section level2">
+<h2 id="before-you-start">Before you start<a class="anchor" aria-label="anchor" href="#before-you-start"></a>
+</h2>
+<p>A more comprehensive user manual for tmod is found on <a href="https://january3.github.io/tmod/">github</a>. This document is a shortened version of the manual, adapted to ship as a vignette with the package. Therefore, if you are not offline, I strongly suggest to use the online version.</p>
+</div>
+<div class="section level2">
+<h2 id="quick-start-guide">Quick start guide<a class="anchor" aria-label="anchor" href="#quick-start-guide"></a>
+</h2>
+<p>First, obtain an ordered list of genes. For example, list of genes ordered by q-values (FDR):</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://january3.github.io/tmod/">tmod</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">EgambiaResults</span><span class="op">)</span></span>
+<span><span class="va">tt</span> <span class="op">&lt;-</span> <span class="va">EgambiaResults</span></span>
+<span><span class="va">tt</span> <span class="op">&lt;-</span> <span class="va">tt</span><span class="op">[</span> <span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">adj.P.Val</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="va">l</span>  <span class="op">&lt;-</span> <span class="va">tt</span><span class="op">$</span><span class="va">GENE_SYMBOL</span></span></code></pre></div>
+<p>Run the CERNO test:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tmodUtest.html">tmodCERNOtest</a></span><span class="op">(</span><span class="va">l</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##                ID                               Title    cerno  N1       AUC</span></span>
+<span><span class="co">## LI.M37.0 LI.M37.0 immune activation - generic cluster 426.3578 100 0.7462103</span></span>
+<span><span class="co">## DC.M4.2   DC.M4.2                        Inflammation 151.1520  20 0.9503953</span></span>
+<span><span class="co">## DC.M3.4   DC.M3.4                          Interferon 129.4727  17 0.8315780</span></span>
+<span><span class="co">## DC.M1.2   DC.M1.2                          Interferon 112.7056  17 0.9004196</span></span>
+<span><span class="co">## DC.M7.29 DC.M7.29                        Undetermined 118.6759  20 0.8087599</span></span>
+<span><span class="co">## LI.M11.0 LI.M11.0          enriched in monocytes (II) 113.8086  20 0.7766542</span></span>
+<span><span class="co">##               cES      P.Value    adj.P.Val</span></span>
+<span><span class="co">## LI.M37.0 2.131789 1.824844e-18 1.105856e-15</span></span>
+<span><span class="co">## DC.M4.2  3.778799 8.040039e-15 2.436132e-12</span></span>
+<span><span class="co">## DC.M3.4  3.808019 4.609405e-13 9.310998e-11</span></span>
+<span><span class="co">## DC.M1.2  3.314869 2.298170e-10 3.481728e-08</span></span>
+<span><span class="co">## DC.M7.29 2.966897 1.002268e-09 1.214749e-07</span></span>
+<span><span class="co">## LI.M11.0 2.845216 5.255069e-09 5.307620e-07</span></span></code></pre>
+<p>Visualize the results:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/ggPanelplot.html">ggPanelplot</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
+<p><img src="tmod_files/figure-html/qsg3-1.png" width="480"></p>
+<p>Inspect individual gene sets using evidence plots:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/ggEvidencePlot.html">ggEvidencePlot</a></span><span class="op">(</span><span class="va">l</span>, <span class="st">"LI.M37.0"</span>, gene.labels<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/ggEvidencePlot.html">ggEvidencePlot</a></span><span class="op">(</span><span class="va">l</span>, <span class="st">"DC.M4.2"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/ggEvidencePlot.html">ggEvidencePlot</a></span><span class="op">(</span><span class="va">l</span>, <span class="st">"DC.M3.4"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/ggEvidencePlot.html">ggEvidencePlot</a></span><span class="op">(</span><span class="va">l</span>, <span class="st">"DC.M1.2"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="tmod_files/figure-html/unnamed-chunk-2-1.png" width="960"></p>
+<p>Find out which genes are in DC.M1.2:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/getModuleMembers.html">getModuleMembers</a></span><span class="op">(</span><span class="st">"DC.M1.2"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## $DC.M1.2</span></span>
+<span><span class="co">##  [1] "LY6E"      "IFIT1"     "OAS1"      "IFIT3"     "OAS3"      "OASL"     </span></span>
+<span><span class="co">##  [7] "LOC129607" "ISG15"     "HERC5"     "MX1"       "BATF2"     "LAMP3"    </span></span>
+<span><span class="co">## [13] "IFI44L"    "XAF1"      "IFI44"     "OAS2"      "TRIM6"     "HES4"     </span></span>
+<span><span class="co">## [19] "OTOF"      "FLJ20035"  "IFITM3"    "CXCL10"    "EPSTI1"    "SERPING1" </span></span>
+<span><span class="co">## [25] "LOC26010"  "RSAD2"     "RTP4"</span></span></code></pre>
+</div>
+<div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
 <p>Gene set enrichment (GSE) analysis is an increasingly important tool in the biological interpretation of high throughput data, versatile and powerful. In general, there are three generations of GSE algorithms and packages.</p>
 <p>First generation approaches test for enrichment in defined sets of differentially expressed genes (often called “foreground”) against the set of all genes (“background”). The statistical test involved is usually a hypergeometric or Fisher’s exact test. The main problem with this kind of approach is that it relies on arbitrary thresholds (like p-value or log fold change cut-offs), and the number of genes that go into the “foreground” set depends on the statistical power involved. Comparison between the same experimental condition will thus yield vastly different results depending on the number of samples used in the experiment.</p>
 <p>The second generation of GSE involve tests which do not rely on such arbitrary definitions of what is differentially expressed, and what not, and instead directly or indirectly employ the information about the statistical distribution of individual genes. A popular implementation of this type of GSE analysis is the eponymous GSEA program <span class="citation">(<a href="#ref-subramanian2005gene" role="doc-biblioref">Subramanian et al. 2005</a>)</span>. While popular and quite powerful for a range of applications, this software has important limitations due to its reliance on bootstrapping to obtain an exact p-value. For one thing, the performance of GSEA dramatically decreases for small sample numbers <span class="citation">(<a href="#ref-weiner2016tmod" role="doc-biblioref">Weiner 3rd and Domaszewska 2016</a>)</span>. Moreover, the specifics of the approach prevent it from being used in applications where a direct test for differential expression is either not present (for example, in multivariate functional analysis, see Section <a href="#functional-multivariate-analysis">“Functional multivariate analysis”</a>).</p>
-<p>The <code>tmod</code> package and the included CERNO<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Coincident Extreme Ranks in Numerical Observations &lt;span class="citation"&gt;(&lt;a href="#ref-yamaguchi2008ifn" role="doc-biblioref"&gt;Yamaguchi et al. 2008&lt;/a&gt;)&lt;/span&gt;&lt;/p&gt;'><sup>1</sup></a> test belong to the second generation of algorithms. However, unlike the program GSEA, the CERNO relies exclusively on an ordered list of genes, and the test statistic has a χ² distribution. Thus, it is suitable for any application in which an ordered list of genes is generated: for example, it is possible to apply tmod to weights of PCA components or to variable importance measure of a machine learning model.</p>
+<p>The <code>tmod</code> package <span class="citation">(<a href="#ref-zyla2019gene" role="doc-biblioref">Zyla et al. 2019</a>)</span> and the included CERNO<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Coincident Extreme Ranks in Numerical Observations &lt;span class="citation"&gt;(&lt;a href="#ref-yamaguchi2008ifn" role="doc-biblioref"&gt;Yamaguchi et al. 2008&lt;/a&gt;)&lt;/span&gt;&lt;/p&gt;'><sup>1</sup></a> test belong to the second generation of algorithms. However, unlike the program GSEA, the CERNO relies exclusively on an ordered list of genes, and the test statistic has a χ² distribution. Thus, it is suitable for any application in which an ordered list of genes is generated: for example, it is possible to apply tmod to weights of PCA components or to variable importance measure of a machine learning model.</p>
 <p><code>tmod</code> was created with the following properties in mind: (i) test for enrichment which relies on a list of sorted genes, (ii) with an analytical solution, (iii) flexible, allowing custom gene sets and analyses, (iv) with visualizations of multiple analysis results, suitable for time series and suchlike, (v) including transcriptional module definitions not present in other databases and, finally, (vi) to be suitable for use in R.</p>
 </div>
 <div class="section level2">
@@ -109,21 +163,19 @@
 <h3 id="the-gambia-data-set">The Gambia data set<a class="anchor" aria-label="anchor" href="#the-gambia-data-set"></a>
 </h3>
 <p>In the following, we will use the Egambia data set included in the package. The data is already background corrected and normalized, so we can proceed with a differential gene expression analysis. Note that only a bit over 5000 genes from the original set of over 45000 probes is included.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://january3.github.io/tmod/">tmod</a></span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## For tmod user guide, type `vignette("tmod")`</span></span></code></pre>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Egambia</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://january3.github.io/tmod/">tmod</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Egambia</span><span class="op">)</span></span>
 <span><span class="va">E</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">Egambia</span><span class="op">[</span>,<span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p>The results for this data set have been obtained using the limma package as follows:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://bioinf.wehi.edu.au/limma" class="external-link">limma</a></span><span class="op">)</span></span>
 <span><span class="va">design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>Intercept<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">30</span><span class="op">)</span>, TB<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>, each<span class="op">=</span> <span class="fl">15</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/limma/man/ebayes.html" class="external-link">eBayes</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/limma/man/lmFit.html" class="external-link">lmFit</a></span><span class="op">(</span><span class="va">E</span>, <span class="va">design</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">tt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/limma/man/toptable.html" class="external-link">topTable</a></span><span class="op">(</span><span class="va">fit</span>, coef<span class="op">=</span><span class="fl">2</span>, number<span class="op">=</span><span class="cn">Inf</span>, </span>
 <span>  genelist<span class="op">=</span><span class="va">Egambia</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p>However, they are also included in the tmod package:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">EgambiaResults</span><span class="op">)</span></span>
 <span><span class="va">tt</span> <span class="op">&lt;-</span> <span class="va">EgambiaResults</span></span></code></pre></div>
 <p>The table below shows first couple of results from the table <code>tt</code>.</p>
@@ -180,7 +232,7 @@
 </tbody>
 </table>
 <p>OK, we see some of the genes known to be prominent in the human host response to TB. We can display one of these using tmod’s <code>showGene</code> function (it’s just a <code>boxplot</code> combined with a <code>beeswarm</code>, nothing special):</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">group</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CTRL"</span>, <span class="st">"TB"</span><span class="op">)</span>, each<span class="op">=</span><span class="fl">15</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/showGene.html">showGene</a></span><span class="op">(</span><span class="va">E</span><span class="op">[</span><span class="st">"20799"</span>,<span class="op">]</span>, <span class="va">group</span>,</span>
 <span>  main<span class="op">=</span><span class="va">Egambia</span><span class="op">[</span><span class="st">"20799"</span>, <span class="st">"GENE_SYMBOL"</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
@@ -192,7 +244,7 @@
 </h3>
 <p>There are two main functions in tmod to understand which modules or gene sets are significantly enriched. There are several statistical tests which can be used from within tmod (see chapter <a href="#statistical-tests-in-tmod">“Statistical tests in tmod”</a> below), but here we will use the CERNO test, which is the main reason this package exist. CERNO is particularly fast and robust second generation approach, recommended for most applications.</p>
 <p>CERNO works with an ordered list of genes (only ranks matter, no other statistic is necessary); the idea is to test, for each gene set, whether the genes in this gene set are more likely than others to be at the beginning of that list. The CERNO statistic has a <span class="math inline">\(\chi^2\)</span> distribution and therefore no randomization is necessary, making the test really fast.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">l</span>    <span class="op">&lt;-</span> <span class="va">tt</span><span class="op">$</span><span class="va">GENE_SYMBOL</span></span>
 <span><span class="va">resC</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tmodUtest.html">tmodCERNOtest</a></span><span class="op">(</span><span class="va">l</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">resC</span>, <span class="fl">15</span><span class="op">)</span></span></code></pre></div>
@@ -256,7 +308,7 @@
 </h3>
 <p>The main working horse for visualizing the results in tmod is the function <code>ggPanelplot</code>. This is really a glorified heatmap which shows both the effect size (size of the blob on the figure below) and the p-value (intensity of the color). Each column corresponds to a different comparison. Here, there will be only one column for the only comparison we made, however we need to wrap it in a <code>list</code> object. However, we can also use a slightly different representation to also show how many significantly up- and down-regulated<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Formally, we don’t test for regulation here. “Differentially expressed” is the correct expression. I will use, however, the word “regulated” throughout this manual with the understanding that it only means “there is a difference between two conditions” because it is shorter.&lt;/p&gt;"><sup>2</sup></a> genes are found in the enriched modules (right panel on the figure below).</p>
 <p>Note: below I use the <code>plot_grid</code> function from the cowplot package to put the figures side by side.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">g1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ggPanelplot.html">ggPanelplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Gambia<span class="op">=</span><span class="va">resC</span><span class="op">)</span><span class="op">)</span></span>
@@ -337,7 +389,7 @@
 <p>First generation tests were based on an overrepresentation analysis (ORA). In essence, they rely on splitting the genes into two groups: the genes of interest (foreground), such as genes that we consider to be significantly regulated in an experimental condition, and all the rest (background). For a given gene set, this results in a <span class="math inline">\(2\times 2\)</span> contingency table. If these two factors are independent (i.e., the probability of a gene belonging to a gene set is independent of the probability of a gene being regulated in the experimental condition), then we can easily derive expected frequencies for each cell of the table. Several statistical tests exist to test whether the expected frequencies differ significantly from the observed frequencies.</p>
 <p>In tmod, the function <code><a href="../reference/tmodUtest.html">tmodHGtest()</a></code>, performs a hypergeometric test on two groups of genes: ‘foreground’ (fg), or the list of differentially expressed genes, and ‘background’ (bg) – the gene universe, i.e., all genes present in the analysis. The gene identifiers used currently by tmod are HGNC identifiers, and we will use the GENE_SYMBOL field from the Egambia data set.</p>
 <p>In this particular example, however, we have almost no genes which are significantly differentially expressed after correction for multiple testing: the power of the test with 10 individuals in each group is too low. For the sake of the example, we will therefore relax our selection. Normally, I’d use a q-value threshold of at least 0.001.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fg</span> <span class="op">&lt;-</span> <span class="va">tt</span><span class="op">$</span><span class="va">GENE_SYMBOL</span><span class="op">[</span><span class="va">tt</span><span class="op">$</span><span class="va">adj.P.Val</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span> <span class="va">tt</span><span class="op">$</span><span class="va">logFC</span> <span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">]</span></span>
 <span><span class="va">resHG</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tmodUtest.html">tmodHGtest</a></span><span class="op">(</span>fg<span class="op">=</span><span class="va">fg</span>, bg<span class="op">=</span><span class="va">tt</span><span class="op">$</span><span class="va">GENE_SYMBOL</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>width<span class="op">=</span><span class="fl">60</span><span class="op">)</span></span>
@@ -420,7 +472,7 @@
 <p>Another approach is to sort all the genes (for example, by the respective p-value) and perform a U-test on the ranks of (i) genes belonging to the module and (ii) genes that do not belong to the module. This is a bit slower, but often works even in the case if the power of the statistical test for differential expression is low. That is, even if only a few genes or none at all are significant at acceptable thresholds, sorting them by the p-value or another similar metric can nonetheless allow to get meaningful enrichments<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;The rationale is that the non-significant p-values are not associated with the test that we are actually performing, but merely used to sort the gene list. Thus, it does not matter whether they are significant or not.&lt;/p&gt;"><sup>3</sup></a>.</p>
 <p>Moreover, we do not need to set arbitrary thresholds, like p-value or logFC cutoff.</p>
 <p>The main issue with the U-test is that it detects enrichments as well as depletions – that is, modules which are enriched at the bottom of the list (e.g. modules which are never, ever regulated in a particular comparison) will be detected as well. This is often undesirable. Secondly, large modules will be reported as significant even if the actual effect size (i.e., AUC) is modest or very small, just because of the sheer number of genes in a module. Unfortunately, also the reverse is true: modules with a small number of genes, even if they consist of highly up- or down-regulated genes from the top of the list will not be detected.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">l</span>    <span class="op">&lt;-</span> <span class="va">tt</span><span class="op">$</span><span class="va">GENE_SYMBOL</span></span>
 <span><span class="va">resU</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tmodUtest.html">tmodUtest</a></span><span class="op">(</span><span class="va">l</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">resU</span><span class="op">)</span></span></code></pre></div>
@@ -438,7 +490,7 @@
 <span><span class="co">## DC.M3.2   96366  24 0.836 6.35e-09  9.62e-07</span></span>
 <span><span class="co">## DC.M5.15  65289  16 0.848 7.24e-07  8.77e-05</span></span>
 <span><span class="co">## DC.M7.29  77738  20 0.809 9.08e-07  9.18e-05</span></span></code></pre>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">resU</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 39</span></span></code></pre>
 <p>This list makes a lot of sense, and also is more stable than the other one: it does not depend on modules that contain just a few genes. Since the statistics is different, the b, B, n, N and E columns in the output have been replaced by the following:</p>
@@ -459,7 +511,7 @@
 <p><span class="math display">\[f_{CERNO}=-2 \cdot \sum_{i = 1}^{N} \ln{\frac{R_i}{N_{tot}}}\]</span></p>
 <p>This statitic has the <span class="math inline">\(\chi^2\)</span> distribution with <span class="math inline">\(2\cdot N\)</span> degrees of freedom, where <span class="math inline">\(N\)</span> is the number of genes in a given module and <span class="math inline">\(N_{tot}\)</span> is the total number of genes <span class="citation">(<a href="#ref-yamaguchi2008ifn" role="doc-biblioref">Yamaguchi et al. 2008</a>)</span>.</p>
 <p>The CERNO test is actually much more practical than other tests for most purposes and is the recommended approach. A variant called <code>tmodZtest</code> exists in which the p-values are combined using Stouffer’s method rather than the Fisher’s method.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">l</span>    <span class="op">&lt;-</span> <span class="va">tt</span><span class="op">$</span><span class="va">GENE_SYMBOL</span></span>
 <span><span class="va">resCERNO</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tmodUtest.html">tmodCERNOtest</a></span><span class="op">(</span><span class="va">l</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">resCERNO</span><span class="op">)</span></span></code></pre></div>
@@ -477,7 +529,7 @@
 <span><span class="co">## DC.M1.2   17 0.900 3.31 2.30e-10  3.48e-08</span></span>
 <span><span class="co">## DC.M7.29  20 0.809 2.97 1.00e-09  1.21e-07</span></span>
 <span><span class="co">## LI.M11.0  20 0.777 2.85 5.26e-09  5.31e-07</span></span></code></pre>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">resCERNO</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 38</span></span></code></pre>
 </div>
@@ -486,7 +538,7 @@
 </h4>
 <p>PLAGE <span class="citation">(<a href="#ref-tomfohr2005pathway" role="doc-biblioref">Tomfohr, Lu, and Kepler 2005</a>)</span> is a gene set enrichment method based on singular value decomposition (SVD). The idea is that instead of running a statistical test (such as a t-test) on each gene separately, information present in the gene expression of all genes in a gene set is first extracted using SVD, and the resulting vector (one per gene set) is treated as a “pseudo gene” and analysed using the approppriate statistical tool.</p>
 <p>In the tmod implementation, for each module a gene expression matrix subset is generated and decomposed using PCA using the <code><a href="../reference/eigengene.html">eigengene()</a></code> function. The first component is returned and a t-test comparing two groups is then performed. This limits the implementation to only two groups, but extending it for more than one group is trivial.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tmodUtest.html">tmodPLAGEtest</a></span><span class="op">(</span><span class="va">Egambia</span><span class="op">$</span><span class="va">GENE_SYMBOL</span>, <span class="va">Egambia</span><span class="op">[</span>,<span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span><span class="op">]</span>, group<span class="op">=</span><span class="va">group</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Converting group to factor</span></span></code></pre>
 <pre><code><span><span class="co">## Calculating eigengenes...</span></span></code></pre>
@@ -578,7 +630,7 @@
 </h3>
 <p>One of the most frequent demands is to somehow show differences in transcription in the gene sets between groups. This is usually quite bothersome. One possibility is to use a heatmap, another to show how all genes vary between the groups. Both these options result in messy, frequently biased pictures (for example, if only the “best” genes are selected for a heatmap).</p>
 <p>The code below shows how to select genes from a module with the <code><a href="../reference/getModuleMembers.html">getModuleMembers()</a></code> function. For this, we will use the Gambia data set and the LI.M75 interferon module.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="st">"LI.M75"</span></span>
 <span><span class="co">## getModuleMembers returns a list – you can choose to </span></span>
 <span><span class="co">## select multiple modules</span></span>
@@ -587,16 +639,11 @@
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.matrix.html" class="external-link">data.matrix</a></span><span class="op">(</span><span class="va">Egambia</span><span class="op">)</span><span class="op">[</span><span class="va">sel</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span><span class="op">]</span> <span class="co"># expression matrix</span></span></code></pre></div>
 <p>Matix x contains expression of all genes from the selected module (one row per gene, one column per sample).</p>
 <p>Then, heatmaps and line plots can be generated. Note that both of the approaches below are discouraged. Firstly, these representations are chaotic and hard to read. Secondly, it is easy to manipulate such plots in order to make the effects more prominent than they really are. Thirdly, they use up a lot of space and ink to convey very little useful and interpretable information, which is a sin<span class="citation">(<a href="#ref-tufte2014visual" role="doc-biblioref">Tufte and Graves-Morris 2014</a>)</span>.</p>
-<pre><code><span><span class="co">## </span></span>
-<span><span class="co">## Attaching package: 'gplots'</span></span></code></pre>
-<pre><code><span><span class="co">## The following object is masked from 'package:stats':</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">##     lowess</span></span></code></pre>
 <p><img src="tmod_files/figure-html/heatmap1-1.png" width="1152"></p>
 <p><img src="tmod_files/figure-html/heatmap2-1.png" width="960"></p>
 <p>A better (but not perfect) approach is to use <em>eigengenes</em>. An eigengene is a vector of numbers which are thought to represent all genes in a gene set. It is calculated by running a principal component analysis on an expression matrix of the genes of interest. This vector can be thought of as an “average” or “representative” gene of a gene set.</p>
 <p>Below, we calculate all eigengenes from modules in tmod and display two of them. The object <code>eig</code> will contain one row per module and one column per sample.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">eig</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/eigengene.html">eigengene</a></span><span class="op">(</span><span class="va">Egambia</span><span class="op">[</span>,<span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span><span class="op">]</span>, <span class="va">Egambia</span><span class="op">$</span><span class="va">GENE_SYMBOL</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/showGene.html">showGene</a></span><span class="op">(</span><span class="va">eig</span><span class="op">[</span><span class="st">"LI.M75"</span>, <span class="op">]</span>, <span class="va">group</span>, </span>
@@ -612,7 +659,7 @@
 <h3 id="showing-enrichment-with-evidence-plots">Showing enrichment with evidence plots<a class="anchor" aria-label="anchor" href="#showing-enrichment-with-evidence-plots"></a>
 </h3>
 <p>Let us first investigate in more detail the module LI.M75, the antiviral interferon signature. We can use the <code>ggEvidencePlot</code> function to see how the module is enriched in the list <code>l</code>.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">l</span>    <span class="op">&lt;-</span> <span class="va">tt</span><span class="op">$</span><span class="va">GENE_SYMBOL</span></span>
 <span><span class="fu">theme_set</span><span class="op">(</span><span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/ggEvidencePlot.html">ggEvidencePlot</a></span><span class="op">(</span><span class="va">l</span>, <span class="st">"LI.M75"</span><span class="op">)</span> </span></code></pre></div>
@@ -622,14 +669,14 @@
 <p>In the above diagram, we see that nine out of the 10 genes that belong to the LI.M75 module and which are present in the Egambia data set are ranked among the top 1000 genes (as sorted by p-value).</p>
 <p>Evidence plots are an important tool to understand whether the obtained results are not only significant in the statistical sense, but whether they are also of biological interest. As mentioned above, the area under the evidence plot, the AUC (area under curve) is an important measure of the effect size. Effect size should always be taken into consideration when interpreting p-values.</p>
 <p>The figure below shows three very different enrichments.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://purrr.tidyverse.org" class="external-link">purrr</a></span><span class="op">)</span></span>
 <span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"LI.M67"</span>, <span class="st">"LI.M37.0"</span><span class="op">)</span></span>
 <span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">sel</span>, <span class="op">~</span> <span class="fu"><a href="../reference/ggEvidencePlot.html">ggEvidencePlot</a></span><span class="op">(</span><span class="va">l</span>, <span class="va">.x</span>, gene.labels<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="va">plots</span>, labels<span class="op">=</span><span class="va">sel</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tmod_files/figure-html/unnamed-chunk-2-1.png" width="1152"></p>
+<p><img src="tmod_files/figure-html/unnamed-chunk-4-1.png" width="1152"></p>
 <p>The corresponding results are shown in the following table:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">foo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tmodUtest.html">tmodCERNOtest</a></span><span class="op">(</span><span class="va">l</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ID</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">sel</span><span class="op">)</span> </span>
 <span><span class="va">foo</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -677,7 +724,7 @@
 <h3 id="summary-tables">Summary tables<a class="anchor" aria-label="anchor" href="#summary-tables"></a>
 </h3>
 <p>We can summarize the output from the previously run tests (<code>tmodUtest</code>, <code>tmodCERNOtest</code> and <code>tmodHGtest</code>) in one table using <code>tmodSummary</code>. For this, we will create a list containing results from all comparisons.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">resAll</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>CERNO<span class="op">=</span><span class="va">resC</span>, U<span class="op">=</span><span class="va">resU</span>, HG<span class="op">=</span><span class="va">resHG</span><span class="op">)</span></span>
 <span><span class="co">#head(tmodSummary(resAll))</span></span></code></pre></div>
 <p>The table below shows the results.</p>
@@ -771,18 +818,18 @@
 </h3>
 <p>A list of result tables (or even of a single result table) can be visualized using a heatmap-like plot called here “panel plot.” The idea is to show both, effect sizes and p-values, and, optionally, also the direction of gene regulation.</p>
 <p>In the example below, we will use the <code>resAll</code> object created above, containing the results from three different tests for enrichment, to compare the results of the individual tests. However, since the <code>E</code> column of HG test is not easily comparable to the AUC values (which are between 0 and 1), we need to scale it down. Also, we need to call it “AUC,” because otherwise we can’t show the values on the same plot.</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">resAll</span><span class="op">$</span><span class="va">HG</span><span class="op">$</span><span class="va">AUC</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="va">resAll</span><span class="op">$</span><span class="va">HG</span><span class="op">$</span><span class="va">E</span><span class="op">)</span> <span class="op">-</span> <span class="fl">0.5</span></span>
 <span><span class="fu"><a href="../reference/ggPanelplot.html">ggPanelplot</a></span><span class="op">(</span><span class="va">resAll</span><span class="op">)</span></span></code></pre></div>
 <p><img src="tmod_files/figure-html/panelplots-1.png" width="768"></p>
 <p>Each enrichment result corresponds to a reddish bar. The size of the bar corresponds to the effect size (AUC or log10(Enrichment) - 0.5, as it may be), and color intensity corresponds to the p-value – pale colors show p-values closer to 0.01. It is easily seen how <code>tmodCERNOtest</code> is the more sensitive option.</p>
 <p>We can see that also the intercept term is enriched for genes found in monocytes and neutrophils. Note that by default, ggPanelplot only shows enrichments with p &lt; 0.01, hence a slight difference from the tmodSummary output. This behavior can be modified by the <code>q_thr</code> option:</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ggPanelplot.html">ggPanelplot</a></span><span class="op">(</span><span class="va">resAll</span>, q_thr<span class="op">=</span><span class="fl">1e-3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="tmod_files/figure-html/panelplots2-1.png" width="768"></p>
 <p>However, one is usually interested in the direction of regulation. If a gene list is sorted by p-value, the enriched modules may contain both up- or down-regulated genes<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Searching for enrichment only in up- or only in down-regulated genes depends on how the gene list is sorted; this is described in Section “&lt;a href="#updown"&gt;Testing for up- or down-regulated genes separately&lt;/a&gt;.”&lt;/p&gt;'><sup>4</sup></a>. It is often desirable to visualize whether genes in a module go up, or go down between experimental conditions. For this, the function <code>tmodDecideTests</code> is used to obtain the number of significantly up- or down-regulated genes in a module.</p>
 <p>This information must be obtained separately from the differential gene expression analysis and provided as a list to <code>ggPanelplot</code>. The names of this list must be identical to the names in the results list. Below, we reuse the same object for all three tests, since the DEGs (differentially expressed genes) were the same in all three comparisons.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">degs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tmodDecideTests.html">tmodDecideTests</a></span><span class="op">(</span>g<span class="op">=</span><span class="va">tt</span><span class="op">$</span><span class="va">GENE_SYMBOL</span>, lfc<span class="op">=</span><span class="va">tt</span><span class="op">$</span><span class="va">logFC</span>,</span>
 <span>                       pval<span class="op">=</span><span class="va">tt</span><span class="op">$</span><span class="va">adj.P.Val</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">degs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>CERNO<span class="op">=</span><span class="va">degs</span>, HG<span class="op">=</span><span class="va">degs</span>, U<span class="op">=</span><span class="va">degs</span><span class="op">)</span></span>
@@ -811,7 +858,7 @@
 <h3 id="correlation-analysis">Correlation analysis<a class="anchor" aria-label="anchor" href="#correlation-analysis"></a>
 </h3>
 <p>Genes can be ordered by their absolute correlation with a variable or even a data set or a module. For example, one can ask the question about a function of a particular unknown gene – such as ANKRD22, annotated as “ankyrin repeat domain 22.”</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">E</span><span class="op">[</span> <span class="fu"><a href="https://rdrr.io/r/base/match.html" class="external-link">match</a></span><span class="op">(</span><span class="st">"ANKRD22"</span>, <span class="va">Egambia</span><span class="op">$</span><span class="va">GENE_SYMBOL</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="va">cors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">E</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">ord</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">cors</span><span class="op">)</span>, decreasing<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
@@ -839,7 +886,7 @@
 <span><span class="co">## LI.M165   19 0.781 2.98 2.18e-09  2.20e-07</span></span></code></pre>
 <p>Clearly, ANKRD22 correlates to other immune related genes, most of all these which are interferon inducible.</p>
 <p>In another example, consider correlation between genes and the first principal component (“eigengene”) of a group of genes of unknown function<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;More on eigengenes in the Chapter on modules&lt;/p&gt;"><sup>6</sup></a>. To demonstrate the method, we will select the genes from the module “LI.M75.” For this, we use the function <code>getGenes</code> with the optional argument <code>genes</code> used to filter the genes in the module by the genes present in the data set.</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getGenes.html">getGenes</a></span><span class="op">(</span><span class="st">"LI.M75"</span>, genes<span class="op">=</span><span class="va">Egambia</span><span class="op">$</span><span class="va">GENE_SYMBOL</span>, </span>
 <span>              as.list<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">E</span><span class="op">[</span> <span class="fu"><a href="https://rdrr.io/r/base/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">g</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="va">Egambia</span><span class="op">$</span><span class="va">GENE_SYMBOL</span><span class="op">)</span>, <span class="op">]</span></span>
@@ -878,7 +925,7 @@
 <h3 id="functional-multivariate-analysis">Functional multivariate analysis<a class="anchor" aria-label="anchor" href="#functional-multivariate-analysis"></a>
 </h3>
 <p>Transcriptional modules can help to understand the biological meaning of the calculated multivariate transformations. For example, consider a principal component analysis (PCA), visualised using the pca3d package <span class="citation">(<a href="#ref-pca3d" role="doc-biblioref">Weiner 2013</a>)</span>:</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mypal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#E69F00"</span>, <span class="st">"#56B4E9"</span><span class="op">)</span></span>
 <span><span class="va">pca</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">E</span><span class="op">)</span>, scale.<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -899,7 +946,7 @@
 <p>where <span class="math inline">\(k\)</span> is the index of the variables (genes in our case), <span class="math inline">\(w_{i,k}\)</span> is the weight associated with the <span class="math inline">\(i\)</span>-th component and the <span class="math inline">\(k\)</span>-th variable (gene), and <span class="math inline">\(x_{k,j}\)</span> is the value of the variable <span class="math inline">\(k\)</span> for the sample <span class="math inline">\(j\)</span>; that is, the gene expression of gene <span class="math inline">\(k\)</span> in the sample <span class="math inline">\(j\)</span>. Genes influence the position of a sample along a given component the more the larger their absolute weight for that component.</p>
 <p>For example, on the right-hand figure above, we see that samples which were taken from TB patients have a high value of the principal component 4; the opposite is true for the healthy controls. The genes that allow us to differentiate between these two groups will have very large, positive weights for genes highly expressed in TB patients, and very large, negative weights for genes which are highly expressed in NID, but not TB.</p>
 <p>We can sort the genes by their weight in the given component, since the weights are stored in the pca object in the “rotation” slot, and use the tmodUtest function to test for enrichment of the modules.</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">o</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">pca</span><span class="op">$</span><span class="va">rotation</span><span class="op">[</span>,<span class="fl">4</span><span class="op">]</span><span class="op">)</span>, decreasing<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">l</span> <span class="op">&lt;-</span> <span class="va">Egambia</span><span class="op">$</span><span class="va">GENE_SYMBOL</span><span class="op">[</span><span class="va">o</span><span class="op">]</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tmodUtest.html">tmodUtest</a></span><span class="op">(</span><span class="va">l</span><span class="op">)</span></span>
@@ -919,7 +966,7 @@
 <span><span class="co">## DC.M7.29  78752  20 0.819 3.99e-07  4.84e-05</span></span>
 <span><span class="co">## DC.M3.4   68058  17 0.832 1.07e-06  1.08e-04</span></span></code></pre>
 <p>Perfect, this is what we expected: we see that the neutrophil / interferon signature which is the hallmark of the TB biosignature. What about other components? We can run the enrichment for each component and visualise the results using tmod’s functions tmodSummary and ggPanelplot. Below, we use the filter.empty option to omit the principal components which show no enrichment at all.</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate enrichment for each component</span></span>
 <span><span class="va">gs</span>   <span class="op">&lt;-</span> <span class="va">Egambia</span><span class="op">$</span><span class="va">GENE_SYMBOL</span></span>
 <span><span class="co"># function calculating the enrichment of a PC</span></span>
@@ -948,11 +995,11 @@
 <span><span class="co">## DC.M3.1       NA</span></span>
 <span><span class="co">## DC.M3.2 1.17e-05</span></span></code></pre>
 <p>The following plot shows the same information in a visual form. The size of the blobs corresponds to the effect size (AUC value), and their color – to the q-value.</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ggPanelplot.html">ggPanelplot</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></code></pre></div>
 <p><img src="tmod_files/figure-html/pcsum2-1.png" width="768"></p>
 <p>However, we might want to ask, for each module, how many of the genes in that module have a negative, and how many have a positive weight? We can use the function tmodDecideTests for that. For each principal component shown, we want to know how many genes have very large (in absolute terms) weights – we can use the “lfc” parameter of tmodDecideTests for that. We define here “large” as being in the top 25% of all weights in the given component. For this, we need first to calculate the 3rd quartile (top 25% threshold). We will show only 10 components:</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qfnc</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">r</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">r</span>, <span class="fl">0.75</span><span class="op">)</span></span>
 <span><span class="va">qqs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">pca</span><span class="op">$</span><span class="va">rotation</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>, <span class="fl">2</span>, <span class="va">qfnc</span><span class="op">)</span></span>
 <span><span class="va">gloadings</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tmodDecideTests.html">tmodDecideTests</a></span><span class="op">(</span><span class="va">gs</span>, lfc<span class="op">=</span><span class="va">pca</span><span class="op">$</span><span class="va">rotation</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>, lfc.thr<span class="op">=</span><span class="va">qqs</span><span class="op">)</span></span>
@@ -969,7 +1016,7 @@
 </h3>
 <p>By default, tmod uses both the modules published by Li et al. <span class="citation">(<a href="#ref-li2014molecular" role="doc-biblioref">Li et al. 2014</a>)</span> (LI) and second set of modules published by Chaussabel et al. <span class="citation">(<a href="#ref-chaussabel2008modular" role="doc-biblioref">Chaussabel et al. 2008</a>)</span> (DC). The module definitions for the DC set were described by Banchereau et al. <span class="citation">(<a href="#ref-banchereau2012host" role="doc-biblioref">Banchereau et al. 2012</a>)</span>.</p>
 <p>Depending on the <code>mset</code> parameter to the test functions, either the LI or DC sets are used, or both, if the <code>mset=all</code> has been specified.</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">l</span>    <span class="op">&lt;-</span> <span class="va">tt</span><span class="op">$</span><span class="va">GENE_SYMBOL</span></span>
 <span><span class="va">res2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tmodUtest.html">tmodUtest</a></span><span class="op">(</span><span class="va">l</span>, mset<span class="op">=</span><span class="st">"LI"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span> <span class="va">res2</span> <span class="op">)</span></span></code></pre></div>
@@ -1006,22 +1053,22 @@
 <h4 id="module-operations">Module operations<a class="anchor" aria-label="anchor" href="#module-operations"></a>
 </h4>
 <p>The gene sets used by tmod are objects of class <code>tmod</code>. The default object used in the gene set enrichment tests in the tmod package can be loaded into the environment with the command <code>data(tmod)</code>:</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">tmod</span><span class="op">)</span></span>
 <span><span class="va">tmod</span></span></code></pre></div>
 <pre><code><span><span class="co">## An object of class "tmodGS"</span></span>
 <span><span class="co">##  606 gene sets, 12712 genes</span></span></code></pre>
 <p>Objects of the class tmod can be easily generated from a number of data sources (see below). Several functions can be used on the objects:</p>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">tmod</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 606</span></span></code></pre>
-<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"Interferon"</span>, <span class="va">tmod</span><span class="op">$</span><span class="va">gs</span><span class="op">$</span><span class="va">Title</span>, ignore.case<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">ifn</span> <span class="op">&lt;-</span> <span class="va">tmod</span><span class="op">[</span><span class="va">sel</span><span class="op">]</span></span>
 <span><span class="va">ifn</span></span></code></pre></div>
 <pre><code><span><span class="co">## An object of class "tmodGS"</span></span>
 <span><span class="co">##  6 gene sets, 161 genes</span></span></code></pre>
-<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ifn</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 6</span></span></code></pre>
 </div>
@@ -1039,7 +1086,7 @@
 </ul>
 <p>The tests in the tmod package will accept a simple list that contains the above fields. However, the function <code>makeTmodGS</code> can be used conveniently to create a tmod object. This function requires only two parameters: <code>gs</code> – a data frame, as described above – and a mapping between gene sets <em>and gene identifiers</em>, in the parameter <code>gs2gene</code>.</p>
 <p>Here is a minimal definition of such a set:</p>
-<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mymset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tmodGS-class.html">makeTmodGS</a></span><span class="op">(</span></span>
 <span>  gs<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>ID<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>,</span>
 <span>             Title<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A title"</span>, </span>
@@ -1063,7 +1110,7 @@
 </h4>
 <p>The MSigDB database from the Broad institute is an interesting collection of gene sets (actually, multiple collections), including Reactome pathways, gene ontologies (GO) and many other data sets. Moreover, it is the basis for the GSEA program.</p>
 <p>The whole MSigDB is provided by the <a href="https://CRAN.R-project.org/package=msigdbr" class="external-link">msigdbr</a> package from BioConductor. We can then use tmod function <code>makeTmodFromDataFrame</code> to convert the msigdbr data frame into one large tmod object:</p>
-<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://igordot.github.io/msigdbr/" class="external-link">msigdbr</a></span><span class="op">)</span></span>
 <span><span class="va">msig</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://igordot.github.io/msigdbr/reference/msigdbr.html" class="external-link">msigdbr</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">msig</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeTmodFromDataFrame.html">makeTmodFromDataFrame</a></span><span class="op">(</span>df<span class="op">=</span><span class="va">msig</span>, </span>
@@ -1073,13 +1120,13 @@
 <span>                      <span class="st">"gs_exact_source"</span>, <span class="st">"gs_description"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Alternatively, you can the MSigDB in XML format<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Note that even if you register with MSig, it is not possible to download the database directly from R in the XML format.&lt;/p&gt;"><sup>7</sup></a>. This file can be accessed at the from the pages of MSigDB <a href="http://www.gsea-msigdb.org/gsea/msigdb/download_file.jsp?filePath=/msigdb/release/2022.1.Hs/msigdb_v2022.1.Hs_chip_files_to_download_locally.zip" class="external-link">at the Broad Institute</a> <a href="http://software.broadinstitute.org/gsea/msigdb/download_file.jsp?filePath=/resources/msigdb/6.1/msigdb_v6.1.xml" class="external-link uri">http://software.broadinstitute.org/gsea/msigdb/download_file.jsp?filePath=/resources/msigdb/6.1/msigdb_v6.1.xml</a> – follow the link, register and log in, and save the zip archive on your disk (roughly 113 MB). The ZIP file contains an XML file (called ‘msigdb_v2022.1.Hs.xml’ at the time of writing) which you can import into tmod.</p>
 <p>Importing MSigDB from XML is easy – tmod has a function specifically for that purpose. Once you have downloaded the MSigDB file, you can create the tmod-compatible R object with one command<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;MSigDB gene sets can be also downloaded as “GMT” files. This format contains less information and is therefore less usable.&lt;/p&gt;"><sup>8</sup></a>. However, the tmod function tmodImportMsigDB() can also use this format, look up the manual page:</p>
-<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">msig</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tmodImportMSigDB.html">tmodImportMSigDB</a></span><span class="op">(</span><span class="st">"msigdb_v2022.1.Hs.xml"</span><span class="op">)</span></span></code></pre></div>
 <p>That’s it – now you can use the full MSigDB for enrichment tests:</p>
-<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tmodUtest.html">tmodCERNOtest</a></span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">GENE_SYMBOL</span>, mset<span class="op">=</span><span class="va">msig</span><span class="op">)</span></span></code></pre></div>
 <p>The results are quite typical for MSigDB, which is quite abundant with similar or overlapping gene sets. As the first results, we see, again, interferon response, as well as sets of genes which are significantly upregulated after yellow fever vaccination – and which are also interferon related. We might want to limit our analysis only to the 50 “hallmark” module categories:</p>
-<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="va">msig</span><span class="op">$</span><span class="va">gs</span><span class="op">$</span><span class="va">gs_cat</span> <span class="op">==</span> <span class="st">"H"</span></span>
 <span><span class="fu"><a href="../reference/tmodUtest.html">tmodCERNOtest</a></span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">GENE_SYMBOL</span>, mset<span class="op">=</span><span class="va">msig</span><span class="op">[</span><span class="va">sel</span><span class="op">]</span> <span class="op">)</span></span></code></pre></div>
 <p>Other particularly interesting subsets of MSigDB are shown in the table below. “Category” and “Subcategory” are columns in the <code>msig$gs</code> data frame.</p>
@@ -1142,7 +1189,7 @@
 <p>ENSEMBL databases for a multitude of organisms can be accessed using the R package <code>biomaRt</code>.<br>
 Importantly, biomaRt allows to map different types of identifiers onto each other; this allows for example to obtain Entrez gene identifiers (required by KEGG or GO) .</p>
 <p>Below, we will use biomaRt to obtain gene ontology (GO) terms and Reactome pathway IDs for genes in the <code>Egambia</code> data set, using the Entrez gene ID’s (column <code>EG</code> in the <code>Egambia</code> data set).</p>
-<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">biomaRt</span><span class="op">)</span></span>
 <span><span class="va">mart</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/biomaRt/man/useMart.html" class="external-link">useMart</a></span><span class="op">(</span><span class="st">"ensembl"</span>, dataset <span class="op">=</span> <span class="st">"hsapiens_gene_ensembl"</span><span class="op">)</span></span>
 <span><span class="va">bm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/biomaRt/man/getBM.html" class="external-link">getBM</a></span><span class="op">(</span>filters<span class="op">=</span><span class="st">"hgnc_symbol"</span>, </span>
@@ -1150,7 +1197,7 @@ Importantly, biomaRt allows to map different types of identifiers onto each othe
 <span>            attributes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="st">"hgnc_symbol"</span>, <span class="st">"entrezgene"</span>, <span class="st">"reactome"</span>, <span class="st">"go_id"</span>, <span class="st">"name_1006"</span>, <span class="st">"go_linkage_type"</span><span class="op">)</span>,</span>
 <span>            mart<span class="op">=</span><span class="va">mart</span><span class="op">)</span></span></code></pre></div>
 <p>In the following code, we construct the modules data frame <code>m</code> and the gene set to gene mappings <code>m2g</code> (each twice: once for GO, and once for Reactome). We only keep the terms that have at least 10 and not more than 100 associated Entrez gene ID’s.</p>
-<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m2g_r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">bm</span><span class="op">[</span> <span class="va">bm</span><span class="op">$</span><span class="va">reactome</span> <span class="op">!=</span> <span class="st">""</span>, <span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">hgnc_symbol</span>, <span class="va">reactome</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">m2g_g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">bm</span><span class="op">[</span> <span class="va">bm</span><span class="op">$</span><span class="va">go_id</span> <span class="op">!=</span> <span class="st">""</span>, <span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">hgnc_symbol</span>, <span class="va">go_id</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -1175,11 +1222,11 @@ Importantly, biomaRt allows to map different types of identifiers onto each othe
 <p>GO terms are perhaps the most frequently used type of gene sets in GSE, in particular because they are available for a much larger number of organisms than other gene sets (like KEGG pathways).</p>
 <p>There are many sources to obtain GO definitions. As described in the previous sections, GO’s can be also obtained from ENSEMBL via biomaRt and from MSigDB. In fact, MSigDB may be the easiest way.</p>
 <p>However, GO annotations can also be obtained from AnnotationDBI Bioconductor packages as shown below. Note that the Entrez gene IDs are in the <code>EG</code> column of the <code>Egambia</code> object.</p>
-<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">org.Hs.eg.db</span><span class="op">)</span></span>
 <span><span class="va">mtab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/toTable.html" class="external-link">toTable</a></span><span class="op">(</span><span class="va">org.Hs.egGO</span><span class="op">)</span></span></code></pre></div>
 <p>There are over 15,000 GO terms and 250,000 genes in the <code>mtab</code> mapping; however, many of them map to either a very small or a very large number of genes. At this stage, it could also be useful to remove any genes not present in our particular data set, but that would make the resulting tmod object less flexible. However, we may be interested only in the “biological process” ontology for now.</p>
-<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mtab</span> <span class="op">&lt;-</span> <span class="va">mtab</span><span class="op">[</span> <span class="va">mtab</span><span class="op">$</span><span class="va">Ontology</span> <span class="op">==</span> <span class="st">"BP"</span>, <span class="op">]</span></span>
 <span><span class="va">m2g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">mtab</span><span class="op">$</span><span class="va">gene_id</span>, <span class="va">mtab</span><span class="op">$</span><span class="va">go_id</span><span class="op">)</span></span>
 <span><span class="co">## remove the rather large object</span></span>
@@ -1188,7 +1235,7 @@ Importantly, biomaRt allows to map different types of identifiers onto each othe
 <span><span class="va">m2g</span> <span class="op">&lt;-</span> <span class="va">m2g</span><span class="op">[</span> <span class="va">ll</span> <span class="op">&gt;=</span> <span class="fl">10</span> <span class="op">&amp;</span> <span class="va">ll</span> <span class="op">&lt;=</span> <span class="fl">100</span> <span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">m2g</span><span class="op">)</span></span></code></pre></div>
 <p>Using the mapping and the <code>GO.db</code> it is easy to create a module set suitable for tmod:</p>
-<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">GO.db</span><span class="op">)</span></span>
 <span><span class="va">gt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/toTable.html" class="external-link">toTable</a></span><span class="op">(</span><span class="va">GOTERM</span><span class="op">)</span></span>
 <span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>ID<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">m2g</span><span class="op">)</span><span class="op">)</span></span>
@@ -1202,7 +1249,7 @@ Importantly, biomaRt allows to map different types of identifiers onto each othe
 <h4 id="kegg-pathways">KEGG pathways<a class="anchor" aria-label="anchor" href="#kegg-pathways"></a>
 </h4>
 <p>One way to obtain KEGG pathway gene sets is to use the MSigDB as described above. However, alternatively and for other organisms it is possible to directly obtain the pathway definitions from KEGG. The code below might take a lot of time on a slow connection.</p>
-<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">KEGGREST</span><span class="op">)</span></span>
 <span><span class="va">pathways</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/KEGGREST/man/keggLink.html" class="external-link">keggLink</a></span><span class="op">(</span><span class="st">"pathway"</span>, <span class="st">"hsa"</span><span class="op">)</span></span>
 <span></span>
@@ -1216,7 +1263,7 @@ Importantly, biomaRt allows to map different types of identifiers onto each othe
 <span><span class="co">## kegg object can now be used with tmod</span></span>
 <span><span class="va">kegg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tmodGS-class.html">makeTmod</a></span><span class="op">(</span>modules<span class="op">=</span><span class="va">m</span>, modules2genes<span class="op">=</span><span class="va">m2g</span><span class="op">)</span></span></code></pre></div>
 <p>Note that KEGG uses a slightly modified version of Entrez identifiers – each numeric identifier is preceded by a three letter species code (e.g. “hsa” for humans) followed by a colon:</p>
-<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"hsa:"</span>, <span class="va">tt</span><span class="op">$</span><span class="va">EG</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/tmodUtest.html">tmodCERNOtest</a></span><span class="op">(</span><span class="va">eg</span>, mset<span class="op">=</span><span class="st">"kegg"</span><span class="op">)</span></span></code></pre></div>
 <p>Again, the most important part is to ensure that the gene identifiers in the tmod object (<code>kegg</code> in this case) correspond to the gene identifiers in in the ordered list.</p>
@@ -1225,25 +1272,25 @@ Importantly, biomaRt allows to map different types of identifiers onto each othe
 <h4 id="manual-creation-of-tmod-module-objects-msigdb">Manual creation of tmod module objects: MSigDB<a class="anchor" aria-label="anchor" href="#manual-creation-of-tmod-module-objects-msigdb"></a>
 </h4>
 <p>For the purposes of an example, the code below shows how to parse the XML MSigDB file using the R package XML. Essentially, this is the same code that tmodImportMsigDB is using:</p>
-<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://www.omegahat.net/RSXML/" class="external-link">XML</a></span><span class="op">)</span></span>
 <span><span class="va">foo</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/XML/man/xmlTreeParse.html" class="external-link">xmlParse</a></span><span class="op">(</span> <span class="st">"msigdb_v2022.1.Hs.xml"</span> <span class="op">)</span></span>
 <span><span class="va">foo2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/XML/man/xmlToList.html" class="external-link">xmlToList</a></span><span class="op">(</span><span class="va">foo</span><span class="op">)</span></span></code></pre></div>
 <p>There are over 30,000 “gene sets” (equivalent to modules in tmod) defined. Each member of foo2 is a named character vector:</p>
-<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">path1</span> <span class="op">&lt;-</span> <span class="va">foo2</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">path1</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">path1</span><span class="op">)</span></span></code></pre></div>
 <p>For our example analysis, we will use only human gene sets. We further need to make sure there are no NULLs in the list.</p>
-<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">orgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">foo2</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">[</span><span class="st">"ORGANISM"</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">orgs</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">foo3</span> <span class="op">&lt;-</span> <span class="va">foo2</span><span class="op">[</span> <span class="va">orgs</span> <span class="op">==</span> <span class="st">"Homo sapiens"</span> <span class="op">]</span></span>
 <span><span class="va">foo3</span> <span class="op">&lt;-</span> <span class="va">foo3</span><span class="op">[</span> <span class="op">!</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">foo3</span>, <span class="va">is.null</span><span class="op">)</span> <span class="op">]</span></span></code></pre></div>
 <p>Next, construct the modules data frame. We will use four named fields for each vector, which contain the ID (systematic name), description, category and subcategory:</p>
-<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">modules</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">foo3</span>, </span>
 <span>  <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> </span>
 <span>    <span class="va">x</span><span class="op">[</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SYSTEMATIC_NAME"</span>, <span class="st">"STANDARD_NAME"</span>, <span class="st">"CATEGORY_CODE"</span>, <span class="st">"SUBCATEGORY_CODE"</span><span class="op">)</span> <span class="op">]</span><span class="op">)</span><span class="op">)</span> </span>
@@ -1251,7 +1298,7 @@ Importantly, biomaRt allows to map different types of identifiers onto each othe
 <span><span class="va">modules</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">modules</span>, stringsAsFactors<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">modules</span><span class="op">)</span></span></code></pre></div>
 <p>Then, we create the mapping from gene sets to genes. For this, we use the <code>MEMBERS_SYMBOLIZED</code> field, which is a comma separated list of gene symbols belonging to a particular module:</p>
-<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m2g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">foo3</span>, </span>
 <span>  <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/strsplit.html" class="external-link">strsplit</a></span><span class="op">(</span> <span class="va">x</span><span class="op">[</span><span class="st">"MEMBERS_SYMBOLIZED"</span><span class="op">]</span>, <span class="st">","</span> <span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">m2g</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">modules</span><span class="op">$</span><span class="va">ID</span></span>
@@ -1307,6 +1354,9 @@ Wendt, Hans W. 1972. <span>“Dealing with a Common Problem in Social Science: A
 </div>
 <div id="ref-yamaguchi2008ifn" class="csl-entry">
 Yamaguchi, Ken D, Daniel L Ruderman, Ed Croze, T Charis Wagner, Sharlene Velichko, Anthony T Reder, and Hugh Salamon. 2008. <span>“IFN-<span class="math inline">\(\beta\)</span>-Regulated Genes Show Abnormal Expression in Therapy-Na<span>ı̈</span>ve Relapsing–Remitting MS Mononuclear Cells: Gene Expression Analysis Employing All Reported Protein–Protein Interactions.”</span> <em>Journal of Neuroimmunology</em> 195 (1): 116–20.
+</div>
+<div id="ref-zyla2019gene" class="csl-entry">
+Zyla, Joanna, Michal Marczyk, Teresa Domaszewska, Stefan HE Kaufmann, Joanna Polanska, and January Weiner 3rd. 2019. <span>“Gene Set Enrichment for Reproducible Science: Comparison of CERNO and Eight Other Algorithms.”</span> <em>Bioinformatics</em> 35 (24): 5146–54.
 </div>
 </div>
 </div>

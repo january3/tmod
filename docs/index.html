@@ -76,7 +76,8 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="tmod">tmod<a class="anchor" aria-label="anchor" href="#tmod"></a>
+<img src="logo.png" class="logo" alt=""><h1 id="tmod-">tmod 
+<a class="anchor" aria-label="anchor" href="#tmod-"></a>
 </h1>
 </div>
 <!-- badges: start --><!-- badges: end --><p>Tmod is a suite of gene set enrichment algorithms, visualizations and utilities which comes bundled with a few libraries of gene sets (“modules”). Following features distinguish tmod from other packages:</p>
@@ -105,6 +106,26 @@
 <li>Full user manual is found <a href="https://january3.github.io/tmod/">here</a>
 </li>
 </ul>
+</div>
+<div class="section level2">
+<h2 id="example-usage">Example usage<a class="anchor" aria-label="anchor" href="#example-usage"></a>
+</h2>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://january3.github.io/tmod/">tmod</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; For tmod user guide, type `vignette("tmod")`</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">EgambiaResults</span><span class="op">)</span></span>
+<span><span class="va">tt</span> <span class="op">&lt;-</span> <span class="va">EgambiaResults</span></span>
+<span></span>
+<span><span class="co">## gene set enrichment analysis</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/tmodUtest.html">tmodCERNOtest</a></span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">GENE_SYMBOL</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                ID                               Title    cerno  N1       AUC      cES      P.Value    adj.P.Val</span></span>
+<span><span class="co">#&gt; LI.M37.0 LI.M37.0 immune activation - generic cluster 426.3578 100 0.7462103 2.131789 1.824844e-18 1.105856e-15</span></span>
+<span><span class="co">#&gt; DC.M4.2   DC.M4.2                        Inflammation 151.1520  20 0.9503953 3.778799 8.040039e-15 2.436132e-12</span></span>
+<span><span class="co">#&gt; DC.M3.4   DC.M3.4                          Interferon 129.4727  17 0.8315780 3.808019 4.609405e-13 9.310998e-11</span></span>
+<span><span class="co">#&gt; DC.M1.2   DC.M1.2                          Interferon 112.7056  17 0.9004196 3.314869 2.298170e-10 3.481728e-08</span></span>
+<span><span class="co">#&gt; DC.M7.29 DC.M7.29                        Undetermined 118.6759  20 0.8087599 2.966897 1.002268e-09 1.214749e-07</span></span>
+<span><span class="co">#&gt; LI.M11.0 LI.M11.0          enriched in monocytes (II) 113.8086  20 0.7766542 2.845216 5.255069e-09 5.307620e-07</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

@@ -53,6 +53,90 @@ theme_set(theme_minimal())
 
 <img src="logo.png" style="position:absolute;top:25px;right:5px;" />
 
+Before you start
+================
+
+A more comprehensive user manual for tmod is found on
+[github](https://january3.github.io/tmod/). This document is a shortened
+version of the manual, adapted to ship as a vignette with the package.
+Therefore, if you are not offline, I strongly suggest to use the online
+version.
+
+Quick start guide
+=================
+
+First, obtain an ordered list of genes. For example, list of genes ordered
+by q-values (FDR):
+
+
+```{r qsg1}
+library(tmod)
+data(EgambiaResults)
+tt <- EgambiaResults
+tt <- tt[ order(tt$adj.P.Val), ]
+l  <- tt$GENE_SYMBOL
+```
+
+Run the CERNO test:
+
+
+```{r qsg2}
+res <- tmodCERNOtest(l)
+head(res)
+```
+
+Visualize the results:
+
+
+```{r qsg3}
+ggPanelplot(res)
+```
+
+Inspect individual gene sets using evidence plots:
+
+
+```{r qsg4,eval=FALSE}
+ggEvidencePlot(l, "LI.M37.0", gene.labels=FALSE)
+ggEvidencePlot(l, "DC.M4.2")
+ggEvidencePlot(l, "DC.M3.4")
+ggEvidencePlot(l, "DC.M1.2")
+```
+
+
+```{r fig.width=10,fig.height=10,echo=FALSE}
+library(cowplot)
+g1 <- ggEvidencePlot(l, "LI.M37.0", gene.labels=FALSE) +
+  ggtitle("LI.M37.0")
+g2 <- ggEvidencePlot(l, "DC.M4.2") +
+  ggtitle("DC.M4.2")
+g3 <- ggEvidencePlot(l, "DC.M3.4") +
+  ggtitle("DC.M3.4")
+g4 <- ggEvidencePlot(l, "DC.M1.2") +
+  ggtitle("DC.M1.2")
+plot_grid(g1, g2, g3, g4)
+```
+
+Find out which genes are in DC.M1.2:
+
+
+```{r}
+getModuleMembers("DC.M1.2")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Introduction
 ============
 
@@ -85,7 +169,7 @@ differential expression is either not present (for example, in multivariate
 functional analysis, see Section 
 ["Functional multivariate analysis"](#functional-multivariate-analysis)).
 
-The `tmod` package and the included CERNO^[Coincident Extreme Ranks in
+The `tmod` package [@zyla2019gene] and the included CERNO^[Coincident Extreme Ranks in
 Numerical Observations [@yamaguchi2008ifn]] test belong to the second
 generation of algorithms. However, unlike the program GSEA, the CERNO
 relies exclusively on an ordered list of genes, and the test statistic has
