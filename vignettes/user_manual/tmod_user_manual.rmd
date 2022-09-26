@@ -1,5 +1,6 @@
 ---
-title: "tmod: Analysis of Gene Set Enrichments"
+title: "tmod: A Tool for the Analysis of Gene Set Enrichments"
+subtitle: "The User Manual"
 author: "January Weiner"
 date: "`r Sys.Date()`"
 output: 
@@ -31,7 +32,7 @@ bibliography: bibliography.bib
 
 ```{r setup, echo=FALSE, results="hide", include=FALSE}
 library(knitr)
-opts_chunk$set(fig.path="tmod-", cache=TRUE, autodep=TRUE, tidy=FALSE, fig.width=5, warning=FALSE, fig.height=5, width=60)
+opts_chunk$set(cache=TRUE, autodep=TRUE, tidy=TRUE, fig.width=5, warning=FALSE, fig.height=5, width=60)
 opts_knit$set(width=60)
 is.internet <- FALSE
 ```
@@ -42,8 +43,6 @@ library(ggplot2)
 library(tmod)
 theme_set(theme_minimal())
 ```
-
-<img src="logo.png" style="position:absolute;top:25px;right:5px;" />
 
 Introduction
 ============
@@ -1482,7 +1481,7 @@ As you can see, the information contained in both module sets is partially redun
 
 
 
-Accessing the tmod module data directly
+Accessing the tmod gene set data
 ---------------------------------------
 
 The `tmod` package stores its data in two data frames and two lists.
@@ -1513,7 +1512,7 @@ sources (see below). Several functions can be used on the objects:
 
 ```{r tmodobj2}
 length(tmod)
-sel <- grep("Interferon", tmod$MODULES$Title, ignore.case=TRUE)
+sel <- grep("Interferon", tmod$gs$Title, ignore.case=TRUE)
 ifn <- tmod[sel]
 ifn
 length(ifn)
@@ -1629,7 +1628,7 @@ gene ontologies (GO) and many other data sets.  Moreover, it is the basis
 for the GSEA program.
 
 The whole MSigDB is provided by the
-[msigdbr](https://cran.r-project.org/web/packages/msigdbr/) package from
+[msigdbr](https://CRAN.R-project.org/package=msigdbr) package from
 BioConductor. We can then use tmod function `makeTmodFromDataFrame` to 
 convert the msigdbr data frame into one large tmod object:
 
@@ -1700,7 +1699,7 @@ activation. Also, in addition, TNF-$\alpha$ signalling via
 NF-$\kappa\beta$.
 
 Other particularly interesting subsets of MSigDB are shown in the table below.
-"Category" and "Subcategory" are columns in the `msig$MODULES` data frame.
+"Category" and "Subcategory" are columns in the `msig$gs` data frame.
 
 Subset       Description                                               Category Subcategory
 ------------ --------------------------------------------------------- -------- -----------
@@ -1724,7 +1723,7 @@ Below, we will use biomaRt to obtain gene ontology (GO) terms and Reactome
 pathway IDs for genes in the `Egambia` data set, using the Entrez gene ID's
 (column `EG` in the `Egambia` data set). 
 
-```{r biomart,eval=is.internet}
+```{r biomart,eval=FALSE}
 library(biomaRt)
 mart <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
 bm <- getBM(filters="hgnc_symbol", 
@@ -1738,7 +1737,7 @@ set to gene mappings `m2g` (each twice: once for GO, and once for
 Reactome). We only keep the terms that have at least 10 and not more than
 100 associated Entrez gene ID's.
 
-```{r biomart2,eval=is.internet}
+```{r biomart2,eval=FALSE}
 m2g_r <- with(bm[ bm$reactome != "", ], split(hgnc_symbol, reactome))
 m2g_g <- with(bm[ bm$go_id != "", ], split(hgnc_symbol, go_id))
 
@@ -1773,7 +1772,7 @@ However, GO annotations can also be obtained from
 AnnotationDBI Bioconductor packages as shown below. Note that the Entrez
 gene IDs are in the `EG` column of the `Egambia` object.
 
-```{r orghs}
+```{r orghs,eval=TRUE}
 library(org.Hs.eg.db)
 mtab <- toTable(org.Hs.egGO)
 ```
@@ -1785,7 +1784,7 @@ present in our particular data set, but that would make the resulting tmod
 object less flexible. However, we may be interested only in the "biological
 process" ontology for now.
 
-```{r orghs2}
+```{r orghs2,eval=TRUE}
 mtab <- mtab[ mtab$Ontology == "BP", ]
 m2g <- split(mtab$gene_id, mtab$go_id)
 ## remove the rather large object
@@ -1798,7 +1797,7 @@ length(m2g)
 Using the mapping and the `GO.db` it is easy to create a module set
 suitable for tmod:
 
-```{r orghs3}
+```{r orghs3,eval=TRUE}
 library(GO.db)
 gt <- toTable(GOTERM)
 m <- data.frame(ID=names(m2g))
@@ -1864,7 +1863,7 @@ above. However, alternatively and for other organisms it is possible to
 directly obtain the pathway definitions from KEGG. The code below might
 take a lot of time on a slow connection.
 
-```{r kegg, eval=F}
+```{r kegg, eval=FALSE}
 library(KEGGREST)
 pathways <- keggLink("pathway", "hsa")
 
@@ -1883,7 +1882,7 @@ Note that KEGG uses a slightly modified version of Entrez identifiers --
 each numeric identifier is preceded by a three letter species code (e.g.
 "hsa" for humans) followed by a colon:
 
-```{r kegg2, eval=F}
+```{r kegg2, eval=FALSE}
 eg <- paste0("hsa:", tt$EG)
 tmodCERNOtest(eg, mset="kegg")
 ```
@@ -1916,13 +1915,13 @@ There are over 30,000 "gene sets" (equivalent to modules in tmod) defined.
 Each member of foo2 is a named character vector:
 
 
-```{r msigdb2}
+```{r msigdb2,eval=FALSE}
 path1 <- foo2[[1]]
 class(path1)
 ```
 
 
-```{r msigdb2b}
+```{r msigdb2b,eval=FALSE}
 names(path1)
 ```
 
@@ -1930,7 +1929,7 @@ For our example analysis, we will use only human gene sets. We further need
 to make sure there are no NULLs in the list.
 
 
-```{r msigdb3}
+```{r msigdb3,eval=FALSE}
 orgs <- sapply(foo2, function(x) x["ORGANISM"])
 unique(orgs)
 
@@ -1944,7 +1943,7 @@ vector, which contain the ID (systematic name), description, category and
 subcategory:
 
 
-```{r msigdb4}
+```{r msigdb4,eval=FALSE}
 modules <- t(sapply(foo3, 
   function(x) 
     x[ c("SYSTEMATIC_NAME", "STANDARD_NAME", "CATEGORY_CODE", "SUBCATEGORY_CODE") ])) 
@@ -1959,7 +1958,7 @@ this, we use the `MEMBERS_SYMBOLIZED` field, which is a comma separated
 list of gene symbols belonging to a particular module:
 
 
-```{r msigdb5}
+```{r msigdb5,eval=FALSE}
 m2g <- lapply(foo3, 
   function(x) strsplit( x["MEMBERS_SYMBOLIZED"], "," )[[1]])
 names(m2g) <- modules$ID

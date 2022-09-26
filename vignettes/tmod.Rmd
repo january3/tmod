@@ -962,7 +962,7 @@ As you can see, the information contained in both module sets is partially redun
 
 
 
-Accessing the tmod module data directly
+Accessing the tmod gene set data
 ---------------------------------------
 
 The `tmod` package stores its data in two data frames and two lists.
@@ -993,7 +993,7 @@ sources (see below). Several functions can be used on the objects:
 
 ```{r tmodobj2}
 length(tmod)
-sel <- grep("Interferon", tmod$MODULES$Title, ignore.case=TRUE)
+sel <- grep("Interferon", tmod$gs$Title, ignore.case=TRUE)
 ifn <- tmod[sel]
 ifn
 length(ifn)
@@ -1122,7 +1122,7 @@ tmodCERNOtest(tt$GENE_SYMBOL, mset=msig[sel] )
 ```
 
 Other particularly interesting subsets of MSigDB are shown in the table below.
-"Category" and "Subcategory" are columns in the `msig$MODULES` data frame.
+"Category" and "Subcategory" are columns in the `msig$gs` data frame.
 
 Subset       Description                                               Category Subcategory
 ------------ --------------------------------------------------------- -------- -----------

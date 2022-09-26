@@ -38,4 +38,5 @@ devtools::install_github("january3/tmod")
 
 ## Tmod manual
 
-Access the documentation using `vignette("tmod")`
+-   Access the documentation using `vignette("tmod")`
+-   Full user manual is found [here](https://january3.github.io/tmod/)

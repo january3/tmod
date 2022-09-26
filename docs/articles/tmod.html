@@ -7,12 +7,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="tmod">
 <title>tmod: Analysis of Gene Set Enrichments • tmod</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="tmod: Analysis of Gene Set Enrichments">
 <meta property="og:description" content="tmod">
+<meta property="og:image" content="https://january3.github.io/tmod/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -44,7 +51,7 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/user_manual/tmod_user_manual.html">tmod: Analysis of Gene Set Enrichments</a>
+    <a class="dropdown-item" href="../articles/user_manual/tmod_user_manual.html">tmod: A Tool for the Analysis of Gene Set Enrichments</a>
   </div>
 </li>
       </ul>
@@ -64,7 +71,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="" class="logo" alt=""><h1>tmod: Analysis of Gene Set Enrichments</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>tmod: Analysis of Gene Set Enrichments</h1>
                         <h4 data-toc-skip class="author">January Weiner</h4>
             
             <h4 data-toc-skip class="date">2022-09-26</h4>
@@ -103,7 +110,7 @@
 </h3>
 <p>In the following, we will use the Egambia data set included in the package. The data is already background corrected and normalized, so we can proceed with a differential gene expression analysis. Note that only a bit over 5000 genes from the original set of over 45000 probes is included.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">tmod</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://january3.github.io/tmod/">tmod</a></span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## For tmod user guide, type `vignette("tmod")`</span></span></code></pre>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Egambia</span><span class="op">)</span></span>
@@ -983,7 +990,7 @@
 <p>As you can see, the information contained in both module sets is partially redundant.</p>
 </div>
 <div class="section level3">
-<h3 id="accessing-the-tmod-module-data-directly">Accessing the tmod module data directly<a class="anchor" aria-label="anchor" href="#accessing-the-tmod-module-data-directly"></a>
+<h3 id="accessing-the-tmod-gene-set-data">Accessing the tmod gene set data<a class="anchor" aria-label="anchor" href="#accessing-the-tmod-gene-set-data"></a>
 </h3>
 <p>The <code>tmod</code> package stores its data in two data frames and two lists. This object is contained in a list called <code>tmod</code>, which is loaded with <code>data("tmod")</code>. The names mimick the various environments from Annotation.dbi packages, but currently the objects are just two lists and two data frames.</p>
 <ul>
@@ -1009,14 +1016,14 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">tmod</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] 606</span></span></code></pre>
 <div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"Interferon"</span>, <span class="va">tmod</span><span class="op">$</span><span class="va">MODULES</span><span class="op">$</span><span class="va">Title</span>, ignore.case<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"Interferon"</span>, <span class="va">tmod</span><span class="op">$</span><span class="va">gs</span><span class="op">$</span><span class="va">Title</span>, ignore.case<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">ifn</span> <span class="op">&lt;-</span> <span class="va">tmod</span><span class="op">[</span><span class="va">sel</span><span class="op">]</span></span>
 <span><span class="va">ifn</span></span></code></pre></div>
 <pre><code><span><span class="co">## An object of class "tmodGS"</span></span>
-<span><span class="co">##  0 gene sets, 0 genes</span></span></code></pre>
+<span><span class="co">##  6 gene sets, 161 genes</span></span></code></pre>
 <div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ifn</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 0</span></span></code></pre>
+<pre><code><span><span class="co">## [1] 6</span></span></code></pre>
 </div>
 <div class="section level4">
 <h4 id="custom-module-definitions">Custom module definitions<a class="anchor" aria-label="anchor" href="#custom-module-definitions"></a>
@@ -1075,7 +1082,7 @@
 <div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="va">msig</span><span class="op">$</span><span class="va">gs</span><span class="op">$</span><span class="va">gs_cat</span> <span class="op">==</span> <span class="st">"H"</span></span>
 <span><span class="fu"><a href="../reference/tmodUtest.html">tmodCERNOtest</a></span><span class="op">(</span><span class="va">tt</span><span class="op">$</span><span class="va">GENE_SYMBOL</span>, mset<span class="op">=</span><span class="va">msig</span><span class="op">[</span><span class="va">sel</span><span class="op">]</span> <span class="op">)</span></span></code></pre></div>
-<p>Other particularly interesting subsets of MSigDB are shown in the table below. “Category” and “Subcategory” are columns in the <code>msig$MODULES</code> data frame.</p>
+<p>Other particularly interesting subsets of MSigDB are shown in the table below. “Category” and “Subcategory” are columns in the <code>msig$gs</code> data frame.</p>
 <table class="table">
 <thead><tr class="header">
 <th align="left">Subset</th>

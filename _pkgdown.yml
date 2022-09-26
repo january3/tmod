@@ -1,4 +1,64 @@
 url: https://january3.github.io/tmod/
 template:
   bootstrap: 5
+reference:
+  - title: "Gene set enrichment tests and analyses"
+  - contents:
+    - tmodCERNOtest
+    - tmodPCA
+    - tmodSummary
+    - tmodLEA
+    - tmodLEASummary
+    - tmodDecideTests
+    - tmodLimmaTest
+    - tmodLimmaDecideTests
+    - tmodLimmaTopTable
+    - tmodAUC
+  - title: "Gene set (module) analysis"
+  - contents:
+    - eigengene
+    - modGroups
+    - modOverlaps
+    - modcors
+    - modjaccard
+  - title: "Visualizations"
+  - contents:
+    - ggPanelplot
+    - ggEvidencePlot
+    - tmodPanelPlot
+    - pvalEffectPlot
+    - upset
+    - evidencePlot
+    - hgEnrichmentPlot
+    - modCorPlot
+    - showGene
+    - pcaplot
+    - tmodPal
+    - tmodTagcloud
+    - simplePie
+  - title: "Creating and manipulating gene sets (modules)"
+  - contents:
+    - makeTmod
+    - makeTmodFromDataFrame
+    - tmodImportMSigDB
+    - tmod2DataFrame
+    - getGenes
+    - getModuleMembers
+    - showModule
+    - tmod_ids
+    - tmod2tmodGS
+    - check_tmod_gs
+  - title: "Data sets"
+  - contents:
+    - tmod-data
+    - modmetabo
+    - Egambia
+    - EgambiaResults
+    - vaccination
+    - cell_signatures
+    - tbmprof
+  - title: "General and package classes"
+  - contents:
+    - tmod-package
+
 
