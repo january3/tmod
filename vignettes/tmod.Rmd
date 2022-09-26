@@ -15,7 +15,7 @@ numbersections: true
 header-includes:
    - \usepackage{extsizes}
 vignette: >
-  %\VignetteIndexEntry{Transcriptional Modules Enrichment Analysis}
+  %\VignetteIndexEntry{tmod: Analysis of Gene Set Enrichments}
   %\VignetteKeyword{tmod}
   %\VignetteKeyword{gene set enrichment analysis}
   %\VignetteKeyword{GSE}

@@ -12,8 +12,8 @@ Maintainer: January Weiner <january.weiner@gmail.com>
 Description: Methods and feature set definitions for feature or gene set
   enrichment analysis in transcriptional and metabolic profiling data.
   Package includes tests for enrichment based on ranked lists of features,
-  functions for visualisation and multivariate functional analysis. See Zyla et al 2019
-  (<doi:10.1093/bioinformatics/btz447>).
+  functions for visualisation and multivariate functional analysis. See Zyla et al (2019)
+  <doi:10.1093/bioinformatics/btz447>.
 License: GPL (>=2.0)
 Depends: R (>= 2.10)
 LazyData: false
@@ -24,3 +24,4 @@ Suggests:
     testthat,knitr,rmarkdown,dplyr,pander,pca3d,cowplot
 RoxygenNote: 7.2.0
 Encoding: UTF-8
+URL: https://january3.github.io/tmod/

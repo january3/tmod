@@ -9,3 +9,4 @@
 ^vignettes2$
 tmod_cache$
 tmod_files$
+^\.github$
