@@ -6,3 +6,6 @@
 ^obsolete$
 ^data-raw$
 ^logo$
+^vignettes2$
+tmod_cache$
+tmod_files$

@@ -222,6 +222,7 @@ tmodPal <- function(n=NULL, set="friendly", alpha=0.7, func=FALSE) {
 #' group <- gsub("\\..*", "", colnames(exprs))
 #' ## test differential expression using limma
 #' design <- cbind(Intercept=rep(1, 30), TB=rep(c(0,1), each= 15))
+#' \dontrun{
 #' library(limma)
 #' fit <- eBayes( lmFit(Egambia[,-c(1:3)], design))
 #' tt <- topTable(fit, coef=2, number=Inf, genelist=Egambia[,1:3] )
@@ -232,7 +233,6 @@ tmodPal <- function(n=NULL, set="friendly", alpha=0.7, func=FALSE) {
 #' sgenes <- tmodDecideTests(tt$GENE_SYMBOL, lfc=tt$logFC, pval=tt$adj.P.Val)
 #' names(sgenes) <- "limma"
 #' ggPanelplot(list(limma=res), sgenes=sgenes)
-#' \dontrun{
 #' ## we will now compare the results of enrichments for different types of
 #' ## differential expression tests on the data
 #' res_utest <- apply(exprs, 1, function(x) wilcox.test(x ~ group)$p.value)

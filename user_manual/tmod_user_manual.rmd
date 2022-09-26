@@ -128,10 +128,12 @@ The Gambia data set
 In the following, we will use the Egambia data set included in the package.
 The data is already background corrected and normalized, so we can proceed
 with a differential gene expression analysis. Note that only a bit over
-5000 genes from the original set of over 45000 probes is included.
+5000 genes from the original set of over 45000 probes is included. The
+results for this data set have been obtained using the limma package as
+follows:
 
 
-```{r twoA}
+```{r twoA,eval=FALSE}
 library(limma)
 library(tmod)
 data(Egambia)
@@ -140,6 +142,13 @@ E <- as.matrix(Egambia[,-c(1:3)])
 fit <- eBayes(lmFit(E, design))
 tt <- topTable(fit, coef=2, number=Inf, 
   genelist=Egambia[,1:3])
+```
+
+However, they are also included in the tmod package:
+
+```{r twoA}
+data(EgambiaResults)
+tt <- EgambiaResults
 ```
 
 The table below shows first couple of results from the table `tt`.
@@ -163,7 +172,7 @@ showGene(E["20799",], group,
   main=Egambia["20799", "GENE_SYMBOL"])
 ```
 
-Fine, but what about the modules?
+Fine, but what about the gene sets?
 
 
 Transcriptional module analysis with GSE

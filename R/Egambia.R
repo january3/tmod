@@ -19,8 +19,9 @@
 #' @name vaccination
 NULL
 
-
-
+#' @rdname Egambia
+#' @name EgambiaResults
+NULL
 
 #' Gene expression in TB patients and Healthy controls
 #'
