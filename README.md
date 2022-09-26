@@ -20,9 +20,6 @@ utilities which comes bundled with a few libraries of gene sets
     expression data from human blood, which is especially useful in
     functional analysis in infection and immune responses.
 
-An online version of tmod for demonstration purposes is available at
-`http://tmod.online`.
-
 ## Installation
 
 You can install the released version of tmod from
@@ -42,9 +39,3 @@ devtools::install_github("january3/tmod")
 ## Tmod manual
 
 Access the documentation using `vignette("tmod")`
-
-``` r
-library(tmod)
-#> For tmod user guide, type `vignette("tmod")`
-## basic example code
-```
