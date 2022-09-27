@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   tmod: tmod.html
   tmod_user_manual: user_manual/tmod_user_manual.html
-last_built: 2022-09-26T20:34Z
+last_built: 2022-09-27T06:56Z
 urls:
   reference: https://january3.github.io/tmod/reference
   article: https://january3.github.io/tmod/articles

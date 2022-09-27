@@ -6,6 +6,8 @@ home:
   links:
   - text: User manual
     href: articles/user_manual/tmod_user_manual.html
+  - text: View on github
+    href: https://github.com/january3/tmod/
 reference:
   - title: "Gene set enrichment tests and analyses"
   - contents:
