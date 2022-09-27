@@ -25,4 +25,3 @@ Suggests:
     testthat,knitr,rmarkdown,dplyr,pander,pca3d,cowplot
 RoxygenNote: 7.2.0
 Encoding: UTF-8
-URL: https://january3.github.io/tmod/
