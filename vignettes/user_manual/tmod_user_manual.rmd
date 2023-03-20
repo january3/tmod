@@ -109,7 +109,6 @@ other databases and, finally, (vi) to be suitable for use in R.
 
 
 
-
 Dive into tmod: analysis of transcriptomic responses to tuberculosis 
 ====================================================================
 
@@ -1488,11 +1487,20 @@ or DC sets are used, or both, if the  `mset=all` has been specified.
 ```{r fiveB}
 l    <- tt$GENE_SYMBOL
 res2 <- tmodUtest(l, mset="LI")
-head( res2 )
+head(res2)
 ```
 
 As you can see, the information contained in both module sets is partially redundant. 
 
+There are other collections of gene and metabollite sets included in tmod.
+The cell signatures data set includes several types of cell signatures
+sourced from CIBERSORT [@newman2015robust], CellMarker [@zhang2019cellmarker]
+and PanglaoDB [@franzen2019panglaodb]. To use these gene sets, enter
+`data(cell_signatures)`.
+
+There is also a tiny set of metabolomic modules based on a study in healthy
+individuals and tuberculosis patients [@weiner2012biomarkers]. For these
+metabolite sets, use `data(modmetabo)`.
 
 
 
@@ -1990,6 +1998,152 @@ From now on, you can use the object mymsig with tmod enrichment tests.
 
 Case studies
 =================================================================
+
+Transcriptional responses in vaccination
+----------------------------------------------
+
+This case study demonstrates the power of gene set enrichments.
+@weiner2019characterization have characterized transcriptomic responses at
+several time points after vaccination for several different vaccines.
+Below, we will use two influenza vaccines which are very similar and are
+based on the same antigens. However, one of them contains an adjuvant – a
+substance which elicits a stronger immune response.
+
+First, we need to download data from GEO, ID GSE124533. This is a microarray data set,
+containing 1606 samples. While microarray technology is largely superseded
+by the RNA sequencing, the large number of samples makes this vaccine study
+exceptional. The study included five different vaccines, tested in a group
+of volunteers. The samples have been collected in regular intervals;
+transcriptomic analysis was applied to samples taken each day at the same
+time. In total, 11 time points are available. Below, we will focus on
+samples taken between day 1 (samples taken one day after the vaccination)
+and day 7. We will also limit the data to two vaccines, FLUAD and AGRIPPAL.
+Both are influenza vaccines; in contrast to AGRIPPAL, FLUAD contains an adjuvant.
+
+
+```{r getGEO,eval=FALSE}
+library(GEOquery)
+dat <- getGEO("GSE124533")
+dat <- dat[[1]]
+```
+
+```{r getGEO_forreal,echo=FALSE}
+if(file.exists("GSE124533.rds")) {
+  dat <- readRDS("GSE124533.rds")
+} else {
+  library(GEOquery)
+  dat <- getGEO("GSE124533")
+  dat <- dat[[1]]
+  saveRDS(dat, file="GSE124533.rds")
+}
+```
+
+Next, prepare the data for analysis. We need three components: expression data,
+a data frame with information about genes (feature data) and meta data for
+the samples (column data). 
+
+We will filter the meta-data somewhat to make it more terse. Also, we
+create a dummy variable `t.d` (treatment-day) which will be used to create
+the linear fit and then to produce the actual contrasts.
+
+
+```{r}
+library(tidyverse)
+expr_data <- exprs(dat)
+gene_data <- fData(dat) %>%
+  select(c("NAME", "GENE_SYMBOL", "GENE_NAME"))
+
+col_data <- pData(dat) %>%
+  select(c("geo_accession", "day:ch1", "characteristics_ch1.6",
+           "characteristics_ch1")) %>%
+  rename(day="day:ch1", treatment="characteristics_ch1.6") %>%
+  rename(PID="characteristics_ch1") %>%
+  mutate(PID=gsub("participant: ", "", PID)) %>%
+  mutate(treatment=gsub(".* ", "", treatment)) %>%
+  mutate(tr=substr(treatment, 1, 1)) %>%
+  mutate(t_d=paste0(tr, '_', day))
+  
+## object for limma analysis
+e <- new("EList", list(E=expr_data, targets=col_data, genes=gene_data))
+e <- e[ , e$targets$treatment %in% c("PLACEBOAB1C", "FLUADC", "AGRIPPAL") ]
+e <- e[ , e$targets$day %in% c(0:7) ]
+```
+
+Now the actual fit and calculation of the contrasts (comparisons). For each day, we need
+two contrasts, one comparing FLUAD to PLACEBO, and the other comparing
+AGRIPPAL to PLACEBO. Don't worry if you can't follow the code below; this
+is pretty much limma specific. The point is to create results for each
+vaccine and for each day.
+
+
+```{r}
+design <- model.matrix(~ 0 + t_d + PID, data=e$targets)
+colnames(design) <- gsub("t_d", "", colnames(design))
+fit <- lmFit(e, design = design)
+## prepare the contrasts
+days <- c(1:5, 7)
+contrast_vec <- c(paste0("(F_", days, "-P_", days, ')-(F_0-P_0)'),
+                  paste0("(A_", days, "-P_", days, ')-(A_0-P_0)'))
+cmtx <- makeContrasts(contrasts=contrast_vec, levels=design)
+
+contrast_vec <- gsub("\\(([^-]*)-.*", "\\1", contrast_vec)
+colnames(cmtx) <- contrast_vec
+fit <- contrasts.fit(fit, contrasts=cmtx)
+fit <- eBayes(fit)
+toptable <- tmodLimmaTopTable(fit)
+```
+
+The code chunk above produces two objects we are interested in. The first
+is called ` contrast_vec`, a character vector containing the names of
+comparisons: one letter, F for FLUAD or A for AGRIPPAL, separated by an
+underscore from a single digit indicating day after receiving vaccine.
+
+The second object is called `toptable`. This is a data frame containing
+columns from the `gene_data` data frame, plus a number of columns for each
+of the comparisons. The comparisons are named, for example, `F_7`, which
+means: comparison between FLUAD and PLACEBO on day 7. For each such
+comparison, there are columns called `qval.F_7` (the corrected p-value),
+`logFC.F_7` (the log~2~ fold change) and `msd.F_7` (the msd value). 
+
+We will now run a gene set enrichment analysis using the `msd.*` columns to
+order gene names, for each of the twelve comparisons.
+
+
+```{r}
+res <- map(contrast_vec, ~ {
+             .id <- paste0('msd.', .x)
+             .gl <- toptable$GENE_SYMBOL[ order(-toptable[[.id]]) ]
+             tmodCERNOtest(.gl, qval = Inf)
+                  })
+names(res) <- contrast_vec
+```
+
+That was one part; now we need to determine number of significantly up- and
+down-regulated genes per gene set. When using limma objects, that is
+actually very simple:
+
+
+```{r}
+sgenes <- tmodLimmaDecideTests(fit, gene_data$GENE_SYMBOL, pval.thr=0.01, lfc.thr=1)
+```
+
+Now we are ready to create the first graphics. There are many significant
+results, and therefore we will only show gene sets which have at an
+effect size (AUC) greater or equal to 
+`r .aucthr <- 0.8;.aucthr`
+in at least one comparison and FDR (adjusted p-value) at most
+`r .pvalthr <- 1e-2;format.pval(.pvalthr, digits=2)`
+in at least one comparison.
+
+
+
+```{r}
+sel <- grepl("^F", contrast_vec)
+ggPanelplot(res, sgenes=sgenes, filter_row_q = 1e-3, filter_row_auc = .85, q_thr=1)
+```
+
+
+The vaccine study involves 
 
 
 Metabolic profiling of TB patients

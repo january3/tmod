@@ -266,7 +266,10 @@ tmodGeneSetTest <- function(l, x, modules=NULL, qval= 0.05, order.by= "pval", fi
 ## @return returns either a vector of indices of l in mset$gv
 ##         or, if x is not NULL, a list containing two elements:
 ##         l, which is the vector of indices of l in mset$gv,
-##         and x, which is the filtered original l vector
+##         and x, which is the x filtered along l
+##         So for example when called .prep_list(l, x=l) the return list
+##         will contain element l which will be the indices and 
+##         element x will be the corresponding gene names / whatever
 .prep_list <- function(l, mset, x=NULL, nodups=TRUE, filter=FALSE) {
 
   # prepare the variables specific to that test
@@ -291,6 +294,8 @@ tmodGeneSetTest <- function(l, x, modules=NULL, qval= 0.05, order.by= "pval", fi
   nas <- is.na(l_ret)
   l_ret[ nas ] <- seq(.max_n, length.out=sum(nas))
 
+  # if true, remove the genes absent from mset
+  # so basically all for which the returned index is smaller than .max_n
   if(filter) {
     sel <- l_ret < .max_n
     l_ret <- l_ret[ sel ]

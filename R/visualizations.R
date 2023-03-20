@@ -512,7 +512,7 @@ ggEvidencePlot <- function(l, m, mset=NULL, filter=FALSE, unique=TRUE,
 
   l_orig <- l
   tmp    <- .prep_list(l, x=l_orig, mset=mset, filter=filter, nodups=unique)
-  keep <- match(tmp$x, l_orig) #l_orig %in% tmp$x
+  #keep <- match(tmp$x, l_orig) #l_orig %in% tmp$x
   l_orig <- tmp$x
   l      <- tmp$l
 
@@ -523,7 +523,6 @@ ggEvidencePlot <- function(l, m, mset=NULL, filter=FALSE, unique=TRUE,
   mm <- map(mm, ~ .x[ .x %in% l_orig ])
 
   coords <- imap_dfr(mm, ~ {
-
     pos <- sort(match(.x, l_orig)) - 1:length(.x)
     pos <- rep(pos, each=2)
     pos <- c(1, pos, length(l_orig))
@@ -532,8 +531,10 @@ ggEvidencePlot <- function(l, m, mset=NULL, filter=FALSE, unique=TRUE,
   })
 
   coords_segm <- imap_dfr(mm, ~ {
-    x <- sort(match(.x, l_orig)) - 1:length(.x)
-    ret <- data.frame(x=x, y=-.1, xend=x, yend=0, "mod"=.y, label=.x, gene=.x)
+    .match <- match(.x, l_orig)
+    .ord   <- order(.match)
+    x <- sort(.match) - 1:length(.x)
+    ret <- data.frame(x=x, y=-.1, xend=x, yend=0, "mod"=.y, label=.x[.ord], gene=.x[.ord])
     if(!is.null(gene.labels) && !gene.labels) {
       ret$label <- ""
     }
