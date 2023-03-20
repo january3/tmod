@@ -31,9 +31,10 @@ wcx <- sort(wcx)
 tmodCERNOtest(names(wcx), mset=modmetabo)
 }
 \references{
-Weiner et al. "Biomarkers of inflammation, immunosuppression
-and stress with active disease are revealed by metabolomic profiling of
-tuberculosis patients." PloS one 7.7 (2012): e40221.
+Weiner 3rd J, Parida SK, Maertzdorf J, Black GF, Repsilber D, Telaar A,
+Mohney RP, Arndt-Sullivan C, Ganoza CA, Fae KC, Walzl G. Biomarkers of
+inflammation, immunosuppression and stress are revealed by metabolomic
+profiling of tuberculosis patients. PloS one. 2012 Jul 23;7(7):e40221.
 }
 \seealso{
 tmod-data

@@ -12,6 +12,13 @@ CIBERSORT, CellMarkers, PanglaoDB
 \description{
 Cell type signatures
 }
+\details{
+* CellMarker: Zhang X, Lan Y, Xu J, Quan F, Zhao E, Deng C, Luo T, Xu L, Liao G, Yan M, Ping Y. CellMarker: a manually curated resource of cell markers in human and mouse. Nucleic acids research. 2019 Jan 8;47(D1):D721-8.
+
+  * CIBERSORT: Newman AM, Liu CL, Green MR, Gentles AJ, Feng W, Xu Y, Hoang CD, Diehn M, Alizadeh AA. Robust enumeration of cell subsets from tissue expression profiles. Nature methods. 2015 May;12(5):453-7.
+
+  * PanglaoDB: Franzén O, Gan LM, Björkegren JL. PanglaoDB: a web server for exploration of mouse and human single-cell RNA sequencing data. Database. 2019 Jan 1;2019.
+}
 \examples{
 ## to use cell signatures, type
 data(cell_signatures)
