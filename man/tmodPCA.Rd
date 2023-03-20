@@ -73,9 +73,8 @@ component. In the "leftbottom" mode, the tag clouds are displayed to the
 left and below the PCA plot. In the "cross" mode, the tag clouds are
 displayed on each of the four sides of the plot.
 
-By default, the plotting function is pca2d from the pca3d package. Any
-additional parametrs for pca2d can be passed on using the plot.params
-parameter. You can define your own function instead of pca2d, however, mind
+By default, the plotting function is plotpca.
+You can define your own function instead of plotpca, however, mind
 that in any case, there will be two parameters passed to it on the first
 two positions: pca and components, named "pca" and "components"
 respectively.
