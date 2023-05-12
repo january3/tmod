@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 ```
 
 
-# tmod <a href='https://january3.github.com/tmod/'><img src='man/figures/logo.png' align="right" height="138.5" /></a>
+# tmod <a href='https://tmod.online/'><img src='man/figures/logo.png' align="right" height="138.5" /></a>
 
 
 <!-- badges: start -->
@@ -54,7 +54,7 @@ devtools::install_github("january3/tmod")
 ## Tmod manual
 
  * Access the documentation using `vignette("tmod")`
- * Full user manual is found [here](https://january3.github.io/tmod/articles/user_manual/tmod_user_manual.html)
+ * Full user manual is found [here](https://tmod.online/articles/user_manual/tmod_user_manual.html)
 
 ## Example usage
 

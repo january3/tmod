@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# tmod <a href='https://january3.github.com/tmod/'><img src='man/figures/logo.png' align="right" height="138.5" /></a>
+# tmod <a href='https://tmod.online/'><img src='man/figures/logo.png' align="right" height="138.5" /></a>
 
 <!-- badges: start -->
 
@@ -15,15 +15,15 @@ Tmod is a suite of gene set enrichment algorithms, visualizations and
 utilities which comes bundled with a few libraries of gene sets
 (“modules”). Following features distinguish tmod from other packages:
 
--   “panel plot” visualizations which allow to compare results of gene
-    set enrichments;
--   several enrichment algorithms are implemented in tmod, in particular
-    the very efficient, versatile and
-    [reproducible](https://academic.oup.com/bioinformatics/article/35/24/5146/5511403)
-    algorithm called “CERNO”;
--   it includes a library of gene sets derived from clustering of gene
-    expression data from human blood, which is especially useful in
-    functional analysis in infection and immune responses.
+- “panel plot” visualizations which allow to compare results of gene set
+  enrichments;
+- several enrichment algorithms are implemented in tmod, in particular
+  the very efficient, versatile and
+  [reproducible](https://academic.oup.com/bioinformatics/article/35/24/5146/5511403)
+  algorithm called “CERNO”;
+- it includes a library of gene sets derived from clustering of gene
+  expression data from human blood, which is especially useful in
+  functional analysis in infection and immune responses.
 
 ## Installation
 
@@ -43,9 +43,9 @@ devtools::install_github("january3/tmod")
 
 ## Tmod manual
 
--   Access the documentation using `vignette("tmod")`
--   Full user manual is found
-    [here](https://january3.github.io/tmod/articles/user_manual/tmod_user_manual.html)
+- Access the documentation using `vignette("tmod")`
+- Full user manual is found
+  [here](https://tmod.online/articles/user_manual/tmod_user_manual.html)
 
 ## Example usage
 

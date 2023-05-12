@@ -15,7 +15,8 @@ if(!exists("tmod", .myDataEnv)) {
   required_members <-  c( "gs", "gv", "gs2gv")
   # sanity checks
   if(!all(required_members %in% names(mset))) {
-    stop("Required members missing from the list mset parameter")
+    stop(paste0("Required members missing from the list mset parameter: ",
+                paste(setdiff(required_members, names(mset)), collapse=", ")))
   }
 
   if(any(unlist(lapply(required_members, is.null)))) {

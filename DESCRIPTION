@@ -1,7 +1,7 @@
 Package: tmod
 Type: Package
 Title: Feature Set Enrichment Analysis for Metabolomics and Transcriptomics
-Version: 0.50.13
+Version: 0.50.14
 Authors@R: 
     person(given = "January",
            family = "Weiner",
@@ -14,7 +14,7 @@ Description: Methods and feature set definitions for feature or gene set
   Package includes tests for enrichment based on ranked lists of features,
   functions for visualisation and multivariate functional analysis. See Zyla et al (2019)
   <doi:10.1093/bioinformatics/btz447>.
-URL: https://tmod.online, https://github.com/january3/tmod/, https://january3.github.com/tmod/
+URL: https://github.com/january3/tmod/, https://tmod.online/
 License: GPL (>=2.0)
 Depends: R (>= 2.10)
 LazyData: false

@@ -657,6 +657,7 @@ evidencePlot <- function(l, m, mset="all", rug=TRUE, roc=TRUE,
   lwd=1, lty=1, rug.size=0.2,
   legend=NULL, ...) {
 
+
   if(rug.size == 0) rug <- FALSE
   if(rug.size == 1) roc <- FALSE
   if(!rug && !roc) stop("Both rug and roc are FALSE, nothing to plot")

@@ -57,7 +57,7 @@ Before you start
 ================
 
 A more comprehensive user manual for tmod is found on
-[github](https://january3.github.io/tmod/). This document is a shortened
+[tmod website](https://tmod.online/). This document is a shortened
 version of the manual, adapted to ship as a vignette with the package.
 Therefore, if you are not offline, I strongly suggest to use the online
 version.
