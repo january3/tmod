@@ -86,7 +86,7 @@ for differential expression or enrichment, respectively, in several conditions.
 By default, each test outcome is represented by a dot of varying size
 and color. Alternatively, a function may be specified with the parameter
 'plot.func'. It will be called for each test result to be drawn. The plot.func function must take the following arguments:
-\itemize{
+\describe{
 \item{row, col}{either row / column number or the id of the row / column to plot; NULL if drawing legend}
 \item{x, y}{user coordinates of the result to visualize}
 \item{w, h}{width and height of the item to plot}

@@ -815,22 +815,35 @@ evidencePlot <- function(l, m, mset="all", rug=TRUE, roc=TRUE,
 
     # add gene labels
     if(!is.null(gene.labels)) {
+      # calculate the actual size of the labels in user units
       lw <- max(strheight(gene.labels, units="i", cex=gl.cex))
       lw <- grconvertX( c(0, lw), from="i", to="u")
       lw <- lw[2] - lw[1]
-      lpos <- lw * 1.5 * (1:length(gene.labels))
-      gi <- names(gene.labels)
+
+      # initial positions of the labels, stacked one on the other
+      lpos <- lw * 1.2 * (1:length(gene.labels))
+
+      # remove labels which are too far to the right
+      maxsel <- lpos < n
+      lpos <- lpos[maxsel]
+
+      # find the position of the gene in the original list
+      # rpos is the x coordinate of the line from the rug to the label
+      gi <- names(gene.labels)[maxsel]
       rpos <- match(gi, l_orig)
 
       if(is.null(gene.colors)) {
         cols <- "black"
       } else {
         cols <- ifelse(is.na(gene.colors[gi]), "black", gene.colors[gi])
+        cols <- cols[maxsel]
       }
 
       lwds <- ifelse(is.na(gene.lines[gi]), lwd[1], gene.lines[gi])
+      # this needs to be tested more
+      if(length(lwds) > 1) lwds <- lwds[maxsel]
 
-
+      # shift the position of the labels to the left if there is still some space
       for(i in 1:length(lpos)) {
         if(rpos[i] + lw > lpos[i]) {
           sel <- i:length(lpos)
@@ -838,7 +851,7 @@ evidencePlot <- function(l, m, mset="all", rug=TRUE, roc=TRUE,
         }
       }
 
-      text(lpos, 0.1, gene.labels, srt=90, pos=4, col=cols)
+      text(lpos, 0.1, gene.labels[maxsel], srt=90, pos=4, col=cols)
       segments(rpos, step * 0.2, lpos + lw/2, 0.08, col=cols, lwd=lwds)
     }
   }
