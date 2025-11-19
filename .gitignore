@@ -4,6 +4,6 @@ user_manual/cache
 *.swp
 .Rhistory
 .RData
-.Rproj.user
+.Rproj.user/
 /doc/
 /Meta/
