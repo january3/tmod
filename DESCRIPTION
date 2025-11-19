@@ -22,6 +22,12 @@ VignetteBuilder: knitr
 Imports:
     beeswarm,tagcloud,XML,methods,plotwidgets,RColorBrewer,gplots,tibble,pheatmap,ggplot2,tidyr,purrr,rlang,tidyselect,ggrepel
 Suggests:
-    testthat,knitr,rmarkdown,dplyr,pander,cowplot
+    testthat,
+    knitr,
+    rmarkdown,
+    dplyr,
+    pander,
+    cowplot,
+    vdiffr
 RoxygenNote: 7.3.2
 Encoding: UTF-8
