@@ -319,6 +319,10 @@ ggPanelplot <- function(res, sgenes=NULL, auc_thr=.5, q_thr=.05,
 
   resS_l <- resS_l[ resS_l[["ID"]] %in% selMod, ]
 
+  # in order to keep also the empty contrasts and have them shown on the plot
+  # in precisely the same order as in the input list
+  resS_l$Contrast <- factor(resS_l$Contrast, levels=names(res))
+
   minq <- max(-log10(resS_l[["q"]]))
 
   if(is.null(sgenes)) {
