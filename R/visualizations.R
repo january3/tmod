@@ -523,7 +523,7 @@ ggEvidencePlot <- function(l, m, mset=NULL, filter=FALSE, unique=TRUE,
   mm <- map(mm, ~ .x[ .x %in% l_orig ])
 
   coords <- imap_dfr(mm, ~ {
-    pos <- sort(match(.x, l_orig)) - 1:length(.x)
+    pos <- sort(match(.x, l_orig))
     pos <- rep(pos, each=2)
     pos <- c(1, pos, length(l_orig))
     y <- rep(c(0:length(.x)), each=2) / length(.x)
@@ -533,7 +533,7 @@ ggEvidencePlot <- function(l, m, mset=NULL, filter=FALSE, unique=TRUE,
   coords_segm <- imap_dfr(mm, ~ {
     .match <- match(.x, l_orig)
     .ord   <- order(.match)
-    x <- sort(.match) - 1:length(.x)
+    x <- sort(.match)
     ret <- data.frame(x=x, y=-.1, xend=x, yend=0, "mod"=.y, label=.x[.ord], gene=.x[.ord])
     if(!is.null(gene.labels) && !gene.labels) {
       ret$label <- ""
