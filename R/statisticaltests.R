@@ -746,6 +746,11 @@ tmodDecideTests <- function(g, lfc=NULL, pval=NULL, lfc.thr=0.5, pval.thr=0.05,
 
   g <- .prep_list(g, mset=mset, filter=FALSE, nodups=FALSE)
 
+  if(is.null(g) || length(g) == 0) {
+    warning( "No genes in g match genes in GENES" )
+    return(NULL)
+  }
+
   # just count the number of genes in each module
   if(is.null(lfc) && is.null(pval)) {
     N <- sapply(1:length(mset$gs$ID), function(m) sum( g %in% mset$gs2gv[[m]] ))
