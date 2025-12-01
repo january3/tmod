@@ -288,11 +288,11 @@ ggPanelplot <- function(res, sgenes=NULL, auc_thr=.5, q_thr=.05,
   }
     
 
-  resS_l <- pivot_longer(resS, starts_with(c(effect_size, "q")), 
+  resS_l <- pivot_longer(resS, id_cols = starts_with(c(effect_size, "q")), 
                  names_to=c("Param", "Contrast"), 
                  names_sep="\\.", 
                  values_to="Value") 
-  resS_l <- pivot_wider(resS_l, all_of(c("ID", "Title", "Contrast")), 
+  resS_l <- pivot_wider(resS_l, id_cols = all_of(c("ID", "Title", "Contrast")), 
                 names_from="Param", 
                 values_from="Value") 
 
@@ -357,7 +357,7 @@ ggPanelplot <- function(res, sgenes=NULL, auc_thr=.5, q_thr=.05,
 
   pieS <- Reduce(function(x, y) merge(x, y, all=TRUE, by="ID"), pieS) 
 
-  pieS <-  pivot_longer(pieS, -which(colnames(pieS) == "ID"), names_to=c("Contrast", "Direction"), 
+  pieS <-  pivot_longer(pieS, id_cols = -which(colnames(pieS) == "ID"), names_to=c("Contrast", "Direction"), 
                  names_sep="\\.", 
                  values_to="Number")
 
